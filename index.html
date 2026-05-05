@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fit Pulse — Workout Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0A2540;
+            --accent: #2563EB;
+            --accent-soft: rgba(37, 99, 235, 0.08);
+            --bg: #FAFBFC;
+            --surface: #FFFFFF;
+            --surface-2: #F4F6F8;
+            --text: #0A2540;
+            --text-muted: #5A6B7C;
+            --text-faint: #8A99A8;
+            --border: #E5E9EE;
+            --border-strong: #D1D8E0;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --r: 4px;
+            --r-lg: 6px;
+            --shadow: 0 1px 2px rgba(10, 37, 64, 0.04);
+            --shadow-lift: 0 4px 16px rgba(10, 37, 64, 0.06);
+        }
+        [data-theme="dark"] {
+            --primary: #F8FAFC;
+            --accent: #60A5FA;
+            --accent-soft: rgba(96, 165, 250, 0.12);
+            --bg: #07090C;
+            --surface: #0F1419;
+            --surface-2: #161C24;
+            --text: #F1F5F9;
+            --text-muted: #94A3B8;
+            --text-faint: #64748B;
+            --border: #1E2630;
+            --border-strong: #2A3441;
+            --shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            --shadow-lift: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        html, body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; transition: background 0.25s ease, color 0.25s ease; }
+        body { padding-bottom: 60px; min-height: 100vh; }
+
+        header {
+            background: var(--surface); border-bottom: 1px solid var(--border);
+            padding: 14px 20px; display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100; backdrop-filter: blur(12px);
+            gap: 10px;
+        }
+        .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.05rem; letter-spacing: -0.02em; min-width: 0; }
+        .brand-icon { width: 28px; height: 28px; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; border-radius: var(--r); font-size: 0.85rem; flex-shrink: 0; }
+        .brand-name { white-space: nowrap; }
+
+        /* AGE BADGE — slim, premium, minimal */
+        .age-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            padding: 5px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.02em;
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+            cursor: pointer;
+            user-select: none;
+            transition: border-color 0.15s ease, color 0.15s ease;
+        }
+        .age-badge:hover { border-color: var(--border-strong); color: var(--text); }
+        .age-badge.placeholder { color: var(--text-faint); font-family: 'Inter', sans-serif; font-weight: 500; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+        .header-right { display: flex; align-items: center; gap: 10px; }
+
+        .menu-btn { background: transparent; border: 1px solid var(--border); color: var(--text); width: 36px; height: 36px; border-radius: var(--r); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .menu-btn:hover { background: var(--surface-2); }
+        .dropdown { position: relative; }
+        .dropdown-content { display: none; position: absolute; right: 0; top: 44px; background: var(--surface); min-width: 240px; border: 1px solid var(--border); border-radius: var(--r); box-shadow: var(--shadow-lift); overflow: hidden; z-index: 200; }
+        .dropdown-content.show { display: block; }
+        .dropdown-section { padding: 6px 0; border-bottom: 1px solid var(--border); }
+        .dropdown-section:last-child { border-bottom: none; }
+        .dropdown-label { font-size: 0.65rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.1em; padding: 8px 14px 4px; font-weight: 600; }
+        .dropdown-item { padding: 10px 14px; width: 100%; background: transparent; border: none; color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 0.9rem; font-weight: 500; text-align: left; font-family: inherit; }
+        .dropdown-item:hover { background: var(--surface-2); }
+        .dropdown-item.active { color: var(--accent); background: var(--accent-soft); }
+        .dropdown-item i { width: 16px; font-size: 0.85rem; color: var(--text-muted); }
+        .dropdown-item.active i { color: var(--accent); }
+        .dropdown-item .item-suffix { margin-left: auto; font-size: 0.7rem; color: var(--text-faint); font-weight: 600; }
+        .dropdown-item .item-suffix.on { color: var(--success); }
+
+        .container { max-width: 720px; margin: 0 auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 14px; }
+        .view { display: none; }
+        .view.active { display: flex; flex-direction: column; gap: 14px; animation: viewIn 0.25s ease; }
+        @keyframes viewIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        .page-title { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 2px 8px; }
+        .page-title h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.03em; }
+        .page-title small { font-size: 0.75rem; color: var(--text-faint); font-weight: 500; }
+
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 18px; box-shadow: var(--shadow); }
+        .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .card-title { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+        .card-title strong { color: var(--text); font-weight: 700; }
+        .card-meta { font-size: 0.72rem; color: var(--text-faint); font-weight: 500; }
+
+        select, input[type="text"], input[type="number"], input[type="date"] {
+            width: 100%; padding: 10px 12px; height: 40px;
+            border: 1px solid var(--border); border-radius: var(--r);
+            font-size: 0.92rem; font-family: inherit; outline: none;
+            background: var(--surface); color: var(--text);
+        }
+        select:focus, input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+        .btn { padding: 0 16px; height: 40px; border-radius: var(--r); border: 1px solid transparent; font-size: 0.88rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: inherit; transition: all 0.15s ease; }
+        .btn-primary { background: var(--accent); color: white; border-color: var(--accent); }
+        .btn-primary:hover { filter: brightness(1.05); }
+        .btn-outline { background: var(--surface); border-color: var(--border-strong); color: var(--text); }
+        .btn-outline:hover { background: var(--surface-2); }
+        .btn-success { background: var(--success); color: white; border-color: var(--success); }
+        .btn-success:hover { filter: brightness(1.05); }
+        .btn-danger { background: transparent; color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
+        .btn-danger:hover { background: rgba(239, 68, 68, 0.08); }
+        .btn-block { width: 100%; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-icon { width: 40px; height: 40px; padding: 0; border-radius: var(--r); border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-icon:hover { background: var(--surface-2); }
+        .btn-icon.danger { color: var(--danger); border-color: rgba(239, 68, 68, 0.25); }
+
+        .exercise-row { display: flex; gap: 8px; }
+        .exercise-row select { flex: 1; }
+
+        /* DUAL TIMER LAYOUT */
+        .timer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+        .timer-box { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 14px 10px; text-align: center; }
+        .timer-box.live { border-color: var(--accent); background: var(--accent-soft); }
+        .timer-box.live-set { border-color: var(--success); background: rgba(16, 185, 129, 0.06); }
+        .timer-box-label { font-size: 0.65rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; margin-bottom: 6px; }
+        .timer-box-value { font-family: 'JetBrains Mono', monospace; font-size: 1.7rem; font-weight: 700; letter-spacing: -0.03em; color: var(--text); font-variant-numeric: tabular-nums; }
+        .timer-box.live .timer-box-value { color: var(--accent); }
+        .timer-box.live-set .timer-box-value { color: var(--success); }
+
+        .session-actions { display: flex; flex-direction: column; gap: 8px; }
+
+        /* Voice indicator strip */
+        .voice-strip {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 8px 12px; background: var(--surface-2); border: 1px solid var(--border);
+            border-radius: var(--r); margin-top: 10px; font-size: 0.78rem; color: var(--text-muted);
+        }
+        .voice-strip.on { border-color: var(--success); background: rgba(16, 185, 129, 0.06); color: var(--success); }
+        .voice-strip .v-left { display: flex; align-items: center; gap: 8px; }
+        .voice-strip .v-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-faint); }
+        .voice-strip.on .v-dot { background: var(--success); animation: pulse 1.4s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .voice-toggle { background: transparent; border: none; color: inherit; font-weight: 600; font-size: 0.78rem; cursor: pointer; font-family: inherit; }
+
+        /* SETS LIST */
+        .sets-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+        .set-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r); }
+        .set-info { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+        .set-num { font-size: 0.7rem; font-weight: 600; color: var(--text-faint); width: 22px; }
+        .set-reps { font-weight: 700; color: var(--accent); font-size: 0.95rem; font-family: 'JetBrains Mono', monospace; }
+        .set-time { font-family: 'JetBrains Mono', monospace; color: var(--text-muted); font-size: 0.82rem; }
+        .set-actions { display: flex; gap: 4px; }
+        .icon-btn { background: transparent; border: none; cursor: pointer; color: var(--text-faint); padding: 6px; border-radius: var(--r); font-size: 0.85rem; }
+        .icon-btn:hover { color: var(--text); background: var(--surface); }
+        .icon-btn.danger:hover { color: var(--danger); }
+
+        .empty-state { text-align: center; padding: 22px 10px; color: var(--text-faint); font-size: 0.85rem; }
+
+        /* HISTORY */
+        .history-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 16px; box-shadow: var(--shadow); margin-bottom: 12px; }
+        .hist-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 8px; }
+        .hist-date { font-weight: 700; font-size: 0.95rem; color: var(--text); letter-spacing: -0.01em; }
+        .hist-time { font-size: 0.75rem; color: var(--text-faint); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+        .hist-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 12px; }
+        .hist-stat { background: var(--surface-2); padding: 10px 6px; text-align: center; }
+        .hist-stat-val { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+        .hist-stat-label { font-size: 0.62rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-top: 2px; }
+        .hist-sets { display: flex; flex-direction: column; gap: 4px; }
+        .hist-set-row { display: flex; justify-content: space-between; padding: 6px 10px; background: var(--surface-2); border-radius: var(--r); font-size: 0.8rem; }
+        .hist-set-row .left { display: flex; gap: 12px; align-items: center; }
+        .hist-set-row .num { color: var(--text-faint); font-weight: 600; font-size: 0.7rem; }
+        .hist-set-row .reps { color: var(--accent); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+        .hist-set-row .dur { color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+        .hist-delete { color: var(--text-faint); background: none; border: none; cursor: pointer; padding: 4px; }
+        .hist-delete:hover { color: var(--danger); }
+
+        /* SIMPLE ANALYTICS */
+        .trend-card { padding: 20px 18px; }
+        .trend-headline { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
+        .trend-icon { width: 44px; height: 44px; border-radius: var(--r-lg); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+        .trend-icon.up { background: rgba(16, 185, 129, 0.12); color: var(--success); }
+        .trend-icon.down { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
+        .trend-icon.flat { background: rgba(245, 158, 11, 0.12); color: var(--warning); }
+        .trend-icon.none { background: var(--surface-2); color: var(--text-faint); }
+        .trend-text { flex: 1; }
+        .trend-title { font-size: 1.05rem; font-weight: 700; letter-spacing: -0.02em; }
+        .trend-sub { font-size: 0.82rem; color: var(--text-muted); margin-top: 2px; }
+
+        .quick-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+        .quick-stat { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r); padding: 10px; text-align: center; }
+        .quick-stat-val { font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; font-weight: 700; color: var(--text); }
+        .quick-stat-label { font-size: 0.62rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-top: 3px; }
+
+        .chart-wrap { position: relative; height: 220px; }
+
+        /* MODAL */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(10, 37, 64, 0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.18s ease; }
+        [data-theme="dark"] .modal-overlay { background: rgba(0, 0, 0, 0.7); }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 22px; width: 90%; max-width: 360px; box-shadow: var(--shadow-lift); transform: scale(0.96); transition: transform 0.18s ease; }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+        .modal-title { font-weight: 700; font-size: 1rem; margin-bottom: 6px; letter-spacing: -0.02em; }
+        .modal-sub { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px; }
+        .modal-sub strong { color: var(--text); font-family: 'JetBrains Mono', monospace; }
+        .modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+        .modal-actions .btn { flex: 1; }
+        .input-group { display: flex; flex-direction: column; gap: 6px; }
+        .input-group label { font-size: 0.7rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
+        .input-group + .input-group { margin-top: 12px; }
+
+        /* TOAST */
+        .toast-host { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 2000; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+        .toast { background: var(--text); color: var(--surface); padding: 10px 16px; border-radius: var(--r); font-size: 0.85rem; font-weight: 500; box-shadow: var(--shadow-lift); animation: toastIn 0.2s ease; }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* HISTORY FILTER PILL */
+        .filter-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
+        .filter-pill { padding: 6px 12px; border: 1px solid var(--border); background: var(--surface); border-radius: var(--r); font-size: 0.78rem; font-weight: 500; color: var(--text-muted); cursor: pointer; font-family: inherit; }
+        .filter-pill.active { background: var(--text); color: var(--surface); border-color: var(--text); }
+
+        @media (max-width: 480px) {
+            .timer-box-value { font-size: 1.5rem; }
+            .container { padding: 14px 12px; }
+            header { padding: 12px 14px; }
+            .brand { font-size: 1rem; gap: 8px; }
+            .age-badge { font-size: 0.68rem; padding: 4px 8px; }
+        }
+        @media (max-width: 360px) {
+            .brand-name { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">
+            <div class="brand-icon"><i class="fa-solid fa-bolt"></i></div>
+            <span class="brand-name">Fit Pulse</span>
+        </div>
+        <div class="header-right">
+            <div class="age-badge placeholder" id="ageBadge" onclick="openBirthdayModal()" title="Set your birthday">Set DOB</div>
+            <div class="dropdown">
+                <button class="menu-btn" onclick="toggleMenu(event)"><i class="fa-solid fa-bars"></i></button>
+                <div id="dropdownMenu" class="dropdown-content">
+                    <div class="dropdown-section">
+                        <div class="dropdown-label">Navigate</div>
+                        <button class="dropdown-item active" data-view="logger" onclick="switchView('logger')"><i class="fa-solid fa-stopwatch"></i> Logger</button>
+                        <button class="dropdown-item" data-view="history" onclick="switchView('history')"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
+                        <button class="dropdown-item" data-view="analytics" onclick="switchView('analytics')"><i class="fa-solid fa-chart-line"></i> Trend</button>
+                    </div>
+                    <div class="dropdown-section">
+                        <div class="dropdown-label">Settings</div>
+                        <button class="dropdown-item" onclick="openBirthdayModal()"><i class="fa-solid fa-cake-candles"></i> Set Birthday</button>
+                        <button class="dropdown-item" onclick="toggleVoiceFromMenu()"><i class="fa-solid fa-microphone" id="voiceMenuIcon"></i> Voice Control <span class="item-suffix" id="voiceMenuStatus">OFF</span></button>
+                        <button class="dropdown-item" onclick="toggleDarkMode()"><i class="fa-solid fa-moon" id="themeIcon"></i> <span id="themeLabel">Dark Mode</span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- =================== LOGGER VIEW =================== -->
+        <div class="view active" id="loggerView">
+            <div class="page-title">
+                <h1>Today's Workout</h1>
+                <small id="todayDate"></small>
+            </div>
+
+            <div class="card">
+                <div class="card-head"><div class="card-title"><strong>Choose</strong> Exercise</div></div>
+                <div class="exercise-row">
+                    <select id="exerciseSelect"></select>
+                    <button class="btn-icon" onclick="openAddExerciseModal()"><i class="fa-solid fa-plus"></i></button>
+                    <button class="btn-icon danger" onclick="deleteCurrentExercise()"><i class="fa-regular fa-trash-can"></i></button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title"><strong>Workout</strong> Tracker</div>
+                    <span class="card-meta" id="sessionStatus">Not started</span>
+                </div>
+
+                <div class="timer-grid">
+                    <div class="timer-box" id="sessionTimerBox">
+                        <div class="timer-box-label">Total Workout</div>
+                        <div class="timer-box-value" id="sessionTimer">00:00</div>
+                    </div>
+                    <div class="timer-box" id="setTimerBox">
+                        <div class="timer-box-label">Current Set</div>
+                        <div class="timer-box-value" id="setTimer">00:00</div>
+                    </div>
+                </div>
+
+                <div class="session-actions">
+                    <button class="btn btn-primary btn-block" id="sessionBtn" onclick="toggleSession()">
+                        <i class="fa-solid fa-play"></i> <span id="sessionBtnLabel">Start Workout</span>
+                    </button>
+                    <button class="btn btn-outline btn-block" id="setBtn" onclick="toggleSet()" disabled>
+                        <i class="fa-solid fa-stopwatch"></i> <span id="setBtnLabel">Start Set</span>
+                    </button>
+                    <button class="btn btn-success btn-block" id="completeBtn" onclick="completeWorkout()" disabled>
+                        <i class="fa-solid fa-check"></i> Mark Workout Complete
+                    </button>
+                </div>
+
+                <div class="voice-strip" id="voiceStrip">
+                    <div class="v-left">
+                        <span class="v-dot"></span>
+                        <span id="voiceStripLabel">Voice control off</span>
+                    </div>
+                    <button class="voice-toggle" onclick="toggleVoiceRecognition()" id="voiceStripBtn">Enable</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title"><strong>Sets</strong> This Session <span id="currentExLabel" style="color: var(--text-faint); font-weight: 500;"></span></div>
+                    <span class="card-meta" id="setsSummary"></span>
+                </div>
+                <ul class="sets-list" id="setsList"></ul>
+            </div>
+        </div>
+
+        <!-- =================== HISTORY VIEW =================== -->
+        <div class="view" id="historyView">
+            <div class="page-title">
+                <h1>History</h1>
+                <small id="historyExLabel">All exercises</small>
+            </div>
+
+            <div class="card" style="padding: 14px;">
+                <div class="filter-row" id="historyExFilter"></div>
+            </div>
+
+            <div id="historyList"></div>
+        </div>
+
+        <!-- =================== ANALYTICS VIEW =================== -->
+        <div class="view" id="analyticsView">
+            <div class="page-title">
+                <h1>Trend</h1>
+                <small>Going up or down?</small>
+            </div>
+
+            <div class="card" style="padding: 14px;">
+                <div class="filter-row" id="analyticsExFilter"></div>
+            </div>
+
+            <div class="card trend-card">
+                <div class="trend-headline">
+                    <div class="trend-icon none" id="trendIcon"><i class="fa-solid fa-minus"></i></div>
+                    <div class="trend-text">
+                        <div class="trend-title" id="trendTitle">No data yet</div>
+                        <div class="trend-sub" id="trendSub">Complete a workout to see your trend.</div>
+                    </div>
+                </div>
+                <div class="quick-stats">
+                    <div class="quick-stat"><div class="quick-stat-val" id="qsSessions">0</div><div class="quick-stat-label">Sessions</div></div>
+                    <div class="quick-stat"><div class="quick-stat-val" id="qsAvgReps">0</div><div class="quick-stat-label">Avg Reps</div></div>
+                    <div class="quick-stat"><div class="quick-stat-val" id="qsBestReps">0</div><div class="quick-stat-label">Best Reps</div></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title"><strong>Reps</strong> Over Time</div>
+                </div>
+                <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODALS -->
+    <div class="modal-overlay" id="addExModal">
+        <div class="modal-content">
+            <div class="modal-title">Add Exercise</div>
+            <div class="modal-sub">Create a new movement.</div>
+            <div class="input-group"><label>Name</label><input type="text" id="newExerciseName" placeholder="E.g., Legs" autocomplete="off"></div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeModal('addExModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveNewExercise()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="repsModal">
+        <div class="modal-content">
+            <div class="modal-title">Log Set</div>
+            <div class="modal-sub">Set duration: <strong id="modalTimeDisplay">00:00</strong></div>
+            <div class="input-group"><label>How many reps?</label><input type="number" id="repsInput" placeholder="Enter reps..." inputmode="numeric"></div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeModal('repsModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveSet()">Save Set</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="birthdayModal">
+        <div class="modal-content">
+            <div class="modal-title">Set Birthday</div>
+            <div class="modal-sub">Used to display your live age in the header.</div>
+            <div class="input-group">
+                <label>Date of Birth</label>
+                <input type="date" id="birthdayInput">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="clearBirthday()">Clear</button>
+                <button class="btn btn-primary" onclick="saveBirthday()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-content">
+            <div class="modal-title" id="confirmTitle">Confirm</div>
+            <div class="modal-sub" id="confirmText">Are you sure?</div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeModal('confirmModal')">Cancel</button>
+                <button class="btn btn-primary" id="confirmOk">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-host" id="toastHost"></div>
+
+    <script>
+    /* ============================================
+       FIT PULSE — Enhanced Edition
+       Features: Haptic | Deep Linking | Live Age | Voice Control
+       ============================================ */
+
+    const { createClient } = supabase;
+    const supabaseUrl = 'https://honnodwiwqtcbyasogli.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhvbm5vZHdpd3F0Y2J5YXNvZ2xpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5OTAwNzYsImV4cCI6MjA5MzU2NjA3Nn0.bamnNenXtnsAsV27JFVNyGI6a4JP-nJxBxQwNRFP99E';
+    const sb = createClient(supabaseUrl, supabaseKey);
+
+    /* ---------- STATE ---------- */
+    const state = {
+        currentExercise: "",
+        exercises: [],
+        sessions: [],
+        currentView: 'logger',
+
+        activeSession: {
+            running: false,
+            startedAt: null,
+            sessionSeconds: 0,
+            sessionInterval: null,
+            sets: []
+        },
+
+        activeSet: {
+            running: false,
+            startedAt: null,
+            seconds: 0,
+            interval: null,
+            lastDuration: 0,
+            lastStartedAt: null
+        },
+
+        history: { filterEx: 'ALL' },
+        trend: { filterEx: '' },
+        chart: null,
+
+        birthday: null,
+        ageInterval: null,
+
+        voice: {
+            recognition: null,
+            enabled: false,
+            supported: false,
+            shouldRun: false,
+            lastTrigger: 0
+        }
+    };
+
+    /* ============================================
+       1. HAPTIC FEEDBACK
+       ============================================ */
+    const HAPTIC = {
+        light:    [15],            // standard taps
+        medium:   [25],            // toggles
+        success:  [30, 50, 30],    // workout complete / save
+        warning:  [40, 80, 40],    // confirmations
+        delete:   [50],            // destructive
+        voice:    [10, 30, 10]     // voice trigger
+    };
+    function haptic(pattern) {
+        try {
+            if (navigator.vibrate && Array.isArray(pattern)) navigator.vibrate(pattern);
+        } catch (e) { /* silent */ }
+    }
+
+    /* ---------- THEME ---------- */
+    function applyTheme(t) {
+        document.documentElement.setAttribute('data-theme', t);
+        document.getElementById('themeIcon').className = t === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        document.getElementById('themeLabel').innerText = t === 'dark' ? 'Light Mode' : 'Dark Mode';
+    }
+    function toggleDarkMode() {
+        haptic(HAPTIC.medium);
+        const cur = document.documentElement.getAttribute('data-theme');
+        const next = cur === 'dark' ? 'light' : 'dark';
+        applyTheme(next);
+        localStorage.setItem('fp_theme', next);
+        document.getElementById('dropdownMenu').classList.remove('show');
+        if (state.currentView === 'analytics') renderAnalytics();
+    }
+    applyTheme(localStorage.getItem('fp_theme') || 'light');
+
+    /* ---------- MENU ---------- */
+    function toggleMenu(e) {
+        e.stopPropagation();
+        haptic(HAPTIC.light);
+        document.getElementById('dropdownMenu').classList.toggle('show');
+    }
+    document.addEventListener('click', e => { if (!e.target.closest('.menu-btn')) document.getElementById('dropdownMenu').classList.remove('show'); });
+
+    /* ============================================
+       2. DEEP LINKING / VIEW SWITCH
+       ============================================ */
+    const VALID_VIEWS = ['logger', 'history', 'analytics'];
+
+    function applyView(view) {
+        if (!VALID_VIEWS.includes(view)) view = 'logger';
+        state.currentView = view;
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(view + 'View').classList.add('active');
+        document.querySelectorAll('.dropdown-item[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+        document.getElementById('dropdownMenu').classList.remove('show');
+        if (view === 'history') renderHistory();
+        if (view === 'analytics') renderAnalytics();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function switchView(view) {
+        haptic(HAPTIC.light);
+        if (state.currentView === view) return;
+        const url = view === 'logger' ? location.pathname : `${location.pathname}?view=${view}`;
+        history.pushState({ view }, '', url);
+        applyView(view);
+    }
+
+    window.addEventListener('popstate', (e) => {
+        const params = new URLSearchParams(location.search);
+        const view = (e.state && e.state.view) || params.get('view') || 'logger';
+        applyView(view);
+    });
+
+    /* ---------- MODALS / TOAST ---------- */
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) {
+        haptic(HAPTIC.light);
+        document.getElementById(id).classList.remove('active');
+    }
+    function confirmAction(title, text, onOk) {
+        document.getElementById('confirmTitle').innerText = title;
+        document.getElementById('confirmText').innerText = text;
+        document.getElementById('confirmOk').onclick = () => { haptic(HAPTIC.warning); closeModal('confirmModal'); onOk(); };
+        openModal('confirmModal');
+    }
+    function toast(msg) {
+        const host = document.getElementById('toastHost');
+        const t = document.createElement('div');
+        t.className = 'toast'; t.innerText = msg;
+        host.appendChild(t);
+        setTimeout(() => t.remove(), 2400);
+    }
+
+    /* ---------- UTILS ---------- */
+    function fmtTime(s) {
+        const m = Math.floor(s / 60).toString().padStart(2, '0');
+        const r = (s % 60).toString().padStart(2, '0');
+        return `${m}:${r}`;
+    }
+    function fmtClock(iso) {
+        const d = new Date(iso);
+        return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    }
+    function fmtDate(iso) {
+        const d = new Date(iso);
+        return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    function todayLabel() { return new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); }
+    document.getElementById('todayDate').innerText = todayLabel();
+
+    /* ============================================
+       3. BIRTHDAY & LIVE AGE DISPLAY
+       ============================================ */
+    function loadBirthday() {
+        const dob = localStorage.getItem('fp_birthday');
+        state.birthday = dob || null;
+        renderAgeBadge();
+        if (state.birthday) startAgeTicker();
+    }
+
+    function openBirthdayModal() {
+        haptic(HAPTIC.light);
+        document.getElementById('dropdownMenu').classList.remove('show');
+        const input = document.getElementById('birthdayInput');
+        input.value = state.birthday || '';
+        const today = new Date().toISOString().split('T')[0];
+        input.max = today;
+        openModal('birthdayModal');
+    }
+
+    function saveBirthday() {
+        const val = document.getElementById('birthdayInput').value;
+        if (!val) { toast('Pick a date first'); return; }
+        const d = new Date(val);
+        if (isNaN(d.getTime()) || d > new Date()) { toast('Invalid date'); return; }
+        localStorage.setItem('fp_birthday', val);
+        state.birthday = val;
+        haptic(HAPTIC.success);
+        renderAgeBadge();
+        startAgeTicker();
+        closeModal('birthdayModal');
+        toast('Birthday saved');
+    }
+
+    function clearBirthday() {
+        localStorage.removeItem('fp_birthday');
+        state.birthday = null;
+        haptic(HAPTIC.delete);
+        if (state.ageInterval) { clearInterval(state.ageInterval); state.ageInterval = null; }
+        renderAgeBadge();
+        closeModal('birthdayModal');
+        toast('Birthday cleared');
+    }
+
+    function computeAge(dobStr) {
+        const dob = new Date(dobStr);
+        const now = new Date();
+        let years = now.getFullYear() - dob.getFullYear();
+        let months = now.getMonth() - dob.getMonth();
+        let days = now.getDate() - dob.getDate();
+        if (days < 0) {
+            months--;
+            const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+            days += prevMonth.getDate();
+        }
+        if (months < 0) {
+            years--;
+            months += 12;
+        }
+        return { years, months, days };
+    }
+
+    function renderAgeBadge() {
+        const el = document.getElementById('ageBadge');
+        if (!state.birthday) {
+            el.classList.add('placeholder');
+            el.innerText = 'Set DOB';
+            return;
+        }
+        el.classList.remove('placeholder');
+        const { years, months, days } = computeAge(state.birthday);
+        el.innerText = `${years}Y ${months}M ${days}D`;
+    }
+
+    function startAgeTicker() {
+        if (state.ageInterval) clearInterval(state.ageInterval);
+        // refresh every minute is enough for D/M/Y precision
+        state.ageInterval = setInterval(renderAgeBadge, 60000);
+    }
+
+    /* ============================================
+       SESSION + SET TIMERS
+       ============================================ */
+    function toggleSession() {
+        haptic(HAPTIC.medium);
+        if (!state.activeSession.running) startSession(); else stopSessionAsk();
+    }
+    function startSession() {
+        if (!state.currentExercise) { toast('Pick an exercise first'); return; }
+        state.activeSession.running = true;
+        state.activeSession.startedAt = new Date().toISOString();
+        state.activeSession.sessionSeconds = 0;
+        state.activeSession.sets = [];
+        state.activeSession.sessionInterval = setInterval(() => {
+            state.activeSession.sessionSeconds++;
+            document.getElementById('sessionTimer').innerText = fmtTime(state.activeSession.sessionSeconds);
+        }, 1000);
+
+        document.getElementById('sessionTimerBox').classList.add('live');
+        document.getElementById('sessionStatus').innerText = 'Running…';
+        document.getElementById('sessionBtnLabel').innerText = 'Pause Workout';
+        document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-pause';
+        document.getElementById('setBtn').disabled = false;
+        document.getElementById('completeBtn').disabled = false;
+        renderActiveSets();
+        toast('Workout started');
+    }
+    function stopSessionAsk() {
+        clearInterval(state.activeSession.sessionInterval);
+        state.activeSession.running = false;
+        document.getElementById('sessionTimerBox').classList.remove('live');
+        document.getElementById('sessionStatus').innerText = 'Paused';
+        document.getElementById('sessionBtnLabel').innerText = 'Resume Workout';
+        document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-play';
+        toast('Workout paused');
+        document.getElementById('sessionBtn').onclick = () => { haptic(HAPTIC.medium); resumeSession(); };
+    }
+    function resumeSession() {
+        state.activeSession.running = true;
+        state.activeSession.sessionInterval = setInterval(() => {
+            state.activeSession.sessionSeconds++;
+            document.getElementById('sessionTimer').innerText = fmtTime(state.activeSession.sessionSeconds);
+        }, 1000);
+        document.getElementById('sessionTimerBox').classList.add('live');
+        document.getElementById('sessionStatus').innerText = 'Running…';
+        document.getElementById('sessionBtnLabel').innerText = 'Pause Workout';
+        document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-pause';
+        document.getElementById('sessionBtn').onclick = toggleSession;
+    }
+
+    function toggleSet() {
+        haptic(HAPTIC.medium);
+        if (!state.activeSession.running && state.activeSession.sessionSeconds === 0) { toast('Start workout first'); return; }
+        if (!state.activeSet.running) startSet(); else stopSet();
+    }
+    function startSet() {
+        if (!state.currentExercise) { toast('Pick an exercise first'); return; }
+        if (state.activeSet.running) return;
+        // Auto-start the session if it hasn't been started (helps voice commands)
+        if (!state.activeSession.running && state.activeSession.sessionSeconds === 0) {
+            startSession();
+        } else if (!state.activeSession.running) {
+            // resume paused session
+            resumeSession();
+        }
+
+        state.activeSet.running = true;
+        state.activeSet.startedAt = new Date().toISOString();
+        state.activeSet.seconds = 0;
+        document.getElementById('setTimer').innerText = '00:00';
+        state.activeSet.interval = setInterval(() => {
+            state.activeSet.seconds++;
+            document.getElementById('setTimer').innerText = fmtTime(state.activeSet.seconds);
+        }, 1000);
+        document.getElementById('setTimerBox').classList.add('live-set');
+        document.getElementById('setBtnLabel').innerText = 'Stop Set';
+        document.getElementById('setBtn').querySelector('i').className = 'fa-solid fa-stop';
+        document.getElementById('setBtn').disabled = false;
+    }
+    function stopSet() {
+        if (!state.activeSet.running) return;
+        clearInterval(state.activeSet.interval);
+        state.activeSet.running = false;
+        state.activeSet.lastDuration = state.activeSet.seconds;
+        state.activeSet.lastStartedAt = state.activeSet.startedAt;
+        document.getElementById('setTimerBox').classList.remove('live-set');
+        document.getElementById('setBtnLabel').innerText = 'Start Set';
+        document.getElementById('setBtn').querySelector('i').className = 'fa-solid fa-stopwatch';
+
+        document.getElementById('modalTimeDisplay').innerText = fmtTime(state.activeSet.lastDuration);
+        document.getElementById('repsInput').value = '';
+        openModal('repsModal');
+        setTimeout(() => document.getElementById('repsInput').focus(), 100);
+    }
+
+    function saveSet() {
+        const reps = parseInt(document.getElementById('repsInput').value);
+        if (!reps || reps <= 0) { toast('Enter valid reps'); return; }
+        haptic(HAPTIC.success);
+        state.activeSession.sets.push({
+            reps,
+            durationSec: state.activeSet.lastDuration,
+            startedAt: state.activeSet.lastStartedAt,
+            endedAt: new Date().toISOString()
+        });
+        closeModal('repsModal');
+        document.getElementById('setTimer').innerText = '00:00';
+        renderActiveSets();
+        toast(`Set logged — ${reps} reps`);
+    }
+
+    function deleteActiveSet(idx) {
+        haptic(HAPTIC.delete);
+        state.activeSession.sets.splice(idx, 1);
+        renderActiveSets();
+    }
+
+    function renderActiveSets() {
+        const list = document.getElementById('setsList');
+        const summary = document.getElementById('setsSummary');
+        document.getElementById('currentExLabel').innerText = state.currentExercise ? `— ${state.currentExercise}` : '';
+        list.innerHTML = '';
+        const sets = state.activeSession.sets;
+        if (!sets.length) {
+            list.innerHTML = '<li class="empty-state">No sets yet. Start a set above.</li>';
+            summary.innerText = '';
+            return;
+        }
+        const totalReps = sets.reduce((a, s) => a + s.reps, 0);
+        summary.innerText = `${sets.length} sets · ${totalReps} reps`;
+        sets.forEach((s, i) => {
+            const li = document.createElement('li');
+            li.className = 'set-item';
+            li.innerHTML = `
+                <div class="set-info">
+                    <span class="set-num">#${i + 1}</span>
+                    <span class="set-reps">${s.reps} reps</span>
+                    <span class="set-time">${fmtTime(s.durationSec)}</span>
+                    <span class="set-time" style="color:var(--text-faint)">${fmtClock(s.startedAt)}</span>
+                </div>
+                <div class="set-actions">
+                    <button class="icon-btn danger" onclick="deleteActiveSet(${i})"><i class="fa-regular fa-trash-can"></i></button>
+                </div>`;
+            list.appendChild(li);
+        });
+    }
+
+    /* ============================================
+       COMPLETE WORKOUT
+       ============================================ */
+    async function completeWorkout() {
+        haptic(HAPTIC.medium);
+        if (!state.activeSession.sets.length) { toast('Log at least one set first'); return; }
+        if (!state.currentExercise) { toast('No exercise selected'); return; }
+
+        confirmAction('Finish Workout?', `Save ${state.activeSession.sets.length} sets and end this session?`, async () => {
+            clearInterval(state.activeSession.sessionInterval);
+            clearInterval(state.activeSet.interval);
+
+            const startedAt = state.activeSession.startedAt;
+            const endedAt = new Date().toISOString();
+            const totalDuration = state.activeSession.sessionSeconds;
+            const totalSets = state.activeSession.sets.length;
+            const totalReps = state.activeSession.sets.reduce((a, s) => a + s.reps, 0);
+
+            const { data: sessionRow, error: sessErr } = await sb.from('workout_sessions')
+                .insert([{
+                    exercise: state.currentExercise,
+                    started_at: startedAt,
+                    ended_at: endedAt,
+                    total_duration: totalDuration,
+                    total_sets: totalSets,
+                    total_reps: totalReps
+                }])
+                .select();
+
+            if (sessErr || !sessionRow || !sessionRow.length) {
+                toast('Save failed — check Supabase'); console.error(sessErr); return;
+            }
+            const sessionId = sessionRow[0].id;
+
+            const setsPayload = state.activeSession.sets.map(s => ({
+                exercise: state.currentExercise,
+                reps: s.reps,
+                duration: s.durationSec,
+                session_id: sessionId,
+                started_at: s.startedAt
+            }));
+            const { error: setsErr } = await sb.from('sets').insert(setsPayload);
+            if (setsErr) { console.error(setsErr); toast('Sets save warning'); }
+
+            haptic(HAPTIC.success);
+            toast('Workout saved to history!');
+            resetSession();
+            await loadSessions();
+        });
+    }
+
+    function resetSession() {
+        state.activeSession = { running: false, startedAt: null, sessionSeconds: 0, sessionInterval: null, sets: [] };
+        state.activeSet = { running: false, startedAt: null, seconds: 0, interval: null, lastDuration: 0, lastStartedAt: null };
+        document.getElementById('sessionTimer').innerText = '00:00';
+        document.getElementById('setTimer').innerText = '00:00';
+        document.getElementById('sessionTimerBox').classList.remove('live');
+        document.getElementById('setTimerBox').classList.remove('live-set');
+        document.getElementById('sessionStatus').innerText = 'Not started';
+        document.getElementById('sessionBtnLabel').innerText = 'Start Workout';
+        document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-play';
+        document.getElementById('sessionBtn').onclick = toggleSession;
+        document.getElementById('setBtnLabel').innerText = 'Start Set';
+        document.getElementById('setBtn').querySelector('i').className = 'fa-solid fa-stopwatch';
+        document.getElementById('setBtn').disabled = true;
+        document.getElementById('completeBtn').disabled = true;
+        renderActiveSets();
+    }
+
+    /* ============================================
+       EXERCISES
+       ============================================ */
+    function openAddExerciseModal() {
+        haptic(HAPTIC.light);
+        document.getElementById('newExerciseName').value = '';
+        openModal('addExModal');
+        setTimeout(() => document.getElementById('newExerciseName').focus(), 100);
+    }
+    async function saveNewExercise() {
+        const name = document.getElementById('newExerciseName').value.trim();
+        if (!name) return;
+        const { error } = await sb.from('exercises').insert([{ name }]);
+        if (error) { toast('Could not save — name may exist'); return; }
+        haptic(HAPTIC.success);
+        state.exercises.push(name);
+        rebuildExerciseSelect();
+        document.getElementById('exerciseSelect').value = name;
+        handleExerciseChange();
+        closeModal('addExModal');
+        toast(`Added "${name}"`);
+    }
+    function deleteCurrentExercise() {
+        haptic(HAPTIC.delete);
+        if (!state.currentExercise) return;
+        const ex = state.currentExercise;
+        confirmAction('Delete Exercise', `Wipe "${ex}" and all its history?`, async () => {
+            await sb.from('workout_sessions').delete().eq('exercise', ex);
+            await sb.from('sets').delete().eq('exercise', ex);
+            await sb.from('exercises').delete().eq('name', ex);
+            state.exercises = state.exercises.filter(x => x !== ex);
+            state.sessions = state.sessions.filter(s => s.exercise !== ex);
+            rebuildExerciseSelect();
+            state.currentExercise = state.exercises[0] || "";
+            document.getElementById('exerciseSelect').value = state.currentExercise;
+            handleExerciseChange();
+            toast(`Removed "${ex}"`);
+        });
+    }
+    function handleExerciseChange() {
+        state.currentExercise = document.getElementById('exerciseSelect').value || "";
+        document.getElementById('currentExLabel').innerText = state.currentExercise ? `— ${state.currentExercise}` : "";
+    }
+    function rebuildExerciseSelect() {
+        const sel = document.getElementById('exerciseSelect');
+        sel.innerHTML = '';
+        state.exercises.forEach(ex => {
+            const opt = document.createElement('option');
+            opt.value = ex; opt.text = ex;
+            sel.appendChild(opt);
+        });
+    }
+    document.getElementById('exerciseSelect').addEventListener('change', handleExerciseChange);
+
+    /* ============================================
+       HISTORY VIEW
+       ============================================ */
+    function renderHistory() {
+        const fHost = document.getElementById('historyExFilter');
+        fHost.innerHTML = '';
+        const all = document.createElement('button');
+        all.className = 'filter-pill' + (state.history.filterEx === 'ALL' ? ' active' : '');
+        all.innerText = 'All'; all.onclick = () => { haptic(HAPTIC.light); state.history.filterEx = 'ALL'; renderHistory(); };
+        fHost.appendChild(all);
+        state.exercises.forEach(ex => {
+            const b = document.createElement('button');
+            b.className = 'filter-pill' + (state.history.filterEx === ex ? ' active' : '');
+            b.innerText = ex; b.onclick = () => { haptic(HAPTIC.light); state.history.filterEx = ex; renderHistory(); };
+            fHost.appendChild(b);
+        });
+
+        const list = document.getElementById('historyList');
+        list.innerHTML = '';
+        document.getElementById('historyExLabel').innerText = state.history.filterEx === 'ALL' ? 'All exercises' : state.history.filterEx;
+
+        const filtered = state.sessions
+            .filter(s => state.history.filterEx === 'ALL' || s.exercise === state.history.filterEx)
+            .sort((a, b) => new Date(b.started_at) - new Date(a.started_at));
+
+        if (!filtered.length) {
+            list.innerHTML = '<div class="card"><div class="empty-state">No workout history yet. Complete a workout to see it here.</div></div>';
+            return;
+        }
+
+        filtered.forEach(sess => {
+            const card = document.createElement('div');
+            card.className = 'history-card';
+
+            const setRows = (sess.sets || []).map((s, i) => `
+                <div class="hist-set-row">
+                    <div class="left">
+                        <span class="num">#${i + 1}</span>
+                        <span class="reps">${s.reps} reps</span>
+                        <span class="dur">${fmtTime(s.duration || 0)}</span>
+                    </div>
+                    <span class="dur" style="color:var(--text-faint)">${s.started_at ? fmtClock(s.started_at) : ''}</span>
+                </div>`).join('');
+
+            card.innerHTML = `
+                <div class="hist-head">
+                    <div>
+                        <div class="hist-date">${sess.exercise} · ${fmtDate(sess.started_at)}</div>
+                        <div class="hist-time">${fmtClock(sess.started_at)} → ${fmtClock(sess.ended_at)}</div>
+                    </div>
+                    <button class="hist-delete" onclick="deleteSession(${sess.id})"><i class="fa-regular fa-trash-can"></i></button>
+                </div>
+                <div class="hist-stats">
+                    <div class="hist-stat"><div class="hist-stat-val">${sess.total_sets}</div><div class="hist-stat-label">Sets</div></div>
+                    <div class="hist-stat"><div class="hist-stat-val">${sess.total_reps}</div><div class="hist-stat-label">Reps</div></div>
+                    <div class="hist-stat"><div class="hist-stat-val">${fmtTime(sess.total_duration)}</div><div class="hist-stat-label">Duration</div></div>
+                </div>
+                <div class="hist-sets">${setRows || '<div class="empty-state">No set details</div>'}</div>
+            `;
+            list.appendChild(card);
+        });
+    }
+
+    function deleteSession(id) {
+        haptic(HAPTIC.delete);
+        confirmAction('Delete Session', 'Remove this workout permanently?', async () => {
+            await sb.from('sets').delete().eq('session_id', id);
+            await sb.from('workout_sessions').delete().eq('id', id);
+            state.sessions = state.sessions.filter(s => s.id !== id);
+            renderHistory();
+            toast('Session deleted');
+        });
+    }
+
+    /* ============================================
+       SIMPLE TREND ANALYTICS
+       ============================================ */
+    function renderAnalytics() {
+        const fHost = document.getElementById('analyticsExFilter');
+        fHost.innerHTML = '';
+        if (!state.exercises.length) {
+            fHost.innerHTML = '<div class="empty-state" style="padding:6px">Add an exercise first.</div>';
+            updateTrendCard([]);
+            renderTrendChart([]);
+            return;
+        }
+        if (!state.trend.filterEx || !state.exercises.includes(state.trend.filterEx)) {
+            state.trend.filterEx = state.exercises[0];
+        }
+        state.exercises.forEach(ex => {
+            const b = document.createElement('button');
+            b.className = 'filter-pill' + (state.trend.filterEx === ex ? ' active' : '');
+            b.innerText = ex; b.onclick = () => { haptic(HAPTIC.light); state.trend.filterEx = ex; renderAnalytics(); };
+            fHost.appendChild(b);
+        });
+
+        const sessions = state.sessions
+            .filter(s => s.exercise === state.trend.filterEx)
+            .sort((a, b) => new Date(a.started_at) - new Date(b.started_at));
+
+        updateTrendCard(sessions);
+        renderTrendChart(sessions);
+    }
+
+    function updateTrendCard(sessions) {
+        const iconEl = document.getElementById('trendIcon');
+        const titleEl = document.getElementById('trendTitle');
+        const subEl = document.getElementById('trendSub');
+
+        document.getElementById('qsSessions').innerText = sessions.length;
+        if (!sessions.length) {
+            iconEl.className = 'trend-icon none'; iconEl.innerHTML = '<i class="fa-solid fa-minus"></i>';
+            titleEl.innerText = 'No data yet';
+            subEl.innerText = 'Complete a workout to see your trend.';
+            document.getElementById('qsAvgReps').innerText = '0';
+            document.getElementById('qsBestReps').innerText = '0';
+            return;
+        }
+
+        const allReps = sessions.map(s => s.total_reps);
+        const avg = Math.round(allReps.reduce((a, b) => a + b, 0) / allReps.length);
+        const best = Math.max(...allReps);
+        document.getElementById('qsAvgReps').innerText = avg;
+        document.getElementById('qsBestReps').innerText = best;
+
+        if (sessions.length < 2) {
+            iconEl.className = 'trend-icon flat'; iconEl.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
+            titleEl.innerText = 'Just getting started';
+            subEl.innerText = 'Complete one more workout to see trend direction.';
+            return;
+        }
+
+        const half = Math.floor(sessions.length / 2);
+        const firstHalf = sessions.slice(0, half).map(s => s.total_reps);
+        const lastHalf = sessions.slice(-half).map(s => s.total_reps);
+        const firstAvg = firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length;
+        const lastAvg = lastHalf.reduce((a, b) => a + b, 0) / lastHalf.length;
+        const diff = lastAvg - firstAvg;
+        const pct = firstAvg > 0 ? Math.round((diff / firstAvg) * 100) : 0;
+
+        if (pct > 5) {
+            iconEl.className = 'trend-icon up'; iconEl.innerHTML = '<i class="fa-solid fa-arrow-trend-up"></i>';
+            titleEl.innerText = `Going Up — +${pct}%`;
+            subEl.innerText = `You're improving on ${state.trend.filterEx}. Keep going! 💪`;
+        } else if (pct < -5) {
+            iconEl.className = 'trend-icon down'; iconEl.innerHTML = '<i class="fa-solid fa-arrow-trend-down"></i>';
+            titleEl.innerText = `Going Down — ${pct}%`;
+            subEl.innerText = `${state.trend.filterEx} dipped a bit. Recover and rebuild.`;
+        } else {
+            iconEl.className = 'trend-icon flat'; iconEl.innerHTML = '<i class="fa-solid fa-equals"></i>';
+            titleEl.innerText = 'Holding Steady';
+            subEl.innerText = `${state.trend.filterEx} is stable. Push for the next level.`;
+        }
+    }
+
+    function renderTrendChart(sessions) {
+        const ctx = document.getElementById('trendChart').getContext('2d');
+        if (state.chart) state.chart.destroy();
+
+        const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const accent = dark ? '#60A5FA' : '#2563EB';
+        const grid = dark ? '#1E2630' : '#EEF1F4';
+        const txt = dark ? '#94A3B8' : '#5A6B7C';
+        const point = dark ? '#0F1419' : '#FFFFFF';
+
+        const labels = sessions.map(s => new Date(s.started_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const data = sessions.map(s => s.total_reps);
+
+        const grad = ctx.createLinearGradient(0, 0, 0, 220);
+        grad.addColorStop(0, accent + '55'); grad.addColorStop(1, accent + '00');
+
+        state.chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels.length ? labels : ['—'],
+                datasets: [{
+                    data: data.length ? data : [0],
+                    borderColor: accent, backgroundColor: grad,
+                    borderWidth: 2.5, tension: 0.35, fill: true,
+                    pointBackgroundColor: point, pointBorderColor: accent,
+                    pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: dark ? '#161C24' : '#0A2540',
+                        titleColor: '#fff', bodyColor: '#fff', cornerRadius: 4, padding: 10, displayColors: false,
+                        callbacks: { label: ctx => `${ctx.parsed.y} reps total` }
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: grid }, ticks: { precision: 0, color: txt, font: { size: 11 } } },
+                    x: { grid: { display: false }, ticks: { color: txt, font: { size: 11 } } }
+                }
+            }
+        });
+    }
+
+    /* ============================================
+       4. VOICE CONTROL (Web Speech API)
+       ============================================ */
+    const START_KEYWORDS = [
+        'start', 'begin', 'go',
+        'shuru', 'shuroo', 'shuru kar', 'shuru karo', 'shuroo karo',
+        'chal', 'chalo', 'chalu', 'chalu kar',
+        'set start', 'start set'
+    ];
+    const STOP_KEYWORDS = [
+        'stop', 'end', 'finish',
+        'ruk', 'ruko', 'rukja', 'ruk ja',
+        'chup', 'chup kar', 'band', 'band kar', 'band karo',
+        'set stop', 'stop set'
+    ];
+
+    function speak(text) {
+        try {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'en-US';
+            u.rate = 1;
+            u.pitch = 1;
+            u.volume = 1;
+            // Prefer an English voice
+            const voices = window.speechSynthesis.getVoices();
+            const enVoice = voices.find(v => /en[-_]/i.test(v.lang)) || voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+            if (enVoice) u.voice = enVoice;
+            window.speechSynthesis.speak(u);
+        } catch (e) { /* silent */ }
+    }
+    // Pre-load voices (some browsers need this event)
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    }
+
+    function initVoiceRecognition() {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SR) {
+            state.voice.supported = false;
+            const strip = document.getElementById('voiceStrip');
+            document.getElementById('voiceStripLabel').innerText = 'Voice not supported in this browser';
+            document.getElementById('voiceStripBtn').style.display = 'none';
+            document.getElementById('voiceMenuStatus').innerText = 'N/A';
+            return;
+        }
+        state.voice.supported = true;
+        const rec = new SR();
+        rec.continuous = true;
+        rec.interimResults = true;
+        // Hindi locale picks up Hinglish words best on most engines
+        rec.lang = 'hi-IN';
+        rec.maxAlternatives = 3;
+
+        rec.onresult = (event) => {
+            const now = Date.now();
+            // Look at the latest result(s) and check all alternatives
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const result = event.results[i];
+                for (let a = 0; a < result.length; a++) {
+                    const transcript = (result[a].transcript || '').toLowerCase().trim();
+                    if (!transcript) continue;
+                    if (matchesAny(transcript, START_KEYWORDS)) {
+                        if (now - state.voice.lastTrigger < 1500) return;
+                        state.voice.lastTrigger = now;
+                        if (!state.activeSet.running) {
+                            haptic(HAPTIC.voice);
+                            startSet();
+                            speak('started');
+                        }
+                        return;
+                    }
+                    if (matchesAny(transcript, STOP_KEYWORDS)) {
+                        if (now - state.voice.lastTrigger < 1500) return;
+                        state.voice.lastTrigger = now;
+                        if (state.activeSet.running) {
+                            haptic(HAPTIC.voice);
+                            speak('stopped');
+                            stopSet();
+                        }
+                        return;
+                    }
+                }
+            }
+        };
+
+        rec.onerror = (e) => {
+            console.warn('Voice error:', e.error);
+            if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+                state.voice.shouldRun = false;
+                state.voice.enabled = false;
+                updateVoiceUI();
+                toast('Microphone permission denied');
+            }
+        };
+
+        rec.onend = () => {
+            // Auto-restart for continuous listening
+            if (state.voice.shouldRun) {
+                try { rec.start(); } catch (e) { /* already started */ }
+            } else {
+                state.voice.enabled = false;
+                updateVoiceUI();
+            }
+        };
+
+        rec.onstart = () => {
+            state.voice.enabled = true;
+            updateVoiceUI();
+        };
+
+        state.voice.recognition = rec;
+    }
+
+    function matchesAny(transcript, keywords) {
+        // Check each keyword as a whole-word/phrase match
+        for (const kw of keywords) {
+            const k = kw.toLowerCase();
+            // Build a regex with word boundaries where possible
+            const safe = k.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+            const re = new RegExp(`(^|[^a-z\\u0900-\\u097F])${safe}([^a-z\\u0900-\\u097F]|$)`, 'i');
+            if (re.test(transcript)) return true;
+        }
+        return false;
+    }
+
+    function toggleVoiceRecognition() {
+        haptic(HAPTIC.medium);
+        if (!state.voice.supported) {
+            toast('Voice not supported in this browser');
+            return;
+        }
+        if (state.voice.shouldRun) {
+            // Stop
+            state.voice.shouldRun = false;
+            try { state.voice.recognition.stop(); } catch (e) {}
+            toast('Voice control off');
+        } else {
+            // Start
+            state.voice.shouldRun = true;
+            try {
+                state.voice.recognition.start();
+                toast('Voice control on');
+            } catch (e) {
+                console.warn(e);
+            }
+        }
+    }
+
+    function toggleVoiceFromMenu() {
+        document.getElementById('dropdownMenu').classList.remove('show');
+        toggleVoiceRecognition();
+    }
+
+    function updateVoiceUI() {
+        const strip = document.getElementById('voiceStrip');
+        const label = document.getElementById('voiceStripLabel');
+        const btn = document.getElementById('voiceStripBtn');
+        const menuStatus = document.getElementById('voiceMenuStatus');
+        if (!state.voice.supported) {
+            label.innerText = 'Voice not supported in this browser';
+            btn.style.display = 'none';
+            menuStatus.innerText = 'N/A';
+            return;
+        }
+        if (state.voice.enabled) {
+            strip.classList.add('on');
+            label.innerText = 'Listening — say "start" or "stop"';
+            btn.innerText = 'Disable';
+            menuStatus.innerText = 'ON';
+            menuStatus.classList.add('on');
+        } else {
+            strip.classList.remove('on');
+            label.innerText = 'Voice control off';
+            btn.innerText = 'Enable';
+            menuStatus.innerText = 'OFF';
+            menuStatus.classList.remove('on');
+        }
+    }
+
+    /* ============================================
+       BOOT
+       ============================================ */
+    async function loadSessions() {
+        const { data: sessions } = await sb.from('workout_sessions').select('*').order('started_at', { ascending: false });
+        state.sessions = sessions || [];
+
+        const { data: allSets } = await sb.from('sets').select('*').order('started_at', { ascending: true });
+        const setsBySession = {};
+        (allSets || []).forEach(s => {
+            if (s.session_id) {
+                if (!setsBySession[s.session_id]) setsBySession[s.session_id] = [];
+                setsBySession[s.session_id].push(s);
+            }
+        });
+        state.sessions.forEach(sess => { sess.sets = setsBySession[sess.id] || []; });
+    }
+
+    async function boot() {
+        const { data: exData } = await sb.from('exercises').select('name').order('created_at', { ascending: true });
+        state.exercises = (exData || []).map(e => e.name);
+        rebuildExerciseSelect();
+        if (state.exercises.length) {
+            state.currentExercise = state.exercises[0];
+            document.getElementById('exerciseSelect').value = state.currentExercise;
+        }
+        handleExerciseChange();
+        await loadSessions();
+        renderActiveSets();
+
+        // Birthday & age ticker
+        loadBirthday();
+
+        // Voice
+        initVoiceRecognition();
+        updateVoiceUI();
+
+        // Apply initial view from URL
+        const params = new URLSearchParams(location.search);
+        const initialView = params.get('view') || 'logger';
+        // Replace state so back button works correctly from initial load
+        history.replaceState({ view: initialView }, '', initialView === 'logger' ? location.pathname : `${location.pathname}?view=${initialView}`);
+        applyView(initialView);
+    }
+
+    document.getElementById('repsInput').addEventListener('keypress', e => { if (e.key === 'Enter') saveSet(); });
+    document.getElementById('newExerciseName').addEventListener('keypress', e => { if (e.key === 'Enter') saveNewExercise(); });
+    document.getElementById('birthdayInput').addEventListener('keypress', e => { if (e.key === 'Enter') saveBirthday(); });
+
+    window.addEventListener('DOMContentLoaded', boot);
+    </script>
+</body>
+</html>
