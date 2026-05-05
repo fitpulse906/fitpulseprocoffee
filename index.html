@@ -244,17 +244,55 @@
         }
 
         /* ===== RESPECT YOURSELF ===== */
+        .respect-toolbar {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+            margin-bottom: 4px;
+        }
+        .respect-tool-btn {
+            height: 34px;
+            padding: 0 14px;
+            border-radius: 4px;
+            border: 1px solid var(--border-strong);
+            background: var(--surface);
+            color: var(--text);
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+        .respect-tool-btn:hover { background: var(--surface-2); }
+        .respect-tool-btn.primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+        .respect-tool-btn.primary:hover { filter: brightness(1.05); }
+
+        .respect-list-flat {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
         .respect-item {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: 4px;
-            padding: 12px 14px;
-            margin-bottom: 8px;
+            padding: 16px 18px;
+            margin-bottom: 0;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
+            box-shadow: var(--shadow);
             transition: border-color 0.15s ease, transform 0.15s ease;
         }
+
         .respect-item.done-winner { border-color: var(--success); background: rgba(16, 185, 129, 0.04); }
         .respect-item.done-loser { border-color: var(--danger); background: rgba(239, 68, 68, 0.04); opacity: 0.85; }
         .respect-item.not-today { opacity: 0.55; }
@@ -401,19 +439,11 @@
 
         <!-- RESPECT YOURSELF -->
         <div class="view" id="respectView">
-            <div class="page-title">
-                <h1>Respect Yourself</h1>
-                <small id="respectTodayLabel"></small>
+            <div class="respect-toolbar">
+                <button class="respect-tool-btn primary" onclick="openRespectItemModal()"><i class="fa-solid fa-plus"></i> Add</button>
+                <button class="respect-tool-btn" onclick="toggleReorderMode()" id="reorderBtn"><i class="fa-solid fa-arrows-up-down"></i> Reorder</button>
             </div>
-
-            <div class="card">
-                <div class="card-head">
-                    <div class="card-title"><strong>Your</strong> Commitments</div>
-                    <button class="btn btn-outline" style="height:32px;padding:0 12px;font-size:0.78rem;" onclick="toggleReorderMode()" id="reorderBtn"><i class="fa-solid fa-arrows-up-down"></i> Reorder</button>
-                </div>
-                <div id="respectList"></div>
-                <button class="btn btn-primary btn-block" style="margin-top:12px;" onclick="openRespectItemModal()"><i class="fa-solid fa-plus"></i> Add New Item</button>
-            </div>
+            <div id="respectList" class="respect-list-flat"></div>
         </div>
 
         <!-- RESPECT DETAIL -->
@@ -1614,18 +1644,29 @@
         return Math.max(0, Math.floor((now - start) / 86400000));
     }
 
+        function calcCurrentStreak(itemId) {
+        const itemLogs = state.respect.logs
+            .filter(l => l.item_id === itemId)
+            .sort((a, b) => new Date(b.log_date) - new Date(a.log_date));
+        let streak = 0;
+        for (const l of itemLogs) {
+            if (l.status === 'winner') streak++;
+            else break;
+        }
+        return streak;
+    }
+
     function renderRespectList() {
-        document.getElementById('respectTodayLabel').innerText = todayLabel();
         const list = document.getElementById('respectList');
         list.innerHTML = '';
         if (!state.respect.items.length) {
-            list.innerHTML = '<div class="empty-state">No items yet. Tap "Add New Item" to start.</div>';
+            list.innerHTML = '<div class="empty-state" style="padding:40px 10px;">No items yet. Tap "Add" to start.</div>';
             return;
         }
         state.respect.items.forEach(item => {
             const log = getTodayLog(item.id);
             const activeToday = isItemActiveToday(item);
-            const isChallenge = item.item_type === 'challenge';
+            const streak = calcCurrentStreak(item.id);
             const div = document.createElement('div');
             div.className = 'respect-item';
             div.dataset.id = item.id;
@@ -1634,42 +1675,27 @@
             if (log && log.status === 'loser') div.classList.add('done-loser');
             if (!activeToday) div.classList.add('not-today');
 
-            let metaText = '';
-            if (isChallenge) {
-                metaText = `Day ${daysSince(item.challenge_start_date)}`;
-            } else if (item.target_value) {
-                metaText = `Target: ${item.target_value}${item.unit ? ' ' + item.unit : ''}`;
-            }
-
             let bodyHtml = '';
-            if (state.respect.reorderMode) {
-                bodyHtml = '';
-            } else if (!activeToday) {
-                const nextDay = nextActiveDayName(item);
-                bodyHtml = `<div class="respect-not-today-msg">Not today${nextDay ? `, do it on ${nextDay}` : ''}.</div>`;
-            } else if (log) {
-                const valTxt = (log.status === 'winner' && log.actual_value) ? ` (${log.actual_value}${item.unit ? ' ' + item.unit : ''})` : '';
-                bodyHtml = `<div class="respect-not-today-msg">${log.status === 'winner' ? '✅ Logged as Winner' : '❌ Logged as Loser'}${valTxt} — tap to change</div>
-                <div class="respect-buttons">
-                    <button class="btn-loser ${log.status==='loser'?'active':''}" onclick="event.stopPropagation();confirmLoser(${item.id})"><i class="fa-solid fa-thumbs-down"></i> Loser</button>
-                    <button class="btn-winner ${log.status==='winner'?'active':''}" onclick="event.stopPropagation();confirmWinner(${item.id})"><i class="fa-solid fa-trophy"></i> Winner</button>
-                </div>`;
-            } else {
+            if (!state.respect.reorderMode && activeToday && !log) {
                 bodyHtml = `<div class="respect-buttons">
                     <button class="btn-loser" onclick="event.stopPropagation();confirmLoser(${item.id})"><i class="fa-solid fa-thumbs-down"></i> Loser</button>
                     <button class="btn-winner" onclick="event.stopPropagation();confirmWinner(${item.id})"><i class="fa-solid fa-trophy"></i> Winner</button>
                 </div>`;
+            } else if (!state.respect.reorderMode && activeToday && log) {
+                bodyHtml = `<div class="respect-buttons">
+                    <button class="btn-loser ${log.status==='loser'?'active':''}" onclick="event.stopPropagation();confirmLoser(${item.id})"><i class="fa-solid fa-thumbs-down"></i> Loser</button>
+                    <button class="btn-winner ${log.status==='winner'?'active':''}" onclick="event.stopPropagation();confirmWinner(${item.id})"><i class="fa-solid fa-trophy"></i> Winner</button>
+                </div>`;
             }
 
             div.innerHTML = `
-                <div class="respect-item-head">
+                <div class="respect-item-head" style="align-items:flex-start;">
                     <span class="reorder-handle"><i class="fa-solid fa-grip-lines"></i></span>
-                    <div class="respect-item-title" onclick="openRespectDetail(${item.id})">${escapeHtml(item.title)}</div>
-                    <span class="respect-item-meta">${metaText}</span>
-                    <div class="respect-item-actions">
-                        <button class="icon-btn" onclick="event.stopPropagation();editRespectItem(${item.id})"><i class="fa-solid fa-pen"></i></button>
-                        <button class="icon-btn danger" onclick="event.stopPropagation();deleteRespectItem(${item.id})"><i class="fa-regular fa-trash-can"></i></button>
-                    </div>
+                    <div class="respect-item-title" onclick="openRespectDetail(${item.id})" style="white-space:normal;line-height:1.4;font-size:0.98rem;font-weight:600;">${escapeHtml(item.title)}</div>
+                    <span class="respect-item-meta" style="display:flex;align-items:center;gap:5px;font-size:0.78rem;color:var(--text-muted);flex-shrink:0;padding-top:2px;">
+                        <i class="fa-solid fa-fire" style="color:${streak>0?'#F59E0B':'var(--text-faint)'};font-size:0.8rem;"></i>
+                        <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:${streak>0?'var(--text)':'var(--text-faint)'};">${streak}</span>
+                    </span>
                 </div>
                 ${bodyHtml}`;
 
@@ -1687,7 +1713,6 @@
                     div.parentNode.insertBefore(dragging, after ? div.nextSibling : div);
                 });
                 div.addEventListener('drop', e => { e.preventDefault(); persistOrder(); });
-                // Touch reorder for Android
                 let touchStartY = 0;
                 div.addEventListener('touchstart', e => {
                     if (!e.target.closest('.reorder-handle')) return;
@@ -1714,6 +1739,7 @@
             list.appendChild(div);
         });
     }
+
 
     async function persistOrder() {
         const ids = [...document.querySelectorAll('#respectList .respect-item')].map(el => parseInt(el.dataset.id));
