@@ -79,7 +79,7 @@
 
         .header-right { display: flex; align-items: center; gap: 10px; }
 
-        .menu-btn { background: transparent; border: 1px solid var(--border); color: var(--text); width: 36px; height: 36px; border-radius: var(--r); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .menu-btn { background: transparent; border: 1px solid var(--border); color: var(--text); width: 36px; height: 36px; border-radius: var(--r); cursor: display: flex; align-items: center; justify-content: center; }
         .menu-btn:hover { background: var(--surface-2); }
         .dropdown { position: relative; }
         .dropdown-content { display: none; position: absolute; right: 0; top: 44px; background: var(--surface); min-width: 240px; border: 1px solid var(--border); border-radius: var(--r); box-shadow: var(--shadow-lift); overflow: hidden; z-index: 200; }
@@ -496,8 +496,6 @@
     };
 
     function unlockAudio() {
-        // Some browsers block audio until first user gesture.
-        // Trigger a silent play+pause on both elements to unlock.
         if (state.voice.audioUnlocked) return;
         try {
             [SFX.start, SFX.stop].forEach(a => {
@@ -514,7 +512,6 @@
             state.voice.audioUnlocked = true;
         } catch (e) { /* silent */ }
     }
-    // Unlock on first user interaction anywhere
     ['click', 'touchstart', 'keydown'].forEach(ev => {
         document.addEventListener(ev, unlockAudio, { once: false, passive: true });
     });
@@ -905,6 +902,7 @@
         document.getElementById('sessionStatus').innerText = 'Not started';
         document.getElementById('sessionBtnLabel').innerText = 'Start Workout';
         document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-play';
+        document.getElementById('sessionBtn').onclick = toggleSession;
         document.getElementById('setBtnLabel').innerText = 'Start Set';
         document.getElementById('setBtn').querySelector('i').className = 'fa-solid fa-stopwatch';
         document.getElementById('setBtn').disabled = true;
@@ -1155,7 +1153,6 @@
 
 /* ============================================
        VOICE CONTROL — start/stop the SET timer
-       (Delay Hack added to bypass OS beep clash)
        ============================================ */
     const START_KEYWORDS = [
         'start', 'begin', 'go',
@@ -1212,7 +1209,6 @@
             const hasStop  = matchesAny(fullTranscript, STOP_KEYWORDS);
             if (!hasStart && !hasStop) return;
 
-            // Adding a 400ms delay so Android's default beep finishes before your SFX starts playing
             if (state.activeSet.running && hasStop) {
                 state.voice.lastTrigger = now;
                 haptic(HAPTIC.voice);
@@ -1241,7 +1237,7 @@
             if (state.voice.shouldRun) {
                 setTimeout(() => {
                     try { rec.start(); } catch (e) { }
-                }, 250);
+                }, 50); // HACK: Reduced delay to almost zero to re-grab audio focus before the beep
             } else {
                 state.voice.enabled = false;
                 updateVoiceUI();
@@ -1253,16 +1249,47 @@
         state.voice.recognition = rec;
     }
 
-    function toggleVoiceRecognition() {
+    async function toggleVoiceRecognition() {
         haptic(HAPTIC.medium);
         unlockAudio(); 
         if (!state.voice.supported) { toast('Voice not supported in this browser'); return; }
+        
         if (state.voice.shouldRun) {
             state.voice.shouldRun = false;
             try { state.voice.recognition.stop(); } catch (e) {}
+            
+            // Turn off silent engine
+            if (state.voice.silentOscillator) {
+                try { state.voice.silentOscillator.stop(); } catch(e){}
+                state.voice.silentOscillator = null;
+            }
+            if (state.voice.audioCtx && state.voice.audioCtx.state === 'running') {
+                state.voice.audioCtx.suspend();
+            }
+            
             toast('Voice control off');
         } else {
             state.voice.shouldRun = true;
+            
+            // HACK: Start a silent media stream AND Web Audio Context to keep the mic hardware "HOT"
+            try {
+                if (!state.voice.audioCtx) {
+                    state.voice.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = state.voice.audioCtx.createOscillator();
+                    const gain = state.voice.audioCtx.createGain();
+                    gain.gain.value = 0; // Pure silence
+                    osc.connect(gain);
+                    gain.connect(state.voice.audioCtx.destination);
+                    osc.start();
+                    state.voice.silentOscillator = osc;
+                }
+                if (state.voice.audioCtx.state === 'suspended') {
+                    state.voice.audioCtx.resume();
+                }
+            } catch(e) {
+                console.warn('Could not start Web Audio warmup', e);
+            }
+
             try {
                 state.voice.recognition.start();
                 toast('Voice control on');
