@@ -58,7 +58,6 @@
         .brand-icon { width: 28px; height: 28px; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; border-radius: var(--r); font-size: 0.85rem; flex-shrink: 0; }
         .brand-name { white-space: nowrap; }
 
-        /* AGE BADGE — slim, premium, minimal */
         .age-badge {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.72rem;
@@ -138,7 +137,6 @@
         .exercise-row { display: flex; gap: 8px; }
         .exercise-row select { flex: 1; }
 
-        /* DUAL TIMER LAYOUT */
         .timer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
         .timer-box { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 14px 10px; text-align: center; }
         .timer-box.live { border-color: var(--accent); background: var(--accent-soft); }
@@ -150,7 +148,6 @@
 
         .session-actions { display: flex; flex-direction: column; gap: 8px; }
 
-        /* Voice indicator strip */
         .voice-strip {
             display: flex; align-items: center; justify-content: space-between;
             padding: 8px 12px; background: var(--surface-2); border: 1px solid var(--border);
@@ -163,7 +160,6 @@
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
         .voice-toggle { background: transparent; border: none; color: inherit; font-weight: 600; font-size: 0.78rem; cursor: pointer; font-family: inherit; }
 
-        /* SETS LIST */
         .sets-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
         .set-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r); }
         .set-info { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
@@ -177,7 +173,6 @@
 
         .empty-state { text-align: center; padding: 22px 10px; color: var(--text-faint); font-size: 0.85rem; }
 
-        /* HISTORY */
         .history-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 16px; box-shadow: var(--shadow); margin-bottom: 12px; }
         .hist-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 8px; }
         .hist-date { font-weight: 700; font-size: 0.95rem; color: var(--text); letter-spacing: -0.01em; }
@@ -195,7 +190,6 @@
         .hist-delete { color: var(--text-faint); background: none; border: none; cursor: pointer; padding: 4px; }
         .hist-delete:hover { color: var(--danger); }
 
-        /* SIMPLE ANALYTICS */
         .trend-card { padding: 20px 18px; }
         .trend-headline { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
         .trend-icon { width: 44px; height: 44px; border-radius: var(--r-lg); display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
@@ -214,7 +208,6 @@
 
         .chart-wrap { position: relative; height: 220px; }
 
-        /* MODAL */
         .modal-overlay { position: fixed; inset: 0; background: rgba(10, 37, 64, 0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.18s ease; }
         [data-theme="dark"] .modal-overlay { background: rgba(0, 0, 0, 0.7); }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
@@ -229,12 +222,10 @@
         .input-group label { font-size: 0.7rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
         .input-group + .input-group { margin-top: 12px; }
 
-        /* TOAST */
         .toast-host { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 2000; display: flex; flex-direction: column; gap: 8px; align-items: center; }
         .toast { background: var(--text); color: var(--surface); padding: 10px 16px; border-radius: var(--r); font-size: 0.85rem; font-weight: 500; box-shadow: var(--shadow-lift); animation: toastIn 0.2s ease; }
         @keyframes toastIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* HISTORY FILTER PILL */
         .filter-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px; }
         .filter-pill { padding: 6px 12px; border: 1px solid var(--border); background: var(--surface); border-radius: var(--r); font-size: 0.78rem; font-weight: 500; color: var(--text-muted); cursor: pointer; font-family: inherit; }
         .filter-pill.active { background: var(--text); color: var(--surface); border-color: var(--text); }
@@ -282,7 +273,7 @@
 
     <div class="container">
 
-        <!-- =================== LOGGER VIEW =================== -->
+        <!-- LOGGER -->
         <div class="view active" id="loggerView">
             <div class="page-title">
                 <h1>Today's Workout</h1>
@@ -345,31 +336,27 @@
             </div>
         </div>
 
-        <!-- =================== HISTORY VIEW =================== -->
+        <!-- HISTORY -->
         <div class="view" id="historyView">
             <div class="page-title">
                 <h1>History</h1>
                 <small id="historyExLabel">All exercises</small>
             </div>
-
             <div class="card" style="padding: 14px;">
                 <div class="filter-row" id="historyExFilter"></div>
             </div>
-
             <div id="historyList"></div>
         </div>
 
-        <!-- =================== ANALYTICS VIEW =================== -->
+        <!-- ANALYTICS -->
         <div class="view" id="analyticsView">
             <div class="page-title">
                 <h1>Trend</h1>
                 <small>Going up or down?</small>
             </div>
-
             <div class="card" style="padding: 14px;">
                 <div class="filter-row" id="analyticsExFilter"></div>
             </div>
-
             <div class="card trend-card">
                 <div class="trend-headline">
                     <div class="trend-icon none" id="trendIcon"><i class="fa-solid fa-minus"></i></div>
@@ -384,11 +371,8 @@
                     <div class="quick-stat"><div class="quick-stat-val" id="qsBestReps">0</div><div class="quick-stat-label">Best Reps</div></div>
                 </div>
             </div>
-
             <div class="card">
-                <div class="card-head">
-                    <div class="card-title"><strong>Reps</strong> Over Time</div>
-                </div>
+                <div class="card-head"><div class="card-title"><strong>Reps</strong> Over Time</div></div>
                 <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
             </div>
         </div>
@@ -446,12 +430,15 @@
         </div>
     </div>
 
+    <!-- Hidden audio elements for instant playback -->
+    <audio id="sfxStart" preload="auto" src="https://honnodwiwqtcbyasogli.supabase.co/storage/v1/object/public/Bucket/Started.mp3"></audio>
+    <audio id="sfxStop"  preload="auto" src="https://honnodwiwqtcbyasogli.supabase.co/storage/v1/object/public/Bucket/Done.mp3"></audio>
+
     <div class="toast-host" id="toastHost"></div>
 
     <script>
     /* ============================================
-       FIT PULSE — Enhanced Edition
-       Features: Haptic | Deep Linking | Live Age | Voice Control
+       FIT PULSE — Voice + Sound Effects Edition
        ============================================ */
 
     const { createClient } = supabase;
@@ -495,25 +482,65 @@
             enabled: false,
             supported: false,
             shouldRun: false,
-            lastTrigger: 0
+            lastTrigger: 0,
+            audioUnlocked: false
         }
     };
 
     /* ============================================
-       1. HAPTIC FEEDBACK
+       SOUND FX — robust playback
        ============================================ */
+    const SFX = {
+        start: document.getElementById('sfxStart'),
+        stop:  document.getElementById('sfxStop')
+    };
+
+    function unlockAudio() {
+        // Some browsers block audio until first user gesture.
+        // Trigger a silent play+pause on both elements to unlock.
+        if (state.voice.audioUnlocked) return;
+        try {
+            [SFX.start, SFX.stop].forEach(a => {
+                if (!a) return;
+                a.muted = true;
+                const p = a.play();
+                if (p && p.then) {
+                    p.then(() => { a.pause(); a.currentTime = 0; a.muted = false; })
+                     .catch(() => { a.muted = false; });
+                } else {
+                    a.pause(); a.currentTime = 0; a.muted = false;
+                }
+            });
+            state.voice.audioUnlocked = true;
+        } catch (e) { /* silent */ }
+    }
+    // Unlock on first user interaction anywhere
+    ['click', 'touchstart', 'keydown'].forEach(ev => {
+        document.addEventListener(ev, unlockAudio, { once: false, passive: true });
+    });
+
+    function playSFX(which) {
+        const el = which === 'start' ? SFX.start : SFX.stop;
+        if (!el) return;
+        try {
+            el.pause();
+            el.currentTime = 0;
+            const p = el.play();
+            if (p && p.catch) p.catch(err => console.warn('SFX play blocked:', err));
+        } catch (e) { console.warn(e); }
+    }
+
+    /* ---------- HAPTICS ---------- */
     const HAPTIC = {
-        light:    [15],            // standard taps
-        medium:   [25],            // toggles
-        success:  [30, 50, 30],    // workout complete / save
-        warning:  [40, 80, 40],    // confirmations
-        delete:   [50],            // destructive
-        voice:    [10, 30, 10]     // voice trigger
+        light:    [15],
+        medium:   [25],
+        success:  [30, 50, 30],
+        warning:  [40, 80, 40],
+        delete:   [50],
+        voice:    [10, 30, 10]
     };
     function haptic(pattern) {
-        try {
-            if (navigator.vibrate && Array.isArray(pattern)) navigator.vibrate(pattern);
-        } catch (e) { /* silent */ }
+        try { if (navigator.vibrate && Array.isArray(pattern)) navigator.vibrate(pattern); } catch (e) {}
     }
 
     /* ---------- THEME ---------- */
@@ -541,11 +568,8 @@
     }
     document.addEventListener('click', e => { if (!e.target.closest('.menu-btn')) document.getElementById('dropdownMenu').classList.remove('show'); });
 
-    /* ============================================
-       2. DEEP LINKING / VIEW SWITCH
-       ============================================ */
+    /* ---------- DEEP LINK / VIEW ---------- */
     const VALID_VIEWS = ['logger', 'history', 'analytics'];
-
     function applyView(view) {
         if (!VALID_VIEWS.includes(view)) view = 'logger';
         state.currentView = view;
@@ -557,7 +581,6 @@
         if (view === 'analytics') renderAnalytics();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-
     function switchView(view) {
         haptic(HAPTIC.light);
         if (state.currentView === view) return;
@@ -565,7 +588,6 @@
         history.pushState({ view }, '', url);
         applyView(view);
     }
-
     window.addEventListener('popstate', (e) => {
         const params = new URLSearchParams(location.search);
         const view = (e.state && e.state.view) || params.get('view') || 'logger';
@@ -574,10 +596,7 @@
 
     /* ---------- MODALS / TOAST ---------- */
     function openModal(id) { document.getElementById(id).classList.add('active'); }
-    function closeModal(id) {
-        haptic(HAPTIC.light);
-        document.getElementById(id).classList.remove('active');
-    }
+    function closeModal(id) { haptic(HAPTIC.light); document.getElementById(id).classList.remove('active'); }
     function confirmAction(title, text, onOk) {
         document.getElementById('confirmTitle').innerText = title;
         document.getElementById('confirmText').innerText = text;
@@ -598,37 +617,26 @@
         const r = (s % 60).toString().padStart(2, '0');
         return `${m}:${r}`;
     }
-    function fmtClock(iso) {
-        const d = new Date(iso);
-        return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-    }
-    function fmtDate(iso) {
-        const d = new Date(iso);
-        return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-    }
+    function fmtClock(iso) { return new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }); }
+    function fmtDate(iso) { return new Date(iso).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }); }
     function todayLabel() { return new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); }
     document.getElementById('todayDate').innerText = todayLabel();
 
-    /* ============================================
-       3. BIRTHDAY & LIVE AGE DISPLAY
-       ============================================ */
+    /* ---------- BIRTHDAY ---------- */
     function loadBirthday() {
         const dob = localStorage.getItem('fp_birthday');
         state.birthday = dob || null;
         renderAgeBadge();
         if (state.birthday) startAgeTicker();
     }
-
     function openBirthdayModal() {
         haptic(HAPTIC.light);
         document.getElementById('dropdownMenu').classList.remove('show');
         const input = document.getElementById('birthdayInput');
         input.value = state.birthday || '';
-        const today = new Date().toISOString().split('T')[0];
-        input.max = today;
+        input.max = new Date().toISOString().split('T')[0];
         openModal('birthdayModal');
     }
-
     function saveBirthday() {
         const val = document.getElementById('birthdayInput').value;
         if (!val) { toast('Pick a date first'); return; }
@@ -642,7 +650,6 @@
         closeModal('birthdayModal');
         toast('Birthday saved');
     }
-
     function clearBirthday() {
         localStorage.removeItem('fp_birthday');
         state.birthday = null;
@@ -652,7 +659,6 @@
         closeModal('birthdayModal');
         toast('Birthday cleared');
     }
-
     function computeAge(dobStr) {
         const dob = new Date(dobStr);
         const now = new Date();
@@ -664,37 +670,33 @@
             const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
             days += prevMonth.getDate();
         }
-        if (months < 0) {
-            years--;
-            months += 12;
-        }
+        if (months < 0) { years--; months += 12; }
         return { years, months, days };
     }
-
     function renderAgeBadge() {
         const el = document.getElementById('ageBadge');
-        if (!state.birthday) {
-            el.classList.add('placeholder');
-            el.innerText = 'Set DOB';
-            return;
-        }
+        if (!state.birthday) { el.classList.add('placeholder'); el.innerText = 'Set DOB'; return; }
         el.classList.remove('placeholder');
         const { years, months, days } = computeAge(state.birthday);
         el.innerText = `${years}Y ${months}M ${days}D`;
     }
-
     function startAgeTicker() {
         if (state.ageInterval) clearInterval(state.ageInterval);
-        // refresh every minute is enough for D/M/Y precision
         state.ageInterval = setInterval(renderAgeBadge, 60000);
     }
 
     /* ============================================
-       SESSION + SET TIMERS
+       SESSION TIMER
        ============================================ */
     function toggleSession() {
         haptic(HAPTIC.medium);
-        if (!state.activeSession.running) startSession(); else stopSessionAsk();
+        if (!state.activeSession.running && state.activeSession.sessionSeconds === 0) {
+            startSession();
+        } else if (state.activeSession.running) {
+            pauseSession();
+        } else {
+            resumeSession();
+        }
     }
     function startSession() {
         if (!state.currentExercise) { toast('Pick an exercise first'); return; }
@@ -702,11 +704,11 @@
         state.activeSession.startedAt = new Date().toISOString();
         state.activeSession.sessionSeconds = 0;
         state.activeSession.sets = [];
+        if (state.activeSession.sessionInterval) clearInterval(state.activeSession.sessionInterval);
         state.activeSession.sessionInterval = setInterval(() => {
             state.activeSession.sessionSeconds++;
             document.getElementById('sessionTimer').innerText = fmtTime(state.activeSession.sessionSeconds);
         }, 1000);
-
         document.getElementById('sessionTimerBox').classList.add('live');
         document.getElementById('sessionStatus').innerText = 'Running…';
         document.getElementById('sessionBtnLabel').innerText = 'Pause Workout';
@@ -716,7 +718,7 @@
         renderActiveSets();
         toast('Workout started');
     }
-    function stopSessionAsk() {
+    function pauseSession() {
         clearInterval(state.activeSession.sessionInterval);
         state.activeSession.running = false;
         document.getElementById('sessionTimerBox').classList.remove('live');
@@ -724,10 +726,10 @@
         document.getElementById('sessionBtnLabel').innerText = 'Resume Workout';
         document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-play';
         toast('Workout paused');
-        document.getElementById('sessionBtn').onclick = () => { haptic(HAPTIC.medium); resumeSession(); };
     }
     function resumeSession() {
         state.activeSession.running = true;
+        if (state.activeSession.sessionInterval) clearInterval(state.activeSession.sessionInterval);
         state.activeSession.sessionInterval = setInterval(() => {
             state.activeSession.sessionSeconds++;
             document.getElementById('sessionTimer').innerText = fmtTime(state.activeSession.sessionSeconds);
@@ -736,22 +738,23 @@
         document.getElementById('sessionStatus').innerText = 'Running…';
         document.getElementById('sessionBtnLabel').innerText = 'Pause Workout';
         document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-pause';
-        document.getElementById('sessionBtn').onclick = toggleSession;
     }
 
+    /* ============================================
+       SET TIMER
+       ============================================ */
     function toggleSet() {
         haptic(HAPTIC.medium);
-        if (!state.activeSession.running && state.activeSession.sessionSeconds === 0) { toast('Start workout first'); return; }
         if (!state.activeSet.running) startSet(); else stopSet();
     }
     function startSet() {
         if (!state.currentExercise) { toast('Pick an exercise first'); return; }
         if (state.activeSet.running) return;
-        // Auto-start the session if it hasn't been started (helps voice commands)
+
+        // Auto start/resume the workout session if needed
         if (!state.activeSession.running && state.activeSession.sessionSeconds === 0) {
             startSession();
         } else if (!state.activeSession.running) {
-            // resume paused session
             resumeSession();
         }
 
@@ -759,6 +762,7 @@
         state.activeSet.startedAt = new Date().toISOString();
         state.activeSet.seconds = 0;
         document.getElementById('setTimer').innerText = '00:00';
+        if (state.activeSet.interval) clearInterval(state.activeSet.interval);
         state.activeSet.interval = setInterval(() => {
             state.activeSet.seconds++;
             document.getElementById('setTimer').innerText = fmtTime(state.activeSet.seconds);
@@ -767,6 +771,8 @@
         document.getElementById('setBtnLabel').innerText = 'Stop Set';
         document.getElementById('setBtn').querySelector('i').className = 'fa-solid fa-stop';
         document.getElementById('setBtn').disabled = false;
+
+        playSFX('start');
     }
     function stopSet() {
         if (!state.activeSet.running) return;
@@ -777,6 +783,8 @@
         document.getElementById('setTimerBox').classList.remove('live-set');
         document.getElementById('setBtnLabel').innerText = 'Start Set';
         document.getElementById('setBtn').querySelector('i').className = 'fa-solid fa-stopwatch';
+
+        playSFX('stop');
 
         document.getElementById('modalTimeDisplay').innerText = fmtTime(state.activeSet.lastDuration);
         document.getElementById('repsInput').value = '';
@@ -897,7 +905,6 @@
         document.getElementById('sessionStatus').innerText = 'Not started';
         document.getElementById('sessionBtnLabel').innerText = 'Start Workout';
         document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-play';
-        document.getElementById('sessionBtn').onclick = toggleSession;
         document.getElementById('setBtnLabel').innerText = 'Start Set';
         document.getElementById('setBtn').querySelector('i').className = 'fa-solid fa-stopwatch';
         document.getElementById('setBtn').disabled = true;
@@ -960,7 +967,7 @@
     document.getElementById('exerciseSelect').addEventListener('change', handleExerciseChange);
 
     /* ============================================
-       HISTORY VIEW
+       HISTORY
        ============================================ */
     function renderHistory() {
         const fHost = document.getElementById('historyExFilter');
@@ -985,14 +992,13 @@
             .sort((a, b) => new Date(b.started_at) - new Date(a.started_at));
 
         if (!filtered.length) {
-            list.innerHTML = '<div class="card"><div class="empty-state">No workout history yet. Complete a workout to see it here.</div></div>';
+            list.innerHTML = '<div class="card"><div class="empty-state">No workout history yet.</div></div>';
             return;
         }
 
         filtered.forEach(sess => {
             const card = document.createElement('div');
             card.className = 'history-card';
-
             const setRows = (sess.sets || []).map((s, i) => `
                 <div class="hist-set-row">
                     <div class="left">
@@ -1002,7 +1008,6 @@
                     </div>
                     <span class="dur" style="color:var(--text-faint)">${s.started_at ? fmtClock(s.started_at) : ''}</span>
                 </div>`).join('');
-
             card.innerHTML = `
                 <div class="hist-head">
                     <div>
@@ -1016,8 +1021,7 @@
                     <div class="hist-stat"><div class="hist-stat-val">${sess.total_reps}</div><div class="hist-stat-label">Reps</div></div>
                     <div class="hist-stat"><div class="hist-stat-val">${fmtTime(sess.total_duration)}</div><div class="hist-stat-label">Duration</div></div>
                 </div>
-                <div class="hist-sets">${setRows || '<div class="empty-state">No set details</div>'}</div>
-            `;
+                <div class="hist-sets">${setRows || '<div class="empty-state">No set details</div>'}</div>`;
             list.appendChild(card);
         });
     }
@@ -1034,16 +1038,14 @@
     }
 
     /* ============================================
-       SIMPLE TREND ANALYTICS
+       ANALYTICS
        ============================================ */
     function renderAnalytics() {
         const fHost = document.getElementById('analyticsExFilter');
         fHost.innerHTML = '';
         if (!state.exercises.length) {
             fHost.innerHTML = '<div class="empty-state" style="padding:6px">Add an exercise first.</div>';
-            updateTrendCard([]);
-            renderTrendChart([]);
-            return;
+            updateTrendCard([]); renderTrendChart([]); return;
         }
         if (!state.trend.filterEx || !state.exercises.includes(state.trend.filterEx)) {
             state.trend.filterEx = state.exercises[0];
@@ -1054,11 +1056,9 @@
             b.innerText = ex; b.onclick = () => { haptic(HAPTIC.light); state.trend.filterEx = ex; renderAnalytics(); };
             fHost.appendChild(b);
         });
-
         const sessions = state.sessions
             .filter(s => s.exercise === state.trend.filterEx)
             .sort((a, b) => new Date(a.started_at) - new Date(b.started_at));
-
         updateTrendCard(sessions);
         renderTrendChart(sessions);
     }
@@ -1067,7 +1067,6 @@
         const iconEl = document.getElementById('trendIcon');
         const titleEl = document.getElementById('trendTitle');
         const subEl = document.getElementById('trendSub');
-
         document.getElementById('qsSessions').innerText = sessions.length;
         if (!sessions.length) {
             iconEl.className = 'trend-icon none'; iconEl.innerHTML = '<i class="fa-solid fa-minus"></i>';
@@ -1077,7 +1076,6 @@
             document.getElementById('qsBestReps').innerText = '0';
             return;
         }
-
         const allReps = sessions.map(s => s.total_reps);
         const avg = Math.round(allReps.reduce((a, b) => a + b, 0) / allReps.length);
         const best = Math.max(...allReps);
@@ -1090,7 +1088,6 @@
             subEl.innerText = 'Complete one more workout to see trend direction.';
             return;
         }
-
         const half = Math.floor(sessions.length / 2);
         const firstHalf = sessions.slice(0, half).map(s => s.total_reps);
         const lastHalf = sessions.slice(-half).map(s => s.total_reps);
@@ -1117,19 +1114,15 @@
     function renderTrendChart(sessions) {
         const ctx = document.getElementById('trendChart').getContext('2d');
         if (state.chart) state.chart.destroy();
-
         const dark = document.documentElement.getAttribute('data-theme') === 'dark';
         const accent = dark ? '#60A5FA' : '#2563EB';
         const grid = dark ? '#1E2630' : '#EEF1F4';
         const txt = dark ? '#94A3B8' : '#5A6B7C';
         const point = dark ? '#0F1419' : '#FFFFFF';
-
         const labels = sessions.map(s => new Date(s.started_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
         const data = sessions.map(s => s.total_reps);
-
         const grad = ctx.createLinearGradient(0, 0, 0, 220);
         grad.addColorStop(0, accent + '55'); grad.addColorStop(1, accent + '00');
-
         state.chart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -1161,7 +1154,8 @@
     }
 
     /* ============================================
-       4. VOICE CONTROL (Web Speech API)
+       VOICE CONTROL — start/stop the SET timer
+       (No TTS / no spoken voice. SFX only.)
        ============================================ */
     const START_KEYWORDS = [
         'start', 'begin', 'go',
@@ -1176,32 +1170,20 @@
         'set stop', 'stop set'
     ];
 
-    function speak(text) {
-        try {
-            if (!('speechSynthesis' in window)) return;
-            window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(text);
-            u.lang = 'en-US';
-            u.rate = 1;
-            u.pitch = 1;
-            u.volume = 1;
-            // Prefer an English voice
-            const voices = window.speechSynthesis.getVoices();
-            const enVoice = voices.find(v => /en[-_]/i.test(v.lang)) || voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en'));
-            if (enVoice) u.voice = enVoice;
-            window.speechSynthesis.speak(u);
-        } catch (e) { /* silent */ }
-    }
-    // Pre-load voices (some browsers need this event)
-    if ('speechSynthesis' in window) {
-        window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    function matchesAny(transcript, keywords) {
+        const t = ' ' + transcript.toLowerCase().trim() + ' ';
+        for (const kw of keywords) {
+            const safe = kw.toLowerCase().replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+            const re = new RegExp(`(^|[^a-z\\u0900-\\u097F])${safe}([^a-z\\u0900-\\u097F]|$)`, 'i');
+            if (re.test(t)) return true;
+        }
+        return false;
     }
 
     function initVoiceRecognition() {
         const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SR) {
             state.voice.supported = false;
-            const strip = document.getElementById('voiceStrip');
             document.getElementById('voiceStripLabel').innerText = 'Voice not supported in this browser';
             document.getElementById('voiceStripBtn').style.display = 'none';
             document.getElementById('voiceMenuStatus').innerText = 'N/A';
@@ -1211,36 +1193,38 @@
         const rec = new SR();
         rec.continuous = true;
         rec.interimResults = true;
-        // Hindi locale picks up Hinglish words best on most engines
-        rec.lang = 'hi-IN';
+        rec.lang = 'en-IN'; // English India — picks up Hinglish well too
         rec.maxAlternatives = 3;
 
         rec.onresult = (event) => {
             const now = Date.now();
-            if (now - state.voice.lastTrigger < 1500) return; // Spam/double trigger rokne ke liye
+            if (now - state.voice.lastTrigger < 1200) return;
 
-            // Jo bhi bola gaya hai usko ek solid string mein combine karo
+            // Build transcript only from the latest result chunks
             let fullTranscript = "";
             for (let i = event.resultIndex; i < event.results.length; i++) {
-                fullTranscript += event.results[i][0].transcript.toLowerCase() + " ";
+                const alts = event.results[i];
+                for (let j = 0; j < alts.length; j++) {
+                    fullTranscript += alts[j].transcript.toLowerCase() + " ";
+                }
             }
 
             const hasStart = matchesAny(fullTranscript, START_KEYWORDS);
-            const hasStop = matchesAny(fullTranscript, STOP_KEYWORDS);
-
+            const hasStop  = matchesAny(fullTranscript, STOP_KEYWORDS);
             if (!hasStart && !hasStop) return;
 
-            // Gangster Logic: Sirf timer ki current state dekho
+            // STOP wins if both somehow appear and a set is running
             if (state.activeSet.running && hasStop) {
-                // Agar timer chal raha hai aur 'stop' suna -> Timer rok do
                 state.voice.lastTrigger = now;
                 haptic(HAPTIC.voice);
                 stopSet();
-            } else if (!state.activeSet.running && hasStart) {
-                // Agar timer ruka hua hai aur 'start' suna -> Timer chala do
+                return;
+            }
+            if (!state.activeSet.running && hasStart) {
                 state.voice.lastTrigger = now;
                 haptic(HAPTIC.voice);
                 startSet();
+                return;
             }
         };
 
@@ -1252,66 +1236,46 @@
                 updateVoiceUI();
                 toast('Microphone permission denied');
             }
+            // For 'no-speech' / 'audio-capture' / 'network' — onend will fire and we auto-restart
         };
 
         rec.onend = () => {
-            // Auto-restart for continuous listening
             if (state.voice.shouldRun) {
-                try { rec.start(); } catch (e) { /* already started */ }
+                // Auto-restart for continuous listening
+                setTimeout(() => {
+                    try { rec.start(); } catch (e) { /* already started */ }
+                }, 250);
             } else {
                 state.voice.enabled = false;
                 updateVoiceUI();
             }
         };
 
-        rec.onstart = () => {
-            state.voice.enabled = true;
-            updateVoiceUI();
-        };
+        rec.onstart = () => { state.voice.enabled = true; updateVoiceUI(); };
 
         state.voice.recognition = rec;
     }
 
-    function matchesAny(transcript, keywords) {
-        // Check each keyword as a whole-word/phrase match
-        for (const kw of keywords) {
-            const k = kw.toLowerCase();
-            // Build a regex with word boundaries where possible
-            const safe = k.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-            const re = new RegExp(`(^|[^a-z\\u0900-\\u097F])${safe}([^a-z\\u0900-\\u097F]|$)`, 'i');
-            if (re.test(transcript)) return true;
-        }
-        return false;
-    }
-
     function toggleVoiceRecognition() {
         haptic(HAPTIC.medium);
-        if (!state.voice.supported) {
-            toast('Voice not supported in this browser');
-            return;
-        }
+        unlockAudio(); // ensure SFX can play later
+        if (!state.voice.supported) { toast('Voice not supported in this browser'); return; }
         if (state.voice.shouldRun) {
-            // Stop
             state.voice.shouldRun = false;
             try { state.voice.recognition.stop(); } catch (e) {}
             toast('Voice control off');
         } else {
-            // Start
             state.voice.shouldRun = true;
             try {
                 state.voice.recognition.start();
                 toast('Voice control on');
-            } catch (e) {
-                console.warn(e);
-            }
+            } catch (e) { console.warn(e); }
         }
     }
-
     function toggleVoiceFromMenu() {
         document.getElementById('dropdownMenu').classList.remove('show');
         toggleVoiceRecognition();
     }
-
     function updateVoiceUI() {
         const strip = document.getElementById('voiceStrip');
         const label = document.getElementById('voiceStripLabel');
@@ -1344,7 +1308,6 @@
     async function loadSessions() {
         const { data: sessions } = await sb.from('workout_sessions').select('*').order('started_at', { ascending: false });
         state.sessions = sessions || [];
-
         const { data: allSets } = await sb.from('sets').select('*').order('started_at', { ascending: true });
         const setsBySession = {};
         (allSets || []).forEach(s => {
@@ -1368,17 +1331,13 @@
         await loadSessions();
         renderActiveSets();
 
-        // Birthday & age ticker
         loadBirthday();
 
-        // Voice
         initVoiceRecognition();
         updateVoiceUI();
 
-        // Apply initial view from URL
         const params = new URLSearchParams(location.search);
         const initialView = params.get('view') || 'logger';
-        // Replace state so back button works correctly from initial load
         history.replaceState({ view: initialView }, '', initialView === 'logger' ? location.pathname : `${location.pathname}?view=${initialView}`);
         applyView(initialView);
     }
