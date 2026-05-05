@@ -330,10 +330,11 @@
 <body>
 
     <header>
-        <div class="brand">
+               <div class="brand" onclick="switchView('logger')" style="cursor:pointer;">
             <div class="brand-icon"><i class="fa-solid fa-bolt"></i></div>
             <span class="brand-name">Fit Pulse</span>
         </div>
+
         <div class="header-right">
             <div class="age-badge placeholder" id="respectBadge" onclick="openRespectView()" title="Respect Yourself">Respect Yourself</div>
             <div class="age-badge placeholder" id="ageBadge" onclick="openBirthdayModal()" title="Set your birthday">Set DOB</div>
@@ -1544,7 +1545,8 @@
         state.sessions.forEach(sess => { sess.sets = setsBySession[sess.id] || []; });
     }
 
-    async function boot() {
+        async function boot() {
+        // Load exercises
         const { data: exData } = await sb.from('exercises').select('name').order('created_at', { ascending: true });
         state.exercises = (exData || []).map(e => e.name);
         rebuildExerciseSelect();
@@ -1561,11 +1563,15 @@
         initVoiceRecognition();
         updateVoiceUI();
 
+        // Load respect data BEFORE applying view (fixes refresh issue)
+        await loadRespect();
+
         const params = new URLSearchParams(location.search);
         const initialView = params.get('view') || 'logger';
         history.replaceState({ view: initialView }, '', initialView === 'logger' ? location.pathname : `${location.pathname}?view=${initialView}`);
         applyView(initialView);
     }
+
 
         document.getElementById('repsInput').addEventListener('keypress', e => { if (e.key === 'Enter') saveSet(); });
     document.getElementById('newExerciseName').addEventListener('keypress', e => { if (e.key === 'Enter') saveNewExercise(); });
@@ -2047,14 +2053,37 @@
         }).join('');
     }
 
-    // Patch boot to also load respect data
+    // Patch boot to also load respect data BEFORE applying view
     const _origBoot = boot;
     boot = async function() {
-        await _origBoot();
+        // Load exercises and sessions
+        const { data: exData } = await sb.from('exercises').select('name').order('created_at', { ascending: true });
+        state.exercises = (exData || []).map(e => e.name);
+        rebuildExerciseSelect();
+        if (state.exercises.length) {
+            state.currentExercise = state.exercises[0];
+            document.getElementById('exerciseSelect').value = state.currentExercise;
+        }
+        handleExerciseChange();
+        await loadSessions();
+        renderActiveSets();
+
+        loadBirthday();
+
+        initVoiceRecognition();
+        updateVoiceUI();
+
+        // Load respect data BEFORE applying view so respect view renders correctly on refresh
         await loadRespect();
+
+        const params = new URLSearchParams(location.search);
+        const initialView = params.get('view') || 'logger';
+        history.replaceState({ view: initialView }, '', initialView === 'logger' ? location.pathname : `${location.pathname}?view=${initialView}`);
+        applyView(initialView);
     };
 
     window.addEventListener('DOMContentLoaded', boot);
+
     </script>
 
 </body>
