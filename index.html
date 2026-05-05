@@ -242,7 +242,52 @@
         @media (max-width: 360px) {
             .brand-name { display: none; }
         }
+
+        /* ===== RESPECT YOURSELF ===== */
+        .respect-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: border-color 0.15s ease, transform 0.15s ease;
+        }
+        .respect-item.done-winner { border-color: var(--success); background: rgba(16, 185, 129, 0.04); }
+        .respect-item.done-loser { border-color: var(--danger); background: rgba(239, 68, 68, 0.04); opacity: 0.85; }
+        .respect-item.not-today { opacity: 0.55; }
+        .respect-item-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .respect-item-title { font-weight: 600; font-size: 0.95rem; color: var(--text); letter-spacing: -0.01em; flex: 1; cursor: pointer; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+        .respect-item-meta { font-size: 0.72rem; color: var(--text-faint); font-family: 'JetBrains Mono', monospace; white-space:nowrap;}
+        .respect-item-actions { display: flex; gap: 6px; align-items:center; }
+        .respect-not-today-msg { font-size: 0.78rem; color: var(--text-muted); font-style: italic; padding: 4px 0; }
+        .respect-buttons { display: flex; gap: 8px; }
+        .btn-loser, .btn-winner {
+            flex: 1; height: 36px; border-radius: 4px; border: 1px solid; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-family: inherit; transition: all 0.15s ease;
+        }
+        .btn-loser { background: transparent; color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
+        .btn-loser:hover, .btn-loser.active { background: var(--danger); color: white; border-color: var(--danger); }
+        .btn-winner { background: transparent; color: var(--success); border-color: rgba(16, 185, 129, 0.3); }
+        .btn-winner:hover, .btn-winner.active { background: var(--success); color: white; border-color: var(--success); }
+        .reorder-handle { cursor: grab; color: var(--text-faint); padding: 4px 8px; display:none; }
+        .respect-item.reordering .reorder-handle { display:inline-block; }
+        .respect-item.reordering .respect-buttons { display: none; }
+        .respect-item.dragging { opacity: 0.4; }
+        .respect-day-pill {
+            padding: 6px 10px; border: 1px solid var(--border); background: var(--surface); border-radius: 4px;
+            font-size: 0.75rem; font-weight: 600; color: var(--text-muted); cursor: pointer; user-select:none;
+        }
+        .respect-day-pill.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+        .detail-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
+        .detail-stat { background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 14px; text-align: center; }
+        .detail-stat-val { font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 700; color: var(--accent); letter-spacing:-0.02em;}
+        .detail-stat-label { font-size: 0.65rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-top: 4px; }
+        .detail-note-box { background: var(--surface-2); border-left: 3px solid var(--accent); padding: 12px 14px; border-radius: 4px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; font-style: italic; }
     </style>
+
 </head>
 <body>
 
@@ -252,9 +297,11 @@
             <span class="brand-name">Fit Pulse</span>
         </div>
         <div class="header-right">
+            <div class="age-badge placeholder" id="respectBadge" onclick="openRespectView()" title="Respect Yourself">Respect Yourself</div>
             <div class="age-badge placeholder" id="ageBadge" onclick="openBirthdayModal()" title="Set your birthday">Set DOB</div>
             <div class="dropdown">
                 <button class="menu-btn" onclick="toggleMenu(event)"><i class="fa-solid fa-bars"></i></button>
+
                 <div id="dropdownMenu" class="dropdown-content">
                     <div class="dropdown-section">
                         <div class="dropdown-label">Navigate</div>
@@ -350,6 +397,34 @@
             <div id="historyList"></div>
         </div>
 
+
+
+        <!-- RESPECT YOURSELF -->
+        <div class="view" id="respectView">
+            <div class="page-title">
+                <h1>Respect Yourself</h1>
+                <small id="respectTodayLabel"></small>
+            </div>
+
+            <div class="card">
+                <div class="card-head">
+                    <div class="card-title"><strong>Your</strong> Commitments</div>
+                    <button class="btn btn-outline" style="height:32px;padding:0 12px;font-size:0.78rem;" onclick="toggleReorderMode()" id="reorderBtn"><i class="fa-solid fa-arrows-up-down"></i> Reorder</button>
+                </div>
+                <div id="respectList"></div>
+                <button class="btn btn-primary btn-block" style="margin-top:12px;" onclick="openRespectItemModal()"><i class="fa-solid fa-plus"></i> Add New Item</button>
+            </div>
+        </div>
+
+        <!-- RESPECT DETAIL -->
+        <div class="view" id="respectDetailView">
+            <div class="page-title">
+                <h1 id="respectDetailTitle">Item</h1>
+                <small><button class="btn btn-outline" style="height:30px;padding:0 10px;font-size:0.75rem;" onclick="switchView('respect')"><i class="fa-solid fa-arrow-left"></i> Back</button></small>
+            </div>
+            <div id="respectDetailContent"></div>
+        </div>
+
         <!-- ANALYTICS -->
         <div class="view" id="analyticsView">
             <div class="page-title">
@@ -431,6 +506,59 @@
             </div>
         </div>
     </div>
+    
+    
+        <!-- Respect Item Add/Edit Modal -->
+    <div class="modal-overlay" id="respectItemModal">
+        <div class="modal-content" style="max-width:400px;">
+            <div class="modal-title" id="respectModalTitle">Add Item</div>
+            <div class="modal-sub">Build a habit. Track honestly.</div>
+            <div class="input-group"><label>Title</label><input type="text" id="riTitle" placeholder="E.g., Eat 4 bananas" autocomplete="off"></div>
+            <div class="input-group"><label>Type</label>
+                <select id="riType">
+                    <option value="task">Daily Task (target count)</option>
+                    <option value="challenge">Challenge (e.g. quit smoking)</option>
+                </select>
+            </div>
+            <div class="input-group" id="riTargetGroup"><label>Target (e.g. 4)</label><input type="number" id="riTarget" placeholder="4" inputmode="numeric"></div>
+            <div class="input-group" id="riUnitGroup"><label>Unit (optional)</label><input type="text" id="riUnit" placeholder="bananas, tablets, glasses..."></div>
+            <div class="input-group" id="riChallengeGroup" style="display:none;"><label>Challenge Start Date</label><input type="date" id="riChallengeDate"></div>
+            <div class="input-group"><label>Days of Week</label>
+                <div id="riDays" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;"></div>
+            </div>
+            <div class="input-group"><label>Note / Why (optional)</label><textarea id="riNote" placeholder="Why am I doing this?" rows="3" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r);font-size:0.92rem;font-family:inherit;background:var(--surface);color:var(--text);resize:vertical;"></textarea></div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeModal('respectItemModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveRespectItem()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loser Modal -->
+    <div class="modal-overlay" id="loserModal">
+        <div class="modal-content">
+            <div class="modal-title">There's still a chance</div>
+            <div class="modal-sub">Tomorrow is a fresh start. Are you sure?</div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeModal('loserModal')">Cancel</button>
+                <button class="btn btn-danger" id="loserConfirmBtn" style="border-color:var(--danger);background:var(--danger);color:white;">Yes, I'm a loser</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Winner Modal (with optional value) -->
+    <div class="modal-overlay" id="winnerModal">
+        <div class="modal-content">
+            <div class="modal-title">🏆 You're a Winner</div>
+            <div class="modal-sub" id="winnerSub">How much did you do today?</div>
+            <div class="input-group" id="winnerValueGroup"><label>Actual amount</label><input type="number" id="winnerValueInput" placeholder="0" inputmode="numeric"></div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeModal('winnerModal')">Cancel</button>
+                <button class="btn btn-success" id="winnerConfirmBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Hidden audio elements for instant playback -->
     <audio id="sfxStart" preload="auto" src="https://honnodwiwqtcbyasogli.supabase.co/storage/v1/object/public/Bucket/Started.mp3"></audio>
@@ -1409,11 +1537,499 @@
         applyView(initialView);
     }
 
-    document.getElementById('repsInput').addEventListener('keypress', e => { if (e.key === 'Enter') saveSet(); });
+        document.getElementById('repsInput').addEventListener('keypress', e => { if (e.key === 'Enter') saveSet(); });
     document.getElementById('newExerciseName').addEventListener('keypress', e => { if (e.key === 'Enter') saveNewExercise(); });
     document.getElementById('birthdayInput').addEventListener('keypress', e => { if (e.key === 'Enter') saveBirthday(); });
 
+    /* ============================================
+       RESPECT YOURSELF MODULE
+       ============================================ */
+    state.respect = { items: [], logs: [], reorderMode: false, editingId: null, currentDetailId: null, detailChart: null };
+    const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const DAY_NAMES_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+    function todayISO() {
+        const d = new Date();
+        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    function openRespectView() {
+        haptic(HAPTIC.light);
+        switchView('respect');
+    }
+
+    // Patch view system to support respect views
+    const _origApplyView = applyView;
+    applyView = function(view) {
+        const ALL_VIEWS = ['logger','history','analytics','respect','respectDetail'];
+        if (!ALL_VIEWS.includes(view)) view = 'logger';
+        state.currentView = view;
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        const target = document.getElementById(view + 'View');
+        if (target) target.classList.add('active');
+        document.querySelectorAll('.dropdown-item[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+        document.getElementById('dropdownMenu').classList.remove('show');
+        if (view === 'history') renderHistory();
+        if (view === 'analytics') renderAnalytics();
+        if (view === 'respect') renderRespectList();
+        if (view === 'respectDetail') renderRespectDetail();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    async function loadRespect() {
+        const { data: items } = await sb.from('respect_items').select('*').order('sort_order', { ascending: true });
+        state.respect.items = items || [];
+        const { data: logs } = await sb.from('respect_logs').select('*').order('log_date', { ascending: false });
+        state.respect.logs = logs || [];
+    }
+
+    function getTodayLog(itemId) {
+        const t = todayISO();
+        return state.respect.logs.find(l => l.item_id === itemId && l.log_date === t);
+    }
+
+    function isItemActiveToday(item) {
+        const days = (item.days_of_week || '').split(',').map(s => s.trim()).filter(s => s !== '');
+        if (!days.length) return true;
+        const today = new Date().getDay();
+        return days.includes(String(today));
+    }
+
+    function nextActiveDayName(item) {
+        const days = (item.days_of_week || '').split(',').map(s => parseInt(s)).filter(n => !isNaN(n));
+        if (!days.length) return '';
+        const today = new Date().getDay();
+        for (let i = 1; i <= 7; i++) {
+            const d = (today + i) % 7;
+            if (days.includes(d)) return DAY_NAMES_FULL[d];
+        }
+        return '';
+    }
+
+    function daysSince(dateStr) {
+        if (!dateStr) return 0;
+        const start = new Date(dateStr);
+        const now = new Date();
+        start.setHours(0,0,0,0); now.setHours(0,0,0,0);
+        return Math.max(0, Math.floor((now - start) / 86400000));
+    }
+
+    function renderRespectList() {
+        document.getElementById('respectTodayLabel').innerText = todayLabel();
+        const list = document.getElementById('respectList');
+        list.innerHTML = '';
+        if (!state.respect.items.length) {
+            list.innerHTML = '<div class="empty-state">No items yet. Tap "Add New Item" to start.</div>';
+            return;
+        }
+        state.respect.items.forEach(item => {
+            const log = getTodayLog(item.id);
+            const activeToday = isItemActiveToday(item);
+            const isChallenge = item.item_type === 'challenge';
+            const div = document.createElement('div');
+            div.className = 'respect-item';
+            div.dataset.id = item.id;
+            if (state.respect.reorderMode) div.classList.add('reordering');
+            if (log && log.status === 'winner') div.classList.add('done-winner');
+            if (log && log.status === 'loser') div.classList.add('done-loser');
+            if (!activeToday) div.classList.add('not-today');
+
+            let metaText = '';
+            if (isChallenge) {
+                metaText = `Day ${daysSince(item.challenge_start_date)}`;
+            } else if (item.target_value) {
+                metaText = `Target: ${item.target_value}${item.unit ? ' ' + item.unit : ''}`;
+            }
+
+            let bodyHtml = '';
+            if (state.respect.reorderMode) {
+                bodyHtml = '';
+            } else if (!activeToday) {
+                const nextDay = nextActiveDayName(item);
+                bodyHtml = `<div class="respect-not-today-msg">Not today${nextDay ? `, do it on ${nextDay}` : ''}.</div>`;
+            } else if (log) {
+                const valTxt = (log.status === 'winner' && log.actual_value) ? ` (${log.actual_value}${item.unit ? ' ' + item.unit : ''})` : '';
+                bodyHtml = `<div class="respect-not-today-msg">${log.status === 'winner' ? '✅ Logged as Winner' : '❌ Logged as Loser'}${valTxt} — tap to change</div>
+                <div class="respect-buttons">
+                    <button class="btn-loser ${log.status==='loser'?'active':''}" onclick="event.stopPropagation();confirmLoser(${item.id})"><i class="fa-solid fa-thumbs-down"></i> Loser</button>
+                    <button class="btn-winner ${log.status==='winner'?'active':''}" onclick="event.stopPropagation();confirmWinner(${item.id})"><i class="fa-solid fa-trophy"></i> Winner</button>
+                </div>`;
+            } else {
+                bodyHtml = `<div class="respect-buttons">
+                    <button class="btn-loser" onclick="event.stopPropagation();confirmLoser(${item.id})"><i class="fa-solid fa-thumbs-down"></i> Loser</button>
+                    <button class="btn-winner" onclick="event.stopPropagation();confirmWinner(${item.id})"><i class="fa-solid fa-trophy"></i> Winner</button>
+                </div>`;
+            }
+
+            div.innerHTML = `
+                <div class="respect-item-head">
+                    <span class="reorder-handle"><i class="fa-solid fa-grip-lines"></i></span>
+                    <div class="respect-item-title" onclick="openRespectDetail(${item.id})">${escapeHtml(item.title)}</div>
+                    <span class="respect-item-meta">${metaText}</span>
+                    <div class="respect-item-actions">
+                        <button class="icon-btn" onclick="event.stopPropagation();editRespectItem(${item.id})"><i class="fa-solid fa-pen"></i></button>
+                        <button class="icon-btn danger" onclick="event.stopPropagation();deleteRespectItem(${item.id})"><i class="fa-regular fa-trash-can"></i></button>
+                    </div>
+                </div>
+                ${bodyHtml}`;
+
+            // Drag-and-drop reorder
+            if (state.respect.reorderMode) {
+                div.draggable = true;
+                div.addEventListener('dragstart', e => { div.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+                div.addEventListener('dragend', () => div.classList.remove('dragging'));
+                div.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    const dragging = document.querySelector('.respect-item.dragging');
+                    if (!dragging || dragging === div) return;
+                    const rect = div.getBoundingClientRect();
+                    const after = (e.clientY - rect.top) > rect.height / 2;
+                    div.parentNode.insertBefore(dragging, after ? div.nextSibling : div);
+                });
+                div.addEventListener('drop', e => { e.preventDefault(); persistOrder(); });
+                // Touch reorder for Android
+                let touchStartY = 0;
+                div.addEventListener('touchstart', e => {
+                    if (!e.target.closest('.reorder-handle')) return;
+                    touchStartY = e.touches[0].clientY;
+                    div.classList.add('dragging');
+                }, {passive:true});
+                div.addEventListener('touchmove', e => {
+                    if (!div.classList.contains('dragging')) return;
+                    e.preventDefault();
+                    const y = e.touches[0].clientY;
+                    const elements = [...list.querySelectorAll('.respect-item:not(.dragging)')];
+                    const next = elements.find(el => {
+                        const r = el.getBoundingClientRect();
+                        return y < r.top + r.height/2;
+                    });
+                    if (next) list.insertBefore(div, next);
+                    else list.appendChild(div);
+                }, {passive:false});
+                div.addEventListener('touchend', () => {
+                    if (div.classList.contains('dragging')) { div.classList.remove('dragging'); persistOrder(); }
+                });
+            }
+
+            list.appendChild(div);
+        });
+    }
+
+    async function persistOrder() {
+        const ids = [...document.querySelectorAll('#respectList .respect-item')].map(el => parseInt(el.dataset.id));
+        const updates = ids.map((id, idx) => ({ id, sort_order: idx }));
+        // Update local order immediately
+        state.respect.items.sort((a,b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+        for (const u of updates) {
+            await sb.from('respect_items').update({ sort_order: u.sort_order }).eq('id', u.id);
+        }
+    }
+
+    function toggleReorderMode() {
+        haptic(HAPTIC.medium);
+        state.respect.reorderMode = !state.respect.reorderMode;
+        document.getElementById('reorderBtn').innerHTML = state.respect.reorderMode
+            ? '<i class="fa-solid fa-check"></i> Done'
+            : '<i class="fa-solid fa-arrows-up-down"></i> Reorder';
+        renderRespectList();
+    }
+
+    function escapeHtml(s) { return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+    /* ----- Add / Edit ----- */
+    function openRespectItemModal() {
+        haptic(HAPTIC.light);
+        state.respect.editingId = null;
+        document.getElementById('respectModalTitle').innerText = 'Add Item';
+        document.getElementById('riTitle').value = '';
+        document.getElementById('riType').value = 'task';
+        document.getElementById('riTarget').value = '';
+        document.getElementById('riUnit').value = '';
+        document.getElementById('riChallengeDate').value = todayISO();
+        document.getElementById('riNote').value = '';
+        renderDayPicker([0,1,2,3,4,5,6]);
+        updateTypeFields();
+        openModal('respectItemModal');
+    }
+
+    function editRespectItem(id) {
+        haptic(HAPTIC.light);
+        const item = state.respect.items.find(i => i.id === id);
+        if (!item) return;
+        state.respect.editingId = id;
+        document.getElementById('respectModalTitle').innerText = 'Edit Item';
+        document.getElementById('riTitle').value = item.title;
+        document.getElementById('riType').value = item.item_type;
+        document.getElementById('riTarget').value = item.target_value || '';
+        document.getElementById('riUnit').value = item.unit || '';
+        document.getElementById('riChallengeDate').value = item.challenge_start_date || todayISO();
+        document.getElementById('riNote').value = item.note || '';
+        const days = (item.days_of_week || '').split(',').filter(s => s !== '').map(Number);
+        renderDayPicker(days);
+        updateTypeFields();
+        openModal('respectItemModal');
+    }
+
+    function renderDayPicker(selected) {
+        const host = document.getElementById('riDays');
+        host.innerHTML = '';
+        DAY_NAMES.forEach((n, i) => {
+            const p = document.createElement('span');
+            p.className = 'respect-day-pill' + (selected.includes(i) ? ' active' : '');
+            p.dataset.day = i;
+            p.innerText = n;
+            p.onclick = () => { haptic(HAPTIC.light); p.classList.toggle('active'); };
+            host.appendChild(p);
+        });
+    }
+
+    function getSelectedDays() {
+        return [...document.querySelectorAll('#riDays .respect-day-pill.active')].map(p => p.dataset.day).join(',');
+    }
+
+    document.getElementById('riType').addEventListener('change', updateTypeFields);
+    function updateTypeFields() {
+        const isChallenge = document.getElementById('riType').value === 'challenge';
+        document.getElementById('riTargetGroup').style.display = isChallenge ? 'none' : '';
+        document.getElementById('riUnitGroup').style.display = isChallenge ? 'none' : '';
+        document.getElementById('riChallengeGroup').style.display = isChallenge ? '' : 'none';
+    }
+
+    async function saveRespectItem() {
+        const title = document.getElementById('riTitle').value.trim();
+        if (!title) { toast('Enter a title'); return; }
+        const type = document.getElementById('riType').value;
+        const days = getSelectedDays();
+        if (!days) { toast('Pick at least one day'); return; }
+        const payload = {
+            title,
+            item_type: type,
+            target_value: type === 'task' ? (parseInt(document.getElementById('riTarget').value) || 1) : 1,
+            unit: document.getElementById('riUnit').value.trim(),
+            days_of_week: days,
+            note: document.getElementById('riNote').value.trim(),
+            challenge_start_date: type === 'challenge' ? document.getElementById('riChallengeDate').value : null
+        };
+        if (state.respect.editingId) {
+            const { error } = await sb.from('respect_items').update(payload).eq('id', state.respect.editingId);
+            if (error) { toast('Save failed'); console.error(error); return; }
+            toast('Updated');
+        } else {
+            payload.sort_order = state.respect.items.length;
+            const { error } = await sb.from('respect_items').insert([payload]);
+            if (error) { toast('Save failed'); console.error(error); return; }
+            toast('Added');
+        }
+        haptic(HAPTIC.success);
+        closeModal('respectItemModal');
+        await loadRespect();
+        renderRespectList();
+    }
+
+    function deleteRespectItem(id) {
+        const item = state.respect.items.find(i => i.id === id);
+        if (!item) return;
+        confirmAction('Delete Item', `Remove "${item.title}" and all its history?`, async () => {
+            await sb.from('respect_logs').delete().eq('item_id', id);
+            await sb.from('respect_items').delete().eq('id', id);
+            await loadRespect();
+            renderRespectList();
+            toast('Deleted');
+        });
+    }
+
+    /* ----- Loser / Winner ----- */
+    function confirmLoser(id) {
+        haptic(HAPTIC.warning);
+        const item = state.respect.items.find(i => i.id === id);
+        if (!item) return;
+        document.getElementById('loserConfirmBtn').onclick = async () => {
+            haptic(HAPTIC.delete);
+            await upsertLog(id, 'loser', 0);
+            closeModal('loserModal');
+            await loadRespect();
+            renderRespectList();
+            toast('Logged. Tomorrow is a new day.');
+        };
+        openModal('loserModal');
+    }
+
+    function confirmWinner(id) {
+        haptic(HAPTIC.medium);
+        const item = state.respect.items.find(i => i.id === id);
+        if (!item) return;
+        const isChallenge = item.item_type === 'challenge';
+        document.getElementById('winnerSub').innerText = isChallenge
+            ? `Confirm you held strong on "${item.title}" today?`
+            : `How many ${item.unit || 'units'} did you do? (Target: ${item.target_value})`;
+        document.getElementById('winnerValueGroup').style.display = isChallenge ? 'none' : '';
+        document.getElementById('winnerValueInput').value = isChallenge ? '' : item.target_value;
+        document.getElementById('winnerConfirmBtn').onclick = async () => {
+            const val = isChallenge ? 1 : (parseInt(document.getElementById('winnerValueInput').value) || 0);
+            if (!isChallenge && val <= 0) { toast('Enter a value'); return; }
+            haptic(HAPTIC.success);
+            await upsertLog(id, 'winner', val);
+            closeModal('winnerModal');
+            await loadRespect();
+            renderRespectList();
+            toast('🏆 Winner!');
+        };
+        openModal('winnerModal');
+    }
+
+    async function upsertLog(itemId, status, value) {
+        const t = todayISO();
+        const existing = state.respect.logs.find(l => l.item_id === itemId && l.log_date === t);
+        if (existing) {
+            await sb.from('respect_logs').update({ status, actual_value: value }).eq('id', existing.id);
+        } else {
+            await sb.from('respect_logs').insert([{ item_id: itemId, log_date: t, status, actual_value: value }]);
+        }
+    }
+
+    /* ----- Detail View ----- */
+    function openRespectDetail(id) {
+        haptic(HAPTIC.light);
+        state.respect.currentDetailId = id;
+        switchView('respectDetail');
+    }
+
+    function renderRespectDetail() {
+        const id = state.respect.currentDetailId;
+        const item = state.respect.items.find(i => i.id === id);
+        const host = document.getElementById('respectDetailContent');
+        if (!item) { host.innerHTML = '<div class="card"><div class="empty-state">Item not found.</div></div>'; return; }
+        document.getElementById('respectDetailTitle').innerText = item.title;
+
+        const itemLogs = state.respect.logs.filter(l => l.item_id === id).sort((a,b) => new Date(a.log_date) - new Date(b.log_date));
+        const winners = itemLogs.filter(l => l.status === 'winner');
+        const losers = itemLogs.filter(l => l.status === 'loser');
+        const totalDays = itemLogs.length;
+        const winRate = totalDays ? Math.round((winners.length / totalDays) * 100) : 0;
+
+        // Calculate streaks (consecutive winner days, by date order)
+        let currentStreak = 0, bestStreak = 0, runStreak = 0;
+        const sortedDesc = [...itemLogs].sort((a,b) => new Date(b.log_date) - new Date(a.log_date));
+        for (const l of sortedDesc) {
+            if (l.status === 'winner') { currentStreak++; } else { break; }
+        }
+        for (const l of itemLogs) {
+            if (l.status === 'winner') { runStreak++; bestStreak = Math.max(bestStreak, runStreak); }
+            else { runStreak = 0; }
+        }
+
+        const isChallenge = item.item_type === 'challenge';
+        const avgVal = (!isChallenge && winners.length) ? (winners.reduce((a,b)=>a+(b.actual_value||0),0) / winners.length).toFixed(1) : null;
+        const bestVal = (!isChallenge && winners.length) ? Math.max(...winners.map(w=>w.actual_value||0)) : null;
+
+        let statsHtml = `
+            <div class="detail-stat"><div class="detail-stat-val">${winners.length}</div><div class="detail-stat-label">Winner Days</div></div>
+            <div class="detail-stat"><div class="detail-stat-val">${losers.length}</div><div class="detail-stat-label">Loser Days</div></div>
+            <div class="detail-stat"><div class="detail-stat-val">${currentStreak}</div><div class="detail-stat-label">Current Streak</div></div>
+            <div class="detail-stat"><div class="detail-stat-val">${bestStreak}</div><div class="detail-stat-label">Best Streak</div></div>
+            <div class="detail-stat"><div class="detail-stat-val">${winRate}%</div><div class="detail-stat-label">Win Rate</div></div>`;
+        if (isChallenge) {
+            statsHtml += `<div class="detail-stat"><div class="detail-stat-val">${daysSince(item.challenge_start_date)}</div><div class="detail-stat-label">Days Since Start</div></div>`;
+        } else {
+            statsHtml += `<div class="detail-stat"><div class="detail-stat-val">${avgVal||'0'}</div><div class="detail-stat-label">Avg ${item.unit||'Value'}</div></div>`;
+        }
+
+        const daysActive = (item.days_of_week||'').split(',').filter(s=>s!=='').map(n => DAY_NAMES[parseInt(n)]).join(', ');
+
+        host.innerHTML = `
+            <div class="card">
+                <div class="card-head"><div class="card-title"><strong>Your</strong> Stats</div></div>
+                <div class="detail-stat-grid">${statsHtml}</div>
+                <div style="font-size:0.78rem;color:var(--text-muted);text-align:center;">Active days: ${daysActive || 'Every day'}</div>
+            </div>
+            ${item.note ? `<div class="card"><div class="card-head"><div class="card-title"><strong>Why</strong> I Started</div></div><div class="detail-note-box">${escapeHtml(item.note)}</div></div>` : ''}
+            <div class="card">
+                <div class="card-head"><div class="card-title"><strong>Performance</strong> Over Time</div></div>
+                <div class="chart-wrap"><canvas id="respectDetailChart"></canvas></div>
+            </div>
+            <div class="card">
+                <div class="card-head"><div class="card-title"><strong>Recent</strong> Days</div></div>
+                <div id="respectRecentLogs"></div>
+            </div>`;
+
+        renderDetailChart(itemLogs, item);
+        renderRecentLogs(itemLogs, item);
+    }
+
+    function renderDetailChart(logs, item) {
+        const canvas = document.getElementById('respectDetailChart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (state.respect.detailChart) state.respect.detailChart.destroy();
+        const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+        const accent = dark ? '#60A5FA' : '#2563EB';
+        const grid = dark ? '#1E2630' : '#EEF1F4';
+        const txt = dark ? '#94A3B8' : '#5A6B7C';
+        const point = dark ? '#0F1419' : '#FFFFFF';
+
+        const last30 = logs.slice(-30);
+        const labels = last30.map(l => new Date(l.log_date).toLocaleDateString('en-US', { month:'short', day:'numeric' }));
+        const isChallenge = item.item_type === 'challenge';
+        const data = last30.map(l => isChallenge ? (l.status==='winner'?1:0) : (l.actual_value||0));
+
+        const grad = ctx.createLinearGradient(0, 0, 0, 220);
+        grad.addColorStop(0, accent + '55'); grad.addColorStop(1, accent + '00');
+
+        state.respect.detailChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels.length ? labels : ['—'],
+                datasets: [{
+                    data: data.length ? data : [0],
+                    borderColor: accent, backgroundColor: grad,
+                    borderWidth: 2.5, tension: 0.35, fill: true,
+                    pointBackgroundColor: last30.map(l => l.status==='winner' ? '#10B981' : '#EF4444'),
+                    pointBorderColor: point, pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    legend: { display:false },
+                    tooltip: {
+                        backgroundColor: dark ? '#161C24' : '#0A2540',
+                        titleColor:'#fff', bodyColor:'#fff', cornerRadius:4, padding:10, displayColors:false,
+                        callbacks: {
+                            label: (c) => isChallenge
+                                ? (last30[c.dataIndex].status==='winner' ? 'Winner ✓' : 'Loser ✗')
+                                : `${c.parsed.y} ${item.unit||''} (target: ${item.target_value})`
+                        }
+                    }
+                },
+                scales: {
+                    y: { beginAtZero:true, grid:{color:grid}, ticks:{precision:0,color:txt,font:{size:11}} },
+                    x: { grid:{display:false}, ticks:{color:txt,font:{size:11}, maxTicksLimit:7} }
+                }
+            }
+        });
+    }
+
+    function renderRecentLogs(logs, item) {
+        const host = document.getElementById('respectRecentLogs');
+        if (!logs.length) { host.innerHTML = '<div class="empty-state">No history yet.</div>'; return; }
+        const recent = [...logs].reverse().slice(0, 14);
+        host.innerHTML = recent.map(l => {
+            const dateStr = new Date(l.log_date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+            const isWin = l.status === 'winner';
+            const valTxt = (item.item_type !== 'challenge' && isWin) ? ` — ${l.actual_value} ${item.unit||''}` : '';
+            return `<div class="hist-set-row"><div class="left"><span class="reps" style="color:${isWin?'var(--success)':'var(--danger)'}">${isWin?'✓ Winner':'✗ Loser'}</span><span class="dur">${dateStr}${valTxt}</span></div></div>`;
+        }).join('');
+    }
+
+    // Patch boot to also load respect data
+    const _origBoot = boot;
+    boot = async function() {
+        await _origBoot();
+        await loadRespect();
+    };
+
     window.addEventListener('DOMContentLoaded', boot);
     </script>
+
 </body>
 </html>
