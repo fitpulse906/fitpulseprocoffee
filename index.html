@@ -1153,9 +1153,9 @@
         });
     }
 
-    /* ============================================
+/* ============================================
        VOICE CONTROL — start/stop the SET timer
-       (No TTS / no spoken voice. SFX only.)
+       (Delay Hack added to bypass OS beep clash)
        ============================================ */
     const START_KEYWORDS = [
         'start', 'begin', 'go',
@@ -1193,14 +1193,13 @@
         const rec = new SR();
         rec.continuous = true;
         rec.interimResults = true;
-        rec.lang = 'en-IN'; // English India — picks up Hinglish well too
+        rec.lang = 'en-IN'; 
         rec.maxAlternatives = 3;
 
         rec.onresult = (event) => {
             const now = Date.now();
-            if (now - state.voice.lastTrigger < 1200) return;
+            if (now - state.voice.lastTrigger < 1500) return; // Prevent double triggers
 
-            // Build transcript only from the latest result chunks
             let fullTranscript = "";
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 const alts = event.results[i];
@@ -1213,17 +1212,17 @@
             const hasStop  = matchesAny(fullTranscript, STOP_KEYWORDS);
             if (!hasStart && !hasStop) return;
 
-            // STOP wins if both somehow appear and a set is running
+            // Adding a 400ms delay so Android's default beep finishes before your SFX starts playing
             if (state.activeSet.running && hasStop) {
                 state.voice.lastTrigger = now;
                 haptic(HAPTIC.voice);
-                stopSet();
+                setTimeout(() => { stopSet(); }, 400); 
                 return;
             }
             if (!state.activeSet.running && hasStart) {
                 state.voice.lastTrigger = now;
                 haptic(HAPTIC.voice);
-                startSet();
+                setTimeout(() => { startSet(); }, 400);
                 return;
             }
         };
@@ -1236,14 +1235,12 @@
                 updateVoiceUI();
                 toast('Microphone permission denied');
             }
-            // For 'no-speech' / 'audio-capture' / 'network' — onend will fire and we auto-restart
         };
 
         rec.onend = () => {
             if (state.voice.shouldRun) {
-                // Auto-restart for continuous listening
                 setTimeout(() => {
-                    try { rec.start(); } catch (e) { /* already started */ }
+                    try { rec.start(); } catch (e) { }
                 }, 250);
             } else {
                 state.voice.enabled = false;
@@ -1258,7 +1255,7 @@
 
     function toggleVoiceRecognition() {
         haptic(HAPTIC.medium);
-        unlockAudio(); // ensure SFX can play later
+        unlockAudio(); 
         if (!state.voice.supported) { toast('Voice not supported in this browser'); return; }
         if (state.voice.shouldRun) {
             state.voice.shouldRun = false;
@@ -1272,10 +1269,12 @@
             } catch (e) { console.warn(e); }
         }
     }
+    
     function toggleVoiceFromMenu() {
         document.getElementById('dropdownMenu').classList.remove('show');
         toggleVoiceRecognition();
     }
+    
     function updateVoiceUI() {
         const strip = document.getElementById('voiceStrip');
         const label = document.getElementById('voiceStripLabel');
