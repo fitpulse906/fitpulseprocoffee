@@ -685,6 +685,7 @@
 
     function startAgeTicker() {
         if (state.ageInterval) clearInterval(state.ageInterval);
+        // refresh every minute is enough for D/M/Y precision
         state.ageInterval = setInterval(renderAgeBadge, 60000);
     }
 
@@ -746,10 +747,11 @@
     function startSet() {
         if (!state.currentExercise) { toast('Pick an exercise first'); return; }
         if (state.activeSet.running) return;
-        
+        // Auto-start the session if it hasn't been started (helps voice commands)
         if (!state.activeSession.running && state.activeSession.sessionSeconds === 0) {
             startSession();
         } else if (!state.activeSession.running) {
+            // resume paused session
             resumeSession();
         }
 
@@ -1159,16 +1161,41 @@
     }
 
     /* ============================================
-       4. VOICE CONTROL (Fixed / Bulletproof)
+       4. VOICE CONTROL (Web Speech API)
        ============================================ */
     const START_KEYWORDS = [
         'start', 'begin', 'go',
-        'shuru', 'shuroo', 'chalu', 'chalo', 'chal'
+        'shuru', 'shuroo', 'shuru kar', 'shuru karo', 'shuroo karo',
+        'chal', 'chalo', 'chalu', 'chalu kar',
+        'set start', 'start set'
     ];
     const STOP_KEYWORDS = [
         'stop', 'end', 'finish',
-        'ruk', 'ruko', 'rukja', 'band', 'chup'
+        'ruk', 'ruko', 'rukja', 'ruk ja',
+        'chup', 'chup kar', 'band', 'band kar', 'band karo',
+        'set stop', 'stop set'
     ];
+
+    function speak(text) {
+        try {
+            if (!('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'en-US';
+            u.rate = 1;
+            u.pitch = 1;
+            u.volume = 1;
+            // Prefer an English voice
+            const voices = window.speechSynthesis.getVoices();
+            const enVoice = voices.find(v => /en[-_]/i.test(v.lang)) || voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+            if (enVoice) u.voice = enVoice;
+            window.speechSynthesis.speak(u);
+        } catch (e) { /* silent */ }
+    }
+    // Pre-load voices (some browsers need this event)
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    }
 
     function initVoiceRecognition() {
         const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1183,39 +1210,37 @@
         state.voice.supported = true;
         const rec = new SR();
         rec.continuous = true;
-        rec.interimResults = true; 
-        rec.lang = 'hi-IN'; // Better capture for Hinglish
-        rec.maxAlternatives = 1;
+        rec.interimResults = true;
+        // Hindi locale picks up Hinglish words best on most engines
+        rec.lang = 'hi-IN';
+        rec.maxAlternatives = 3;
 
         rec.onresult = (event) => {
             const now = Date.now();
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                const transcript = (event.results[i][0].transcript || '').toLowerCase().trim();
-                if (!transcript) continue;
+            if (now - state.voice.lastTrigger < 1500) return; // Spam/double trigger rokne ke liye
 
-                // Checking start keywords
-                if (START_KEYWORDS.some(kw => transcript.includes(kw))) {
-                    if (now - state.voice.lastTrigger < 2000) return; // 2 seconds debounce
-                    state.voice.lastTrigger = now;
-                    if (!state.activeSet.running) {
-                        haptic(HAPTIC.voice);
-                        startSet();
-                        toast('🗣️ Voice: Set Started');
-                    }
-                    return;
-                }
-                
-                // Checking stop keywords
-                if (STOP_KEYWORDS.some(kw => transcript.includes(kw))) {
-                    if (now - state.voice.lastTrigger < 2000) return; // 2 seconds debounce
-                    state.voice.lastTrigger = now;
-                    if (state.activeSet.running) {
-                        haptic(HAPTIC.voice);
-                        stopSet();
-                        toast('🗣️ Voice: Set Stopped');
-                    }
-                    return;
-                }
+            // Jo bhi bola gaya hai usko ek solid string mein combine karo
+            let fullTranscript = "";
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                fullTranscript += event.results[i][0].transcript.toLowerCase() + " ";
+            }
+
+            const hasStart = matchesAny(fullTranscript, START_KEYWORDS);
+            const hasStop = matchesAny(fullTranscript, STOP_KEYWORDS);
+
+            if (!hasStart && !hasStop) return;
+
+            // Gangster Logic: Sirf timer ki current state dekho
+            if (state.activeSet.running && hasStop) {
+                // Agar timer chal raha hai aur 'stop' suna -> Timer rok do
+                state.voice.lastTrigger = now;
+                haptic(HAPTIC.voice);
+                stopSet();
+            } else if (!state.activeSet.running && hasStart) {
+                // Agar timer ruka hua hai aur 'start' suna -> Timer chala do
+                state.voice.lastTrigger = now;
+                haptic(HAPTIC.voice);
+                startSet();
             }
         };
 
@@ -1230,11 +1255,9 @@
         };
 
         rec.onend = () => {
-            // Auto-restart to keep mic alive unless manually disabled
+            // Auto-restart for continuous listening
             if (state.voice.shouldRun) {
-                setTimeout(() => {
-                    try { rec.start(); } catch (e) {}
-                }, 250); // slight delay to prevent mobile browser crash loop
+                try { rec.start(); } catch (e) { /* already started */ }
             } else {
                 state.voice.enabled = false;
                 updateVoiceUI();
@@ -1249,6 +1272,18 @@
         state.voice.recognition = rec;
     }
 
+    function matchesAny(transcript, keywords) {
+        // Check each keyword as a whole-word/phrase match
+        for (const kw of keywords) {
+            const k = kw.toLowerCase();
+            // Build a regex with word boundaries where possible
+            const safe = k.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+            const re = new RegExp(`(^|[^a-z\\u0900-\\u097F])${safe}([^a-z\\u0900-\\u097F]|$)`, 'i');
+            if (re.test(transcript)) return true;
+        }
+        return false;
+    }
+
     function toggleVoiceRecognition() {
         haptic(HAPTIC.medium);
         if (!state.voice.supported) {
@@ -1256,10 +1291,12 @@
             return;
         }
         if (state.voice.shouldRun) {
+            // Stop
             state.voice.shouldRun = false;
             try { state.voice.recognition.stop(); } catch (e) {}
             toast('Voice control off');
         } else {
+            // Start
             state.voice.shouldRun = true;
             try {
                 state.voice.recognition.start();
@@ -1280,9 +1317,12 @@
         const label = document.getElementById('voiceStripLabel');
         const btn = document.getElementById('voiceStripBtn');
         const menuStatus = document.getElementById('voiceMenuStatus');
-        
-        if (!state.voice.supported) return;
-        
+        if (!state.voice.supported) {
+            label.innerText = 'Voice not supported in this browser';
+            btn.style.display = 'none';
+            menuStatus.innerText = 'N/A';
+            return;
+        }
         if (state.voice.enabled) {
             strip.classList.add('on');
             label.innerText = 'Listening — say "start" or "stop"';
@@ -1328,13 +1368,17 @@
         await loadSessions();
         renderActiveSets();
 
+        // Birthday & age ticker
         loadBirthday();
 
+        // Voice
         initVoiceRecognition();
         updateVoiceUI();
 
+        // Apply initial view from URL
         const params = new URLSearchParams(location.search);
         const initialView = params.get('view') || 'logger';
+        // Replace state so back button works correctly from initial load
         history.replaceState({ view: initialView }, '', initialView === 'logger' ? location.pathname : `${location.pathname}?view=${initialView}`);
         applyView(initialView);
     }
