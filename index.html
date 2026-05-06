@@ -243,12 +243,34 @@
             .brand-name { display: none; }
         }
 
-        /* ===== RESPECT YOURSELF ===== */
+        /* ===== RESPECT YOURSELF (NEW SLIM CHECKBOX STYLE) ===== */
         .respect-toolbar {
             display: flex;
             gap: 8px;
             margin-top: 4px;
             margin-bottom: 4px;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .respect-toolbar-left { display: flex; gap: 8px; }
+        .respect-count-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--text);
+            background: var(--surface);
+            border: 1px solid var(--border-strong);
+            padding: 6px 12px;
+            border-radius: 4px;
+        }
+        .respect-count-badge .label {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            color: var(--text-faint);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-left: 4px;
         }
         .respect-tool-btn {
             height: 34px;
@@ -277,51 +299,141 @@
         .respect-list-flat {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         .respect-item {
             background: var(--surface);
             border: 1px solid var(--border);
-            border-radius: 4px;
-            padding: 16px 18px;
-            margin-bottom: 0;
+            border-radius: 6px;
+            padding: 12px 14px;
             display: flex;
-            flex-direction: column;
+            align-items: center;
             gap: 12px;
             box-shadow: var(--shadow);
-            transition: border-color 0.15s ease, transform 0.15s ease;
+            transition: border-color 0.15s ease, background 0.15s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        .respect-item:hover { border-color: var(--border-strong); }
+        .respect-item.done { border-color: var(--success); background: rgba(16, 185, 129, 0.06); }
+        .respect-item.not-today { opacity: 0.55; }
+
+        .respect-main {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .respect-row-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+        .respect-name {
+            font-weight: 600;
+            font-size: 0.98rem;
+            color: var(--text);
+            letter-spacing: -0.01em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+            flex: 0 1 auto;
+        }
+        .respect-item.done .respect-name { text-decoration: line-through; color: var(--text-muted); }
+        .respect-streak {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            flex-shrink: 0;
+        }
+        .respect-streak i { font-size: 0.95rem; }
+        .respect-streak.hot i { color: #F59E0B; }
+        .respect-streak.cold i { color: var(--text-faint); }
+        .respect-streak.cold span { color: var(--text-faint); }
+
+        .respect-days {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
-        .respect-item.done-winner { border-color: var(--success); background: rgba(16, 185, 129, 0.04); }
-        .respect-item.done-loser { border-color: var(--danger); background: rgba(239, 68, 68, 0.04); opacity: 0.85; }
-        .respect-item.not-today { opacity: 0.55; }
-        .respect-item-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-        .respect-item-title { font-weight: 600; font-size: 0.95rem; color: var(--text); letter-spacing: -0.01em; flex: 1; cursor: pointer; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-        .respect-item-meta { font-size: 0.72rem; color: var(--text-faint); font-family: 'JetBrains Mono', monospace; white-space:nowrap;}
-        .respect-item-actions { display: flex; gap: 6px; align-items:center; }
-        .respect-not-today-msg { font-size: 0.78rem; color: var(--text-muted); font-style: italic; padding: 4px 0; }
-        .respect-buttons { display: flex; gap: 8px; }
-        .btn-loser, .btn-winner {
-            flex: 1; height: 36px; border-radius: 4px; border: 1px solid; font-size: 0.82rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; font-family: inherit; transition: all 0.15s ease;
+        /* Circular checkbox */
+        .respect-check {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--border-strong);
+            background: var(--surface);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.15s ease;
+            color: transparent;
         }
-        .btn-loser { background: transparent; color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
-        .btn-loser:hover, .btn-loser.active { background: var(--danger); color: white; border-color: var(--danger); }
-        .btn-winner { background: transparent; color: var(--success); border-color: rgba(16, 185, 129, 0.3); }
-        .btn-winner:hover, .btn-winner.active { background: var(--success); color: white; border-color: var(--success); }
-        .reorder-handle { cursor: grab; color: var(--text-faint); padding: 4px 8px; display:none; }
-        .respect-item.reordering .reorder-handle { display:inline-block; }
-        .respect-item.reordering .respect-buttons { display: none; }
+        .respect-check:hover { border-color: var(--accent); }
+        .respect-check.checked {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        .respect-check i { font-size: 0.85rem; font-weight: 900; }
+        .respect-check.disabled {
+            cursor: not-allowed;
+            opacity: 0.4;
+        }
+
+        /* Action menu (edit/delete) — slides out when item clicked */
+        .respect-actions-menu {
+            display: none;
+            gap: 6px;
+            flex-shrink: 0;
+            margin-right: 4px;
+        }
+        .respect-item.expanded .respect-actions-menu { display: flex; }
+        .respect-action-btn {
+            width: 32px; height: 32px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+        .respect-action-btn:hover { background: var(--surface-2); color: var(--text); }
+        .respect-action-btn.danger:hover { color: var(--danger); border-color: rgba(239, 68, 68, 0.4); }
+
+        .reorder-handle { cursor: grab; color: var(--text-faint); padding: 4px 8px; display: none; }
+        .respect-item.reordering { cursor: grab; }
+        .respect-item.reordering .reorder-handle { display: inline-block; }
+        .respect-item.reordering .respect-check { display: none; }
+        .respect-item.reordering .respect-actions-menu { display: none; }
         .respect-item.dragging { opacity: 0.4; }
+
         .respect-day-pill {
             padding: 6px 10px; border: 1px solid var(--border); background: var(--surface); border-radius: 4px;
-            font-size: 0.75rem; font-weight: 600; color: var(--text-muted); cursor: pointer; user-select:none;
+            font-size: 0.75rem; font-weight: 600; color: var(--text-muted); cursor: pointer; user-select: none;
         }
         .respect-day-pill.active { background: var(--accent); color: white; border-color: var(--accent); }
 
         .detail-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 14px; }
         .detail-stat { background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 14px; text-align: center; }
-        .detail-stat-val { font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 700; color: var(--accent); letter-spacing:-0.02em;}
+        .detail-stat-val { font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 700; color: var(--accent); letter-spacing: -0.02em; }
         .detail-stat-label { font-size: 0.65rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-top: 4px; }
         .detail-note-box { background: var(--surface-2); border-left: 3px solid var(--accent); padding: 12px 14px; border-radius: 4px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; font-style: italic; }
     </style>
@@ -330,7 +442,7 @@
 <body>
 
     <header>
-               <div class="brand" onclick="switchView('logger')" style="cursor:pointer;">
+        <div class="brand" onclick="switchView('logger')" style="cursor:pointer;">
             <div class="brand-icon"><i class="fa-solid fa-bolt"></i></div>
             <span class="brand-name">Fit Pulse</span>
         </div>
@@ -436,13 +548,14 @@
             <div id="historyList"></div>
         </div>
 
-
-
         <!-- RESPECT YOURSELF -->
         <div class="view" id="respectView">
             <div class="respect-toolbar">
-                <button class="respect-tool-btn primary" onclick="openRespectItemModal()"><i class="fa-solid fa-plus"></i> Add</button>
-                <button class="respect-tool-btn" onclick="toggleReorderMode()" id="reorderBtn"><i class="fa-solid fa-arrows-up-down"></i> Reorder</button>
+                <div class="respect-toolbar-left">
+                    <button class="respect-tool-btn primary" onclick="openRespectItemModal()"><i class="fa-solid fa-plus"></i> Add</button>
+                    <button class="respect-tool-btn" onclick="toggleReorderMode()" id="reorderBtn"><i class="fa-solid fa-arrows-up-down"></i> Reorder</button>
+                </div>
+                <div class="respect-count-badge"><span id="respectCount">0</span><span class="label">Tasks</span></div>
             </div>
             <div id="respectList" class="respect-list-flat"></div>
         </div>
@@ -521,7 +634,8 @@
                 <input type="date" id="birthdayInput">
             </div>
             <div class="modal-actions">
-                <button class="btn btn-outline" onclick="clearBirthday()">Clear</button>
+                <button class="btn btn-outline" onclick="closeModal('birthdayModal')">Cancel</button>
+                <button class="btn btn-danger" onclick="clearBirthday()">Clear</button>
                 <button class="btn btn-primary" onclick="saveBirthday()">Save</button>
             </div>
         </div>
@@ -537,23 +651,13 @@
             </div>
         </div>
     </div>
-    
-    
-        <!-- Respect Item Add/Edit Modal -->
+
+    <!-- Respect Item Add/Edit Modal -->
     <div class="modal-overlay" id="respectItemModal">
         <div class="modal-content" style="max-width:400px;">
             <div class="modal-title" id="respectModalTitle">Add Item</div>
             <div class="modal-sub">Build a habit. Track honestly.</div>
-            <div class="input-group"><label>Title</label><input type="text" id="riTitle" placeholder="E.g., Eat 4 bananas" autocomplete="off"></div>
-            <div class="input-group"><label>Type</label>
-                <select id="riType">
-                    <option value="task">Daily Task (target count)</option>
-                    <option value="challenge">Challenge (e.g. quit smoking)</option>
-                </select>
-            </div>
-            <div class="input-group" id="riTargetGroup"><label>Target (e.g. 4)</label><input type="number" id="riTarget" placeholder="4" inputmode="numeric"></div>
-            <div class="input-group" id="riUnitGroup"><label>Unit (optional)</label><input type="text" id="riUnit" placeholder="bananas, tablets, glasses..."></div>
-            <div class="input-group" id="riChallengeGroup" style="display:none;"><label>Challenge Start Date</label><input type="date" id="riChallengeDate"></div>
+            <div class="input-group"><label>Title</label><input type="text" id="riTitle" placeholder="E.g., Drink 8 glasses of water" autocomplete="off"></div>
             <div class="input-group"><label>Days of Week</label>
                 <div id="riDays" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;"></div>
             </div>
@@ -565,32 +669,6 @@
         </div>
     </div>
 
-    <!-- Loser Modal -->
-    <div class="modal-overlay" id="loserModal">
-        <div class="modal-content">
-            <div class="modal-title">There's still a chance</div>
-            <div class="modal-sub">Tomorrow is a fresh start. Are you sure?</div>
-            <div class="modal-actions">
-                <button class="btn btn-outline" onclick="closeModal('loserModal')">Cancel</button>
-                <button class="btn btn-danger" id="loserConfirmBtn" style="border-color:var(--danger);background:var(--danger);color:white;">Yes, I'm a loser</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Winner Modal (with optional value) -->
-    <div class="modal-overlay" id="winnerModal">
-        <div class="modal-content">
-            <div class="modal-title">🏆 You're a Winner</div>
-            <div class="modal-sub" id="winnerSub">How much did you do today?</div>
-            <div class="input-group" id="winnerValueGroup"><label>Actual amount</label><input type="number" id="winnerValueInput" placeholder="0" inputmode="numeric"></div>
-            <div class="modal-actions">
-                <button class="btn btn-outline" onclick="closeModal('winnerModal')">Cancel</button>
-                <button class="btn btn-success" id="winnerConfirmBtn">Confirm</button>
-            </div>
-        </div>
-    </div>
-
-
     <!-- Hidden audio elements for instant playback -->
     <audio id="sfxStart" preload="auto" src="https://honnodwiwqtcbyasogli.supabase.co/storage/v1/object/public/Bucket/Started.mp3"></audio>
     <audio id="sfxStop"  preload="auto" src="https://honnodwiwqtcbyasogli.supabase.co/storage/v1/object/public/Bucket/Done.mp3"></audio>
@@ -599,7 +677,7 @@
 
     <script>
     /* ============================================
-       FIT PULSE — Voice + Sound Effects Edition
+       FIT PULSE — Slim Checkbox Edition
        ============================================ */
 
     const { createClient } = supabase;
@@ -607,7 +685,6 @@
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhvbm5vZHdpd3F0Y2J5YXNvZ2xpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5OTAwNzYsImV4cCI6MjA5MzU2NjA3Nn0.bamnNenXtnsAsV27JFVNyGI6a4JP-nJxBxQwNRFP99E';
     const sb = createClient(supabaseUrl, supabaseKey);
 
-    /* ---------- STATE ---------- */
     const state = {
         currentExercise: "",
         exercises: [],
@@ -615,20 +692,10 @@
         currentView: 'logger',
 
         activeSession: {
-            running: false,
-            startedAt: null,
-            sessionSeconds: 0,
-            sessionInterval: null,
-            sets: []
+            running: false, startedAt: null, sessionSeconds: 0, sessionInterval: null, sets: []
         },
-
         activeSet: {
-            running: false,
-            startedAt: null,
-            seconds: 0,
-            interval: null,
-            lastDuration: 0,
-            lastStartedAt: null
+            running: false, startedAt: null, seconds: 0, interval: null, lastDuration: 0, lastStartedAt: null
         },
 
         history: { filterEx: 'ALL' },
@@ -639,70 +706,36 @@
         ageInterval: null,
 
         voice: {
-            recognition: null,
-            enabled: false,
-            supported: false,
-            shouldRun: false,
-            lastTrigger: 0,
-            audioUnlocked: false
-        }
+            recognition: null, enabled: false, supported: false, shouldRun: false,
+            lastTrigger: 0, audioUnlocked: false
+        },
+        respect: { items: [], logs: [], reorderMode: false, editingId: null, currentDetailId: null, detailChart: null, expandedId: null }
     };
 
-    /* ============================================
-       SOUND FX — robust playback
-       ============================================ */
-    const SFX = {
-        start: document.getElementById('sfxStart'),
-        stop:  document.getElementById('sfxStop')
-    };
-
+    /* ---------- SOUND ---------- */
+    const SFX = { start: document.getElementById('sfxStart'), stop: document.getElementById('sfxStop') };
     function unlockAudio() {
-        // Some browsers block audio until first user gesture.
-        // Trigger a silent play+pause on both elements to unlock.
         if (state.voice.audioUnlocked) return;
         try {
             [SFX.start, SFX.stop].forEach(a => {
                 if (!a) return;
                 a.muted = true;
                 const p = a.play();
-                if (p && p.then) {
-                    p.then(() => { a.pause(); a.currentTime = 0; a.muted = false; })
-                     .catch(() => { a.muted = false; });
-                } else {
-                    a.pause(); a.currentTime = 0; a.muted = false;
-                }
+                if (p && p.then) p.then(() => { a.pause(); a.currentTime = 0; a.muted = false; }).catch(() => { a.muted = false; });
+                else { a.pause(); a.currentTime = 0; a.muted = false; }
             });
             state.voice.audioUnlocked = true;
-        } catch (e) { /* silent */ }
+        } catch (e) {}
     }
-    // Unlock on first user interaction anywhere
-    ['click', 'touchstart', 'keydown'].forEach(ev => {
-        document.addEventListener(ev, unlockAudio, { once: false, passive: true });
-    });
-
+    ['click','touchstart','keydown'].forEach(ev => document.addEventListener(ev, unlockAudio, { passive: true }));
     function playSFX(which) {
         const el = which === 'start' ? SFX.start : SFX.stop;
         if (!el) return;
-        try {
-            el.pause();
-            el.currentTime = 0;
-            const p = el.play();
-            if (p && p.catch) p.catch(err => console.warn('SFX play blocked:', err));
-        } catch (e) { console.warn(e); }
+        try { el.pause(); el.currentTime = 0; const p = el.play(); if (p && p.catch) p.catch(()=>{}); } catch(e){}
     }
 
-    /* ---------- HAPTICS ---------- */
-    const HAPTIC = {
-        light:    [15],
-        medium:   [25],
-        success:  [30, 50, 30],
-        warning:  [40, 80, 40],
-        delete:   [50],
-        voice:    [10, 30, 10]
-    };
-    function haptic(pattern) {
-        try { if (navigator.vibrate && Array.isArray(pattern)) navigator.vibrate(pattern); } catch (e) {}
-    }
+    const HAPTIC = { light:[15], medium:[25], success:[30,50,30], warning:[40,80,40], delete:[50], voice:[10,30,10] };
+    function haptic(p) { try { if (navigator.vibrate && Array.isArray(p)) navigator.vibrate(p); } catch(e){} }
 
     /* ---------- THEME ---------- */
     function applyTheme(t) {
@@ -718,28 +751,28 @@
         localStorage.setItem('fp_theme', next);
         document.getElementById('dropdownMenu').classList.remove('show');
         if (state.currentView === 'analytics') renderAnalytics();
+        if (state.currentView === 'respectDetail') renderRespectDetail();
     }
     applyTheme(localStorage.getItem('fp_theme') || 'light');
 
     /* ---------- MENU ---------- */
-    function toggleMenu(e) {
-        e.stopPropagation();
-        haptic(HAPTIC.light);
-        document.getElementById('dropdownMenu').classList.toggle('show');
-    }
+    function toggleMenu(e) { e.stopPropagation(); haptic(HAPTIC.light); document.getElementById('dropdownMenu').classList.toggle('show'); }
     document.addEventListener('click', e => { if (!e.target.closest('.menu-btn')) document.getElementById('dropdownMenu').classList.remove('show'); });
 
-    /* ---------- DEEP LINK / VIEW ---------- */
-    const VALID_VIEWS = ['logger', 'history', 'analytics'];
+    /* ---------- VIEWS ---------- */
+    const VALID_VIEWS = ['logger','history','analytics','respect','respectDetail'];
     function applyView(view) {
         if (!VALID_VIEWS.includes(view)) view = 'logger';
         state.currentView = view;
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        document.getElementById(view + 'View').classList.add('active');
+        const target = document.getElementById(view + 'View');
+        if (target) target.classList.add('active');
         document.querySelectorAll('.dropdown-item[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === view));
         document.getElementById('dropdownMenu').classList.remove('show');
         if (view === 'history') renderHistory();
         if (view === 'analytics') renderAnalytics();
+        if (view === 'respect') renderRespectList();
+        if (view === 'respectDetail') renderRespectDetail();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     function switchView(view) {
@@ -749,13 +782,13 @@
         history.pushState({ view }, '', url);
         applyView(view);
     }
-    window.addEventListener('popstate', (e) => {
+    window.addEventListener('popstate', e => {
         const params = new URLSearchParams(location.search);
         const view = (e.state && e.state.view) || params.get('view') || 'logger';
         applyView(view);
     });
 
-    /* ---------- MODALS / TOAST ---------- */
+    /* ---------- MODAL/TOAST ---------- */
     function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { haptic(HAPTIC.light); document.getElementById(id).classList.remove('active'); }
     function confirmAction(title, text, onOk) {
@@ -766,25 +799,35 @@
     }
     function toast(msg) {
         const host = document.getElementById('toastHost');
-        const t = document.createElement('div');
-        t.className = 'toast'; t.innerText = msg;
-        host.appendChild(t);
-        setTimeout(() => t.remove(), 2400);
+        const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
+        host.appendChild(t); setTimeout(() => t.remove(), 2400);
     }
 
     /* ---------- UTILS ---------- */
-    function fmtTime(s) {
-        const m = Math.floor(s / 60).toString().padStart(2, '0');
-        const r = (s % 60).toString().padStart(2, '0');
-        return `${m}:${r}`;
-    }
-    function fmtClock(iso) { return new Date(iso).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }); }
-    function fmtDate(iso) { return new Date(iso).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }); }
-    function todayLabel() { return new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); }
+    function fmtTime(s) { const m = Math.floor(s/60).toString().padStart(2,'0'); const r = (s%60).toString().padStart(2,'0'); return `${m}:${r}`; }
+    function fmtClock(iso) { return new Date(iso).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true}); }
+    function fmtDate(iso) { return new Date(iso).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'}); }
+    function todayLabel() { return new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }
+    function todayISO() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+    function escapeHtml(s) { return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
     document.getElementById('todayDate').innerText = todayLabel();
 
-    /* ---------- BIRTHDAY ---------- */
-    function loadBirthday() {
+    /* ============================================
+       BIRTHDAY (saved to Supabase + localStorage)
+       ============================================ */
+    async function loadBirthday() {
+        // Try Supabase first
+        try {
+            const { data, error } = await sb.from('user_settings').select('value').eq('key', 'birthday').maybeSingle();
+            if (!error && data && data.value) {
+                state.birthday = data.value;
+                localStorage.setItem('fp_birthday', data.value);
+                renderAgeBadge();
+                startAgeTicker();
+                return;
+            }
+        } catch (e) { console.warn('Supabase birthday load failed, fallback to local', e); }
+        // Fallback localStorage
         const dob = localStorage.getItem('fp_birthday');
         state.birthday = dob || null;
         renderAgeBadge();
@@ -798,39 +841,39 @@
         input.max = new Date().toISOString().split('T')[0];
         openModal('birthdayModal');
     }
-    function saveBirthday() {
+    async function saveBirthday() {
         const val = document.getElementById('birthdayInput').value;
         if (!val) { toast('Pick a date first'); return; }
         const d = new Date(val);
         if (isNaN(d.getTime()) || d > new Date()) { toast('Invalid date'); return; }
         localStorage.setItem('fp_birthday', val);
         state.birthday = val;
+        try {
+            const { error } = await sb.from('user_settings').upsert({ key: 'birthday', value: val }, { onConflict: 'key' });
+            if (error) console.warn('Supabase birthday save failed:', error);
+        } catch (e) { console.warn(e); }
         haptic(HAPTIC.success);
         renderAgeBadge();
         startAgeTicker();
         closeModal('birthdayModal');
         toast('Birthday saved');
     }
-    function clearBirthday() {
+    async function clearBirthday() {
         localStorage.removeItem('fp_birthday');
         state.birthday = null;
         haptic(HAPTIC.delete);
         if (state.ageInterval) { clearInterval(state.ageInterval); state.ageInterval = null; }
+        try { await sb.from('user_settings').delete().eq('key', 'birthday'); } catch(e){}
         renderAgeBadge();
         closeModal('birthdayModal');
         toast('Birthday cleared');
     }
     function computeAge(dobStr) {
-        const dob = new Date(dobStr);
-        const now = new Date();
+        const dob = new Date(dobStr); const now = new Date();
         let years = now.getFullYear() - dob.getFullYear();
         let months = now.getMonth() - dob.getMonth();
         let days = now.getDate() - dob.getDate();
-        if (days < 0) {
-            months--;
-            const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-            days += prevMonth.getDate();
-        }
+        if (days < 0) { months--; const pm = new Date(now.getFullYear(), now.getMonth(), 0); days += pm.getDate(); }
         if (months < 0) { years--; months += 12; }
         return { years, months, days };
     }
@@ -847,17 +890,13 @@
     }
 
     /* ============================================
-       SESSION TIMER
+       SESSION / SET TIMERS
        ============================================ */
     function toggleSession() {
         haptic(HAPTIC.medium);
-        if (!state.activeSession.running && state.activeSession.sessionSeconds === 0) {
-            startSession();
-        } else if (state.activeSession.running) {
-            pauseSession();
-        } else {
-            resumeSession();
-        }
+        if (!state.activeSession.running && state.activeSession.sessionSeconds === 0) startSession();
+        else if (state.activeSession.running) pauseSession();
+        else resumeSession();
     }
     function startSession() {
         if (!state.currentExercise) { toast('Pick an exercise first'); return; }
@@ -900,25 +939,12 @@
         document.getElementById('sessionBtnLabel').innerText = 'Pause Workout';
         document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-pause';
     }
-
-    /* ============================================
-       SET TIMER
-       ============================================ */
-    function toggleSet() {
-        haptic(HAPTIC.medium);
-        if (!state.activeSet.running) startSet(); else stopSet();
-    }
+    function toggleSet() { haptic(HAPTIC.medium); if (!state.activeSet.running) startSet(); else stopSet(); }
     function startSet() {
         if (!state.currentExercise) { toast('Pick an exercise first'); return; }
         if (state.activeSet.running) return;
-
-        // Auto start/resume the workout session if needed
-        if (!state.activeSession.running && state.activeSession.sessionSeconds === 0) {
-            startSession();
-        } else if (!state.activeSession.running) {
-            resumeSession();
-        }
-
+        if (!state.activeSession.running && state.activeSession.sessionSeconds === 0) startSession();
+        else if (!state.activeSession.running) resumeSession();
         state.activeSet.running = true;
         state.activeSet.startedAt = new Date().toISOString();
         state.activeSet.seconds = 0;
@@ -932,7 +958,6 @@
         document.getElementById('setBtnLabel').innerText = 'Stop Set';
         document.getElementById('setBtn').querySelector('i').className = 'fa-solid fa-stop';
         document.getElementById('setBtn').disabled = false;
-
         playSFX('start');
     }
     function stopSet() {
@@ -944,56 +969,41 @@
         document.getElementById('setTimerBox').classList.remove('live-set');
         document.getElementById('setBtnLabel').innerText = 'Start Set';
         document.getElementById('setBtn').querySelector('i').className = 'fa-solid fa-stopwatch';
-
         playSFX('stop');
-
         document.getElementById('modalTimeDisplay').innerText = fmtTime(state.activeSet.lastDuration);
         document.getElementById('repsInput').value = '';
         openModal('repsModal');
         setTimeout(() => document.getElementById('repsInput').focus(), 100);
     }
-
     function saveSet() {
         const reps = parseInt(document.getElementById('repsInput').value);
         if (!reps || reps <= 0) { toast('Enter valid reps'); return; }
         haptic(HAPTIC.success);
         state.activeSession.sets.push({
-            reps,
-            durationSec: state.activeSet.lastDuration,
-            startedAt: state.activeSet.lastStartedAt,
-            endedAt: new Date().toISOString()
+            reps, durationSec: state.activeSet.lastDuration,
+            startedAt: state.activeSet.lastStartedAt, endedAt: new Date().toISOString()
         });
         closeModal('repsModal');
         document.getElementById('setTimer').innerText = '00:00';
         renderActiveSets();
         toast(`Set logged — ${reps} reps`);
     }
-
-    function deleteActiveSet(idx) {
-        haptic(HAPTIC.delete);
-        state.activeSession.sets.splice(idx, 1);
-        renderActiveSets();
-    }
-
+    function deleteActiveSet(idx) { haptic(HAPTIC.delete); state.activeSession.sets.splice(idx, 1); renderActiveSets(); }
     function renderActiveSets() {
         const list = document.getElementById('setsList');
         const summary = document.getElementById('setsSummary');
         document.getElementById('currentExLabel').innerText = state.currentExercise ? `— ${state.currentExercise}` : '';
         list.innerHTML = '';
         const sets = state.activeSession.sets;
-        if (!sets.length) {
-            list.innerHTML = '<li class="empty-state">No sets yet. Start a set above.</li>';
-            summary.innerText = '';
-            return;
-        }
-        const totalReps = sets.reduce((a, s) => a + s.reps, 0);
+        if (!sets.length) { list.innerHTML = '<li class="empty-state">No sets yet. Start a set above.</li>'; summary.innerText = ''; return; }
+        const totalReps = sets.reduce((a,s) => a+s.reps, 0);
         summary.innerText = `${sets.length} sets · ${totalReps} reps`;
-        sets.forEach((s, i) => {
+        sets.forEach((s,i) => {
             const li = document.createElement('li');
             li.className = 'set-item';
             li.innerHTML = `
                 <div class="set-info">
-                    <span class="set-num">#${i + 1}</span>
+                    <span class="set-num">#${i+1}</span>
                     <span class="set-reps">${s.reps} reps</span>
                     <span class="set-time">${fmtTime(s.durationSec)}</span>
                     <span class="set-time" style="color:var(--text-faint)">${fmtClock(s.startedAt)}</span>
@@ -1004,61 +1014,37 @@
             list.appendChild(li);
         });
     }
-
-    /* ============================================
-       COMPLETE WORKOUT
-       ============================================ */
     async function completeWorkout() {
         haptic(HAPTIC.medium);
         if (!state.activeSession.sets.length) { toast('Log at least one set first'); return; }
         if (!state.currentExercise) { toast('No exercise selected'); return; }
-
         confirmAction('Finish Workout?', `Save ${state.activeSession.sets.length} sets and end this session?`, async () => {
             clearInterval(state.activeSession.sessionInterval);
             clearInterval(state.activeSet.interval);
-
             const startedAt = state.activeSession.startedAt;
             const endedAt = new Date().toISOString();
             const totalDuration = state.activeSession.sessionSeconds;
             const totalSets = state.activeSession.sets.length;
-            const totalReps = state.activeSession.sets.reduce((a, s) => a + s.reps, 0);
-
+            const totalReps = state.activeSession.sets.reduce((a,s) => a+s.reps, 0);
             const { data: sessionRow, error: sessErr } = await sb.from('workout_sessions')
-                .insert([{
-                    exercise: state.currentExercise,
-                    started_at: startedAt,
-                    ended_at: endedAt,
-                    total_duration: totalDuration,
-                    total_sets: totalSets,
-                    total_reps: totalReps
-                }])
+                .insert([{ exercise: state.currentExercise, started_at: startedAt, ended_at: endedAt, total_duration: totalDuration, total_sets: totalSets, total_reps: totalReps }])
                 .select();
-
-            if (sessErr || !sessionRow || !sessionRow.length) {
-                toast('Save failed — check Supabase'); console.error(sessErr); return;
-            }
+            if (sessErr || !sessionRow || !sessionRow.length) { toast('Save failed'); console.error(sessErr); return; }
             const sessionId = sessionRow[0].id;
-
             const setsPayload = state.activeSession.sets.map(s => ({
-                exercise: state.currentExercise,
-                reps: s.reps,
-                duration: s.durationSec,
-                session_id: sessionId,
-                started_at: s.startedAt
+                exercise: state.currentExercise, reps: s.reps, duration: s.durationSec, session_id: sessionId, started_at: s.startedAt
             }));
             const { error: setsErr } = await sb.from('sets').insert(setsPayload);
             if (setsErr) { console.error(setsErr); toast('Sets save warning'); }
-
             haptic(HAPTIC.success);
             toast('Workout saved to history!');
             resetSession();
             await loadSessions();
         });
     }
-
     function resetSession() {
-        state.activeSession = { running: false, startedAt: null, sessionSeconds: 0, sessionInterval: null, sets: [] };
-        state.activeSet = { running: false, startedAt: null, seconds: 0, interval: null, lastDuration: 0, lastStartedAt: null };
+        state.activeSession = { running:false, startedAt:null, sessionSeconds:0, sessionInterval:null, sets:[] };
+        state.activeSet = { running:false, startedAt:null, seconds:0, interval:null, lastDuration:0, lastStartedAt:null };
         document.getElementById('sessionTimer').innerText = '00:00';
         document.getElementById('setTimer').innerText = '00:00';
         document.getElementById('sessionTimerBox').classList.remove('live');
@@ -1073,9 +1059,7 @@
         renderActiveSets();
     }
 
-    /* ============================================
-       EXERCISES
-       ============================================ */
+    /* ---------- EXERCISES ---------- */
     function openAddExerciseModal() {
         haptic(HAPTIC.light);
         document.getElementById('newExerciseName').value = '';
@@ -1119,17 +1103,11 @@
     function rebuildExerciseSelect() {
         const sel = document.getElementById('exerciseSelect');
         sel.innerHTML = '';
-        state.exercises.forEach(ex => {
-            const opt = document.createElement('option');
-            opt.value = ex; opt.text = ex;
-            sel.appendChild(opt);
-        });
+        state.exercises.forEach(ex => { const opt = document.createElement('option'); opt.value = ex; opt.text = ex; sel.appendChild(opt); });
     }
     document.getElementById('exerciseSelect').addEventListener('change', handleExerciseChange);
 
-    /* ============================================
-       HISTORY
-       ============================================ */
+    /* ---------- HISTORY ---------- */
     function renderHistory() {
         const fHost = document.getElementById('historyExFilter');
         fHost.innerHTML = '';
@@ -1143,32 +1121,22 @@
             b.innerText = ex; b.onclick = () => { haptic(HAPTIC.light); state.history.filterEx = ex; renderHistory(); };
             fHost.appendChild(b);
         });
-
         const list = document.getElementById('historyList');
         list.innerHTML = '';
         document.getElementById('historyExLabel').innerText = state.history.filterEx === 'ALL' ? 'All exercises' : state.history.filterEx;
-
         const filtered = state.sessions
             .filter(s => state.history.filterEx === 'ALL' || s.exercise === state.history.filterEx)
-            .sort((a, b) => new Date(b.started_at) - new Date(a.started_at));
-
-        if (!filtered.length) {
-            list.innerHTML = '<div class="card"><div class="empty-state">No workout history yet.</div></div>';
-            return;
-        }
-
+            .sort((a,b) => new Date(b.started_at) - new Date(a.started_at));
+        if (!filtered.length) { list.innerHTML = '<div class="card"><div class="empty-state">No workout history yet.</div></div>'; return; }
         filtered.forEach(sess => {
             const card = document.createElement('div');
             card.className = 'history-card';
-            const setRows = (sess.sets || []).map((s, i) => `
-                <div class="hist-set-row">
-                    <div class="left">
-                        <span class="num">#${i + 1}</span>
-                        <span class="reps">${s.reps} reps</span>
-                        <span class="dur">${fmtTime(s.duration || 0)}</span>
-                    </div>
-                    <span class="dur" style="color:var(--text-faint)">${s.started_at ? fmtClock(s.started_at) : ''}</span>
-                </div>`).join('');
+            const setRows = (sess.sets || []).map((s,i) => `
+                <div class="hist-set-row"><div class="left">
+                    <span class="num">#${i+1}</span>
+                    <span class="reps">${s.reps} reps</span>
+                    <span class="dur">${fmtTime(s.duration||0)}</span>
+                </div><span class="dur" style="color:var(--text-faint)">${s.started_at?fmtClock(s.started_at):''}</span></div>`).join('');
             card.innerHTML = `
                 <div class="hist-head">
                     <div>
@@ -1186,7 +1154,6 @@
             list.appendChild(card);
         });
     }
-
     function deleteSession(id) {
         haptic(HAPTIC.delete);
         confirmAction('Delete Session', 'Remove this workout permanently?', async () => {
@@ -1198,32 +1165,22 @@
         });
     }
 
-    /* ============================================
-       ANALYTICS
-       ============================================ */
+    /* ---------- ANALYTICS ---------- */
     function renderAnalytics() {
         const fHost = document.getElementById('analyticsExFilter');
         fHost.innerHTML = '';
-        if (!state.exercises.length) {
-            fHost.innerHTML = '<div class="empty-state" style="padding:6px">Add an exercise first.</div>';
-            updateTrendCard([]); renderTrendChart([]); return;
-        }
-        if (!state.trend.filterEx || !state.exercises.includes(state.trend.filterEx)) {
-            state.trend.filterEx = state.exercises[0];
-        }
+        if (!state.exercises.length) { fHost.innerHTML = '<div class="empty-state" style="padding:6px">Add an exercise first.</div>'; updateTrendCard([]); renderTrendChart([]); return; }
+        if (!state.trend.filterEx || !state.exercises.includes(state.trend.filterEx)) state.trend.filterEx = state.exercises[0];
         state.exercises.forEach(ex => {
             const b = document.createElement('button');
             b.className = 'filter-pill' + (state.trend.filterEx === ex ? ' active' : '');
             b.innerText = ex; b.onclick = () => { haptic(HAPTIC.light); state.trend.filterEx = ex; renderAnalytics(); };
             fHost.appendChild(b);
         });
-        const sessions = state.sessions
-            .filter(s => s.exercise === state.trend.filterEx)
-            .sort((a, b) => new Date(a.started_at) - new Date(b.started_at));
+        const sessions = state.sessions.filter(s => s.exercise === state.trend.filterEx).sort((a,b) => new Date(a.started_at) - new Date(b.started_at));
         updateTrendCard(sessions);
         renderTrendChart(sessions);
     }
-
     function updateTrendCard(sessions) {
         const iconEl = document.getElementById('trendIcon');
         const titleEl = document.getElementById('trendTitle');
@@ -1231,47 +1188,26 @@
         document.getElementById('qsSessions').innerText = sessions.length;
         if (!sessions.length) {
             iconEl.className = 'trend-icon none'; iconEl.innerHTML = '<i class="fa-solid fa-minus"></i>';
-            titleEl.innerText = 'No data yet';
-            subEl.innerText = 'Complete a workout to see your trend.';
-            document.getElementById('qsAvgReps').innerText = '0';
-            document.getElementById('qsBestReps').innerText = '0';
-            return;
+            titleEl.innerText = 'No data yet'; subEl.innerText = 'Complete a workout to see your trend.';
+            document.getElementById('qsAvgReps').innerText = '0'; document.getElementById('qsBestReps').innerText = '0'; return;
         }
         const allReps = sessions.map(s => s.total_reps);
-        const avg = Math.round(allReps.reduce((a, b) => a + b, 0) / allReps.length);
+        const avg = Math.round(allReps.reduce((a,b)=>a+b,0)/allReps.length);
         const best = Math.max(...allReps);
         document.getElementById('qsAvgReps').innerText = avg;
         document.getElementById('qsBestReps').innerText = best;
-
-        if (sessions.length < 2) {
-            iconEl.className = 'trend-icon flat'; iconEl.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
-            titleEl.innerText = 'Just getting started';
-            subEl.innerText = 'Complete one more workout to see trend direction.';
-            return;
-        }
-        const half = Math.floor(sessions.length / 2);
-        const firstHalf = sessions.slice(0, half).map(s => s.total_reps);
-        const lastHalf = sessions.slice(-half).map(s => s.total_reps);
-        const firstAvg = firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length;
-        const lastAvg = lastHalf.reduce((a, b) => a + b, 0) / lastHalf.length;
+        if (sessions.length < 2) { iconEl.className = 'trend-icon flat'; iconEl.innerHTML = '<i class="fa-solid fa-circle-info"></i>'; titleEl.innerText = 'Just getting started'; subEl.innerText = 'Complete one more workout to see trend direction.'; return; }
+        const half = Math.floor(sessions.length/2);
+        const firstHalf = sessions.slice(0,half).map(s=>s.total_reps);
+        const lastHalf = sessions.slice(-half).map(s=>s.total_reps);
+        const firstAvg = firstHalf.reduce((a,b)=>a+b,0)/firstHalf.length;
+        const lastAvg = lastHalf.reduce((a,b)=>a+b,0)/lastHalf.length;
         const diff = lastAvg - firstAvg;
-        const pct = firstAvg > 0 ? Math.round((diff / firstAvg) * 100) : 0;
-
-        if (pct > 5) {
-            iconEl.className = 'trend-icon up'; iconEl.innerHTML = '<i class="fa-solid fa-arrow-trend-up"></i>';
-            titleEl.innerText = `Going Up — +${pct}%`;
-            subEl.innerText = `You're improving on ${state.trend.filterEx}. Keep going! 💪`;
-        } else if (pct < -5) {
-            iconEl.className = 'trend-icon down'; iconEl.innerHTML = '<i class="fa-solid fa-arrow-trend-down"></i>';
-            titleEl.innerText = `Going Down — ${pct}%`;
-            subEl.innerText = `${state.trend.filterEx} dipped a bit. Recover and rebuild.`;
-        } else {
-            iconEl.className = 'trend-icon flat'; iconEl.innerHTML = '<i class="fa-solid fa-equals"></i>';
-            titleEl.innerText = 'Holding Steady';
-            subEl.innerText = `${state.trend.filterEx} is stable. Push for the next level.`;
-        }
+        const pct = firstAvg > 0 ? Math.round((diff/firstAvg)*100) : 0;
+        if (pct > 5) { iconEl.className = 'trend-icon up'; iconEl.innerHTML = '<i class="fa-solid fa-arrow-trend-up"></i>'; titleEl.innerText = `Going Up — +${pct}%`; subEl.innerText = `You're improving on ${state.trend.filterEx}. Keep going! 💪`; }
+        else if (pct < -5) { iconEl.className = 'trend-icon down'; iconEl.innerHTML = '<i class="fa-solid fa-arrow-trend-down"></i>'; titleEl.innerText = `Going Down — ${pct}%`; subEl.innerText = `${state.trend.filterEx} dipped a bit. Recover and rebuild.`; }
+        else { iconEl.className = 'trend-icon flat'; iconEl.innerHTML = '<i class="fa-solid fa-equals"></i>'; titleEl.innerText = 'Holding Steady'; subEl.innerText = `${state.trend.filterEx} is stable. Push for the next level.`; }
     }
-
     function renderTrendChart(sessions) {
         const ctx = document.getElementById('trendChart').getContext('2d');
         if (state.chart) state.chart.destroy();
@@ -1280,100 +1216,40 @@
         const grid = dark ? '#1E2630' : '#EEF1F4';
         const txt = dark ? '#94A3B8' : '#5A6B7C';
         const point = dark ? '#0F1419' : '#FFFFFF';
-        const labels = sessions.map(s => new Date(s.started_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+        const labels = sessions.map(s => new Date(s.started_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}));
         const data = sessions.map(s => s.total_reps);
-        const grad = ctx.createLinearGradient(0, 0, 0, 220);
-        grad.addColorStop(0, accent + '55'); grad.addColorStop(1, accent + '00');
+        const grad = ctx.createLinearGradient(0,0,0,220);
+        grad.addColorStop(0, accent+'55'); grad.addColorStop(1, accent+'00');
         state.chart = new Chart(ctx, {
             type: 'line',
-            data: {
-                labels: labels.length ? labels : ['—'],
-                datasets: [{
-                    data: data.length ? data : [0],
-                    borderColor: accent, backgroundColor: grad,
-                    borderWidth: 2.5, tension: 0.35, fill: true,
-                    pointBackgroundColor: point, pointBorderColor: accent,
-                    pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 6
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: dark ? '#161C24' : '#0A2540',
-                        titleColor: '#fff', bodyColor: '#fff', cornerRadius: 4, padding: 10, displayColors: false,
-                        callbacks: { label: ctx => `${ctx.parsed.y} reps total` }
-                    }
-                },
-                scales: {
-                    y: { beginAtZero: true, grid: { color: grid }, ticks: { precision: 0, color: txt, font: { size: 11 } } },
-                    x: { grid: { display: false }, ticks: { color: txt, font: { size: 11 } } }
-                }
-            }
+            data: { labels: labels.length?labels:['—'], datasets: [{ data: data.length?data:[0], borderColor:accent, backgroundColor:grad, borderWidth:2.5, tension:0.35, fill:true, pointBackgroundColor:point, pointBorderColor:accent, pointBorderWidth:2, pointRadius:4, pointHoverRadius:6 }] },
+            options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}, tooltip:{ backgroundColor: dark?'#161C24':'#0A2540', titleColor:'#fff', bodyColor:'#fff', cornerRadius:4, padding:10, displayColors:false, callbacks:{ label: c => `${c.parsed.y} reps total` } }}, scales:{ y:{beginAtZero:true, grid:{color:grid}, ticks:{precision:0,color:txt,font:{size:11}}}, x:{grid:{display:false}, ticks:{color:txt,font:{size:11}}} } }
         });
     }
 
     /* ============================================
-       VOICE CONTROL — Vosk offline (NO BEEP on Android)
-       Streams mic audio via AudioWorklet to a WASM
-       speech recognizer. Bypasses Android's OS speech
-       service entirely → no auto-restart beep.
+       VOICE (unchanged Vosk)
        ============================================ */
-    const START_KEYWORDS = [
-        'start', 'begin', 'go',
-        'shuru', 'shuroo', 'shuru kar', 'shuru karo', 'shuroo karo',
-        'chal', 'chalo', 'chalu', 'chalu kar',
-        'set start', 'start set'
-    ];
-    const STOP_KEYWORDS = [
-        'stop', 'end', 'finish',
-        'ruk', 'ruko', 'rukja', 'ruk ja',
-        'chup', 'chup kar', 'band', 'band kar', 'band karo',
-        'set stop', 'stop set'
-    ];
+    const START_KEYWORDS = ['start','begin','go','shuru','shuroo','shuru kar','shuru karo','shuroo karo','chal','chalo','chalu','chalu kar','set start','start set'];
+    const STOP_KEYWORDS = ['stop','end','finish','ruk','ruko','rukja','ruk ja','chup','chup kar','band','band kar','band karo','set stop','stop set'];
     const VOSK_MODEL_URL = 'https://ccoreilly.github.io/vosk-browser/models/vosk-model-small-en-us-0.15.tar.gz';
-
-    state.voice.model = null;
-    state.voice.recognizer = null;
-    state.voice.audioCtx = null;
-    state.voice.micStream = null;
-    state.voice.workletNode = null;
-    state.voice.loading = false;
-
+    state.voice.model = null; state.voice.recognizer = null; state.voice.audioCtx = null; state.voice.micStream = null; state.voice.workletNode = null; state.voice.loading = false;
     function matchesAny(transcript, keywords) {
         const t = ' ' + transcript.toLowerCase().trim() + ' ';
-        for (const kw of keywords) {
-            const safe = kw.toLowerCase().replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-            const re = new RegExp(`(^|[^a-z\\u0900-\\u097F])${safe}([^a-z\\u0900-\\u097F]|$)`, 'i');
-            if (re.test(t)) return true;
-        }
+        for (const kw of keywords) { const safe = kw.toLowerCase().replace(/[-/\\^$*+?.()|[\]{}]/g,'\\$&'); const re = new RegExp(`(^|[^a-z\\u0900-\\u097F])${safe}([^a-z\\u0900-\\u097F]|$)`,'i'); if (re.test(t)) return true; }
         return false;
     }
-
     function handleVoiceTranscript(text) {
         if (!text) return;
         const now = Date.now();
         if (now - state.voice.lastTrigger < 1200) return;
         const hasStart = matchesAny(text, START_KEYWORDS);
-        const hasStop  = matchesAny(text, STOP_KEYWORDS);
+        const hasStop = matchesAny(text, STOP_KEYWORDS);
         if (!hasStart && !hasStop) return;
-        if (state.activeSet.running && hasStop) {
-            state.voice.lastTrigger = now;
-            haptic(HAPTIC.voice);
-            stopSet();
-            return;
-        }
-        if (!state.activeSet.running && hasStart) {
-            state.voice.lastTrigger = now;
-            haptic(HAPTIC.voice);
-            startSet();
-            return;
-        }
+        if (state.activeSet.running && hasStop) { state.voice.lastTrigger = now; haptic(HAPTIC.voice); stopSet(); return; }
+        if (!state.activeSet.running && hasStart) { state.voice.lastTrigger = now; haptic(HAPTIC.voice); startSet(); return; }
     }
-
     function initVoiceRecognition() {
-        // Vosk needs getUserMedia + WebAssembly. Both are widely supported.
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || typeof Vosk === 'undefined') {
             state.voice.supported = false;
             document.getElementById('voiceStripLabel').innerText = 'Voice not supported in this browser';
@@ -1383,234 +1259,78 @@
         }
         state.voice.supported = true;
     }
-
     async function loadVoskModel() {
         if (state.voice.model) return state.voice.model;
         document.getElementById('voiceStripLabel').innerText = 'Loading voice model… (first time only)';
         const model = await Vosk.createModel(VOSK_MODEL_URL);
-        state.voice.model = model;
-        return model;
+        state.voice.model = model; return model;
     }
-
     async function startVoskListening() {
         if (state.voice.loading) return;
         state.voice.loading = true;
         try {
             const model = await loadVoskModel();
-
             const recognizer = new model.KaldiRecognizer(48000);
             recognizer.setWords(true);
-            recognizer.on('result', (msg) => {
-                const txt = msg && msg.result && msg.result.text;
-                if (txt) handleVoiceTranscript(txt);
-            });
-            recognizer.on('partialresult', (msg) => {
-                const txt = msg && msg.result && msg.result.partial;
-                if (txt) handleVoiceTranscript(txt);
-            });
+            recognizer.on('result', m => { const txt = m && m.result && m.result.text; if (txt) handleVoiceTranscript(txt); });
+            recognizer.on('partialresult', m => { const txt = m && m.result && m.result.partial; if (txt) handleVoiceTranscript(txt); });
             state.voice.recognizer = recognizer;
-
-            const stream = await navigator.mediaDevices.getUserMedia({
-                audio: {
-                    echoCancellation: true,
-                    noiseSuppression: true,
-                    channelCount: 1,
-                    sampleRate: 48000
-                },
-                video: false
-            });
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation:true, noiseSuppression:true, channelCount:1, sampleRate:48000 }, video:false });
             state.voice.micStream = stream;
-
             const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             state.voice.audioCtx = audioCtx;
-
-            // Inline AudioWorklet — captures Float32 frames and posts them to main thread
-            const workletCode = `
-                class VoskProc extends AudioWorkletProcessor {
-                    process(inputs) {
-                        const input = inputs[0];
-                        if (input && input[0]) {
-                            this.port.postMessage(input[0].slice(0));
-                        }
-                        return true;
-                    }
-                }
-                registerProcessor('vosk-proc', VoskProc);
-            `;
-            const blobUrl = URL.createObjectURL(new Blob([workletCode], { type: 'application/javascript' }));
+            const workletCode = `class VoskProc extends AudioWorkletProcessor { process(inputs){ const input=inputs[0]; if(input&&input[0]) this.port.postMessage(input[0].slice(0)); return true; } } registerProcessor('vosk-proc', VoskProc);`;
+            const blobUrl = URL.createObjectURL(new Blob([workletCode], { type:'application/javascript' }));
             await audioCtx.audioWorklet.addModule(blobUrl);
-
             const source = audioCtx.createMediaStreamSource(stream);
             const node = new AudioWorkletNode(audioCtx, 'vosk-proc');
             state.voice.workletNode = node;
-
-            node.port.onmessage = (e) => {
-                const float32 = e.data;
+            node.port.onmessage = e => {
+                const f = e.data;
                 if (!state.voice.recognizer) return;
-                // Vosk accepts an AudioBuffer-like via acceptWaveformFloat
-                try {
-                    const buf = audioCtx.createBuffer(1, float32.length, audioCtx.sampleRate);
-                    buf.getChannelData(0).set(float32);
-                    state.voice.recognizer.acceptWaveform(buf);
-                } catch (err) { /* ignore single-frame errors */ }
+                try { const buf = audioCtx.createBuffer(1, f.length, audioCtx.sampleRate); buf.getChannelData(0).set(f); state.voice.recognizer.acceptWaveform(buf); } catch(err){}
             };
-
             source.connect(node);
-            // DO NOT connect node to destination — keeps it silent and beep-free.
-
             state.voice.enabled = true;
             updateVoiceUI();
         } catch (err) {
             console.warn('Vosk start failed:', err);
             toast(err && err.name === 'NotAllowedError' ? 'Microphone permission denied' : 'Voice failed to start');
-            state.voice.shouldRun = false;
-            state.voice.enabled = false;
-            updateVoiceUI();
-        } finally {
-            state.voice.loading = false;
-        }
+            state.voice.shouldRun = false; state.voice.enabled = false; updateVoiceUI();
+        } finally { state.voice.loading = false; }
     }
-
     function stopVoskListening() {
-        try { if (state.voice.workletNode) state.voice.workletNode.disconnect(); } catch (e) {}
-        try { if (state.voice.audioCtx) state.voice.audioCtx.close(); } catch (e) {}
-        try { if (state.voice.micStream) state.voice.micStream.getTracks().forEach(t => t.stop()); } catch (e) {}
-        try { if (state.voice.recognizer) state.voice.recognizer.remove(); } catch (e) {}
-        state.voice.workletNode = null;
-        state.voice.audioCtx = null;
-        state.voice.micStream = null;
-        state.voice.recognizer = null;
-        state.voice.enabled = false;
+        try { if (state.voice.workletNode) state.voice.workletNode.disconnect(); } catch(e){}
+        try { if (state.voice.audioCtx) state.voice.audioCtx.close(); } catch(e){}
+        try { if (state.voice.micStream) state.voice.micStream.getTracks().forEach(t=>t.stop()); } catch(e){}
+        try { if (state.voice.recognizer) state.voice.recognizer.remove(); } catch(e){}
+        state.voice.workletNode = null; state.voice.audioCtx = null; state.voice.micStream = null; state.voice.recognizer = null; state.voice.enabled = false;
         updateVoiceUI();
     }
-
     function toggleVoiceRecognition() {
         haptic(HAPTIC.medium);
         unlockAudio();
         if (!state.voice.supported) { toast('Voice not supported in this browser'); return; }
-        if (state.voice.shouldRun) {
-            state.voice.shouldRun = false;
-            stopVoskListening();
-            toast('Voice control off');
-        } else {
-            state.voice.shouldRun = true;
-            toast('Voice control on');
-            startVoskListening();
-        }
+        if (state.voice.shouldRun) { state.voice.shouldRun = false; stopVoskListening(); toast('Voice control off'); }
+        else { state.voice.shouldRun = true; toast('Voice control on'); startVoskListening(); }
     }
-    function toggleVoiceFromMenu() {
-        document.getElementById('dropdownMenu').classList.remove('show');
-        toggleVoiceRecognition();
-    }
+    function toggleVoiceFromMenu() { document.getElementById('dropdownMenu').classList.remove('show'); toggleVoiceRecognition(); }
     function updateVoiceUI() {
         const strip = document.getElementById('voiceStrip');
         const label = document.getElementById('voiceStripLabel');
         const btn = document.getElementById('voiceStripBtn');
         const menuStatus = document.getElementById('voiceMenuStatus');
-        if (!state.voice.supported) {
-            label.innerText = 'Voice not supported in this browser';
-            btn.style.display = 'none';
-            menuStatus.innerText = 'N/A';
-            return;
-        }
-        if (state.voice.enabled) {
-            strip.classList.add('on');
-            label.innerText = 'Listening — say "start" or "stop"';
-            btn.innerText = 'Disable';
-            menuStatus.innerText = 'ON';
-            menuStatus.classList.add('on');
-        } else {
-            strip.classList.remove('on');
-            label.innerText = 'Voice control off';
-            btn.innerText = 'Enable';
-            menuStatus.innerText = 'OFF';
-            menuStatus.classList.remove('on');
-        }
+        if (!state.voice.supported) { label.innerText = 'Voice not supported in this browser'; btn.style.display='none'; menuStatus.innerText='N/A'; return; }
+        if (state.voice.enabled) { strip.classList.add('on'); label.innerText='Listening — say "start" or "stop"'; btn.innerText='Disable'; menuStatus.innerText='ON'; menuStatus.classList.add('on'); }
+        else { strip.classList.remove('on'); label.innerText='Voice control off'; btn.innerText='Enable'; menuStatus.innerText='OFF'; menuStatus.classList.remove('on'); }
     }
 
     /* ============================================
-       BOOT
+       RESPECT YOURSELF — SLIM CHECKBOX EDITION
        ============================================ */
-    async function loadSessions() {
-        const { data: sessions } = await sb.from('workout_sessions').select('*').order('started_at', { ascending: false });
-        state.sessions = sessions || [];
-        const { data: allSets } = await sb.from('sets').select('*').order('started_at', { ascending: true });
-        const setsBySession = {};
-        (allSets || []).forEach(s => {
-            if (s.session_id) {
-                if (!setsBySession[s.session_id]) setsBySession[s.session_id] = [];
-                setsBySession[s.session_id].push(s);
-            }
-        });
-        state.sessions.forEach(sess => { sess.sets = setsBySession[sess.id] || []; });
-    }
-
-        async function boot() {
-        // Load exercises
-        const { data: exData } = await sb.from('exercises').select('name').order('created_at', { ascending: true });
-        state.exercises = (exData || []).map(e => e.name);
-        rebuildExerciseSelect();
-        if (state.exercises.length) {
-            state.currentExercise = state.exercises[0];
-            document.getElementById('exerciseSelect').value = state.currentExercise;
-        }
-        handleExerciseChange();
-        await loadSessions();
-        renderActiveSets();
-
-        loadBirthday();
-
-        initVoiceRecognition();
-        updateVoiceUI();
-
-        // Load respect data BEFORE applying view (fixes refresh issue)
-        await loadRespect();
-
-        const params = new URLSearchParams(location.search);
-        const initialView = params.get('view') || 'logger';
-        history.replaceState({ view: initialView }, '', initialView === 'logger' ? location.pathname : `${location.pathname}?view=${initialView}`);
-        applyView(initialView);
-    }
-
-
-        document.getElementById('repsInput').addEventListener('keypress', e => { if (e.key === 'Enter') saveSet(); });
-    document.getElementById('newExerciseName').addEventListener('keypress', e => { if (e.key === 'Enter') saveNewExercise(); });
-    document.getElementById('birthdayInput').addEventListener('keypress', e => { if (e.key === 'Enter') saveBirthday(); });
-
-    /* ============================================
-       RESPECT YOURSELF MODULE
-       ============================================ */
-    state.respect = { items: [], logs: [], reorderMode: false, editingId: null, currentDetailId: null, detailChart: null };
     const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    const DAY_NAMES_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
-    function todayISO() {
-        const d = new Date();
-        return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    }
-
-    function openRespectView() {
-        haptic(HAPTIC.light);
-        switchView('respect');
-    }
-
-    // Patch view system to support respect views
-    const _origApplyView = applyView;
-    applyView = function(view) {
-        const ALL_VIEWS = ['logger','history','analytics','respect','respectDetail'];
-        if (!ALL_VIEWS.includes(view)) view = 'logger';
-        state.currentView = view;
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-        const target = document.getElementById(view + 'View');
-        if (target) target.classList.add('active');
-        document.querySelectorAll('.dropdown-item[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === view));
-        document.getElementById('dropdownMenu').classList.remove('show');
-        if (view === 'history') renderHistory();
-        if (view === 'analytics') renderAnalytics();
-        if (view === 'respect') renderRespectList();
-        if (view === 'respectDetail') renderRespectDetail();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
+    function openRespectView() { haptic(HAPTIC.light); switchView('respect'); }
 
     async function loadRespect() {
         const { data: items } = await sb.from('respect_items').select('*').order('sort_order', { ascending: true });
@@ -1619,96 +1339,102 @@
         state.respect.logs = logs || [];
     }
 
-    function getTodayLog(itemId) {
-        const t = todayISO();
-        return state.respect.logs.find(l => l.item_id === itemId && l.log_date === t);
-    }
+    function getTodayLog(itemId) { const t = todayISO(); return state.respect.logs.find(l => l.item_id === itemId && l.log_date === t); }
 
     function isItemActiveToday(item) {
         const days = (item.days_of_week || '').split(',').map(s => s.trim()).filter(s => s !== '');
-        if (!days.length) return true;
+        if (!days.length || days.length === 7) return true;
         const today = new Date().getDay();
         return days.includes(String(today));
     }
 
-    function nextActiveDayName(item) {
-        const days = (item.days_of_week || '').split(',').map(s => parseInt(s)).filter(n => !isNaN(n));
-        if (!days.length) return '';
-        const today = new Date().getDay();
-        for (let i = 1; i <= 7; i++) {
-            const d = (today + i) % 7;
-            if (days.includes(d)) return DAY_NAMES_FULL[d];
-        }
-        return '';
+    function daysActiveLabel(item) {
+        const days = (item.days_of_week || '').split(',').map(s => s.trim()).filter(s => s !== '').map(Number);
+        if (!days.length || days.length === 7) return 'Every Day';
+        return days.sort().map(d => DAY_NAMES[d]).join(', ');
     }
 
-    function daysSince(dateStr) {
-        if (!dateStr) return 0;
-        const start = new Date(dateStr);
-        const now = new Date();
-        start.setHours(0,0,0,0); now.setHours(0,0,0,0);
-        return Math.max(0, Math.floor((now - start) / 86400000));
-    }
-
-        function calcCurrentStreak(itemId) {
-        const itemLogs = state.respect.logs
-            .filter(l => l.item_id === itemId)
-            .sort((a, b) => new Date(b.log_date) - new Date(a.log_date));
+    function calcCurrentStreak(itemId) {
+        const itemLogs = state.respect.logs.filter(l => l.item_id === itemId).sort((a,b) => new Date(b.log_date) - new Date(a.log_date));
         let streak = 0;
-        for (const l of itemLogs) {
-            if (l.status === 'winner') streak++;
-            else break;
-        }
+        for (const l of itemLogs) { if (l.status === 'winner') streak++; else break; }
         return streak;
     }
 
     function renderRespectList() {
         const list = document.getElementById('respectList');
+        const countEl = document.getElementById('respectCount');
         list.innerHTML = '';
+        countEl.innerText = state.respect.items.length;
+
         if (!state.respect.items.length) {
-            list.innerHTML = '<div class="empty-state" style="padding:40px 10px;">No items yet. Tap "Add" to start.</div>';
+            list.innerHTML = '<div class="empty-state" style="padding:40px 10px;">No tasks yet. Tap "Add" to start.</div>';
             return;
         }
+
         state.respect.items.forEach(item => {
             const log = getTodayLog(item.id);
             const activeToday = isItemActiveToday(item);
             const streak = calcCurrentStreak(item.id);
+            const isChecked = !!(log && log.status === 'winner');
+            const isExpanded = state.respect.expandedId === item.id;
+
             const div = document.createElement('div');
             div.className = 'respect-item';
             div.dataset.id = item.id;
             if (state.respect.reorderMode) div.classList.add('reordering');
-            if (log && log.status === 'winner') div.classList.add('done-winner');
-            if (log && log.status === 'loser') div.classList.add('done-loser');
+            if (isChecked) div.classList.add('done');
             if (!activeToday) div.classList.add('not-today');
+            if (isExpanded) div.classList.add('expanded');
 
-            let bodyHtml = '';
-            if (!state.respect.reorderMode && activeToday && !log) {
-                bodyHtml = `<div class="respect-buttons">
-                    <button class="btn-loser" onclick="event.stopPropagation();confirmLoser(${item.id})"><i class="fa-solid fa-thumbs-down"></i> Loser</button>
-                    <button class="btn-winner" onclick="event.stopPropagation();confirmWinner(${item.id})"><i class="fa-solid fa-trophy"></i> Winner</button>
-                </div>`;
-            } else if (!state.respect.reorderMode && activeToday && log) {
-                bodyHtml = `<div class="respect-buttons">
-                    <button class="btn-loser ${log.status==='loser'?'active':''}" onclick="event.stopPropagation();confirmLoser(${item.id})"><i class="fa-solid fa-thumbs-down"></i> Loser</button>
-                    <button class="btn-winner ${log.status==='winner'?'active':''}" onclick="event.stopPropagation();confirmWinner(${item.id})"><i class="fa-solid fa-trophy"></i> Winner</button>
-                </div>`;
-            }
+            const streakClass = streak > 0 ? 'hot' : 'cold';
+            const activeLabel = daysActiveLabel(item);
+
+            const handleHtml = state.respect.reorderMode ? `<span class="reorder-handle"><i class="fa-solid fa-grip-lines"></i></span>` : '';
+
+            const checkboxHtml = !state.respect.reorderMode ? `
+                <div class="respect-check ${isChecked ? 'checked' : ''} ${!activeToday ? 'disabled' : ''}" 
+                     onclick="event.stopPropagation();toggleRespectCheck(${item.id})">
+                    <i class="fa-solid fa-check"></i>
+                </div>` : '';
+
+            const actionsHtml = !state.respect.reorderMode ? `
+                <div class="respect-actions-menu">
+                    <button class="respect-action-btn" onclick="event.stopPropagation();editRespectItem(${item.id})" title="Edit"><i class="fa-solid fa-pen"></i></button>
+                    <button class="respect-action-btn danger" onclick="event.stopPropagation();deleteRespectItem(${item.id})" title="Delete"><i class="fa-regular fa-trash-can"></i></button>
+                    <button class="respect-action-btn" onclick="event.stopPropagation();openRespectDetail(${item.id})" title="Stats"><i class="fa-solid fa-chart-line"></i></button>
+                </div>` : '';
 
             div.innerHTML = `
-                <div class="respect-item-head" style="align-items:flex-start;">
-                    <span class="reorder-handle"><i class="fa-solid fa-grip-lines"></i></span>
-                    <div class="respect-item-title" onclick="openRespectDetail(${item.id})" style="white-space:normal;line-height:1.4;font-size:0.98rem;font-weight:600;">${escapeHtml(item.title)}</div>
-                    <span class="respect-item-meta" style="display:flex;align-items:center;gap:5px;font-size:0.78rem;color:var(--text-muted);flex-shrink:0;padding-top:2px;">
-                        <i class="fa-solid fa-fire" style="color:${streak>0?'#F59E0B':'var(--text-faint)'};font-size:0.8rem;"></i>
-                        <span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:${streak>0?'var(--text)':'var(--text-faint)'};">${streak}</span>
-                    </span>
+                ${handleHtml}
+                <div class="respect-main">
+                    <div class="respect-row-top">
+                        <span class="respect-name">${escapeHtml(item.title)}</span>
+                        <span class="respect-streak ${streakClass}">
+                            <i class="fa-solid fa-fire"></i>
+                            <span>${streak}</span>
+                        </span>
+                    </div>
+                    <div class="respect-days">${activeLabel}</div>
                 </div>
-                ${bodyHtml}`;
+                ${actionsHtml}
+                ${checkboxHtml}
+            `;
+
+            // Click on the item itself toggles expand (showing edit/delete)
+            div.addEventListener('click', (e) => {
+                if (state.respect.reorderMode) return;
+                if (e.target.closest('.respect-check')) return;
+                if (e.target.closest('.respect-actions-menu')) return;
+                haptic(HAPTIC.light);
+                state.respect.expandedId = state.respect.expandedId === item.id ? null : item.id;
+                renderRespectList();
+            });
 
             // Drag-and-drop reorder
             if (state.respect.reorderMode) {
                 div.draggable = true;
-                div.addEventListener('dragstart', e => { div.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
+                div.addEventListener('dragstart', e => { div.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
                 div.addEventListener('dragend', () => div.classList.remove('dragging'));
                 div.addEventListener('dragover', e => {
                     e.preventDefault();
@@ -1719,68 +1445,72 @@
                     div.parentNode.insertBefore(dragging, after ? div.nextSibling : div);
                 });
                 div.addEventListener('drop', e => { e.preventDefault(); persistOrder(); });
-                let touchStartY = 0;
                 div.addEventListener('touchstart', e => {
                     if (!e.target.closest('.reorder-handle')) return;
-                    touchStartY = e.touches[0].clientY;
                     div.classList.add('dragging');
-                }, {passive:true});
+                }, { passive: true });
                 div.addEventListener('touchmove', e => {
                     if (!div.classList.contains('dragging')) return;
                     e.preventDefault();
                     const y = e.touches[0].clientY;
                     const elements = [...list.querySelectorAll('.respect-item:not(.dragging)')];
-                    const next = elements.find(el => {
-                        const r = el.getBoundingClientRect();
-                        return y < r.top + r.height/2;
-                    });
-                    if (next) list.insertBefore(div, next);
-                    else list.appendChild(div);
-                }, {passive:false});
-                div.addEventListener('touchend', () => {
-                    if (div.classList.contains('dragging')) { div.classList.remove('dragging'); persistOrder(); }
-                });
+                    const next = elements.find(el => { const r = el.getBoundingClientRect(); return y < r.top + r.height/2; });
+                    if (next) list.insertBefore(div, next); else list.appendChild(div);
+                }, { passive: false });
+                div.addEventListener('touchend', () => { if (div.classList.contains('dragging')) { div.classList.remove('dragging'); persistOrder(); } });
             }
 
             list.appendChild(div);
         });
     }
 
-
     async function persistOrder() {
         const ids = [...document.querySelectorAll('#respectList .respect-item')].map(el => parseInt(el.dataset.id));
         const updates = ids.map((id, idx) => ({ id, sort_order: idx }));
-        // Update local order immediately
         state.respect.items.sort((a,b) => ids.indexOf(a.id) - ids.indexOf(b.id));
-        for (const u of updates) {
-            await sb.from('respect_items').update({ sort_order: u.sort_order }).eq('id', u.id);
-        }
+        for (const u of updates) await sb.from('respect_items').update({ sort_order: u.sort_order }).eq('id', u.id);
     }
 
     function toggleReorderMode() {
         haptic(HAPTIC.medium);
         state.respect.reorderMode = !state.respect.reorderMode;
+        state.respect.expandedId = null;
         document.getElementById('reorderBtn').innerHTML = state.respect.reorderMode
             ? '<i class="fa-solid fa-check"></i> Done'
             : '<i class="fa-solid fa-arrows-up-down"></i> Reorder';
         renderRespectList();
     }
 
-    function escapeHtml(s) { return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    async function toggleRespectCheck(itemId) {
+        const item = state.respect.items.find(i => i.id === itemId);
+        if (!item) return;
+        if (!isItemActiveToday(item)) { toast('Not scheduled for today'); return; }
+        haptic(HAPTIC.success);
+        const t = todayISO();
+        const existing = state.respect.logs.find(l => l.item_id === itemId && l.log_date === t);
+        if (existing && existing.status === 'winner') {
+            // Uncheck: delete log
+            await sb.from('respect_logs').delete().eq('id', existing.id);
+            toast('Unmarked');
+        } else if (existing) {
+            await sb.from('respect_logs').update({ status: 'winner' }).eq('id', existing.id);
+            toast('✓ Done!');
+        } else {
+            await sb.from('respect_logs').insert([{ item_id: itemId, log_date: t, status: 'winner' }]);
+            toast('✓ Done!');
+        }
+        await loadRespect();
+        renderRespectList();
+    }
 
     /* ----- Add / Edit ----- */
     function openRespectItemModal() {
         haptic(HAPTIC.light);
         state.respect.editingId = null;
-        document.getElementById('respectModalTitle').innerText = 'Add Item';
+        document.getElementById('respectModalTitle').innerText = 'Add Task';
         document.getElementById('riTitle').value = '';
-        document.getElementById('riType').value = 'task';
-        document.getElementById('riTarget').value = '';
-        document.getElementById('riUnit').value = '';
-        document.getElementById('riChallengeDate').value = todayISO();
         document.getElementById('riNote').value = '';
         renderDayPicker([0,1,2,3,4,5,6]);
-        updateTypeFields();
         openModal('respectItemModal');
     }
 
@@ -1789,16 +1519,12 @@
         const item = state.respect.items.find(i => i.id === id);
         if (!item) return;
         state.respect.editingId = id;
-        document.getElementById('respectModalTitle').innerText = 'Edit Item';
+        state.respect.expandedId = null;
+        document.getElementById('respectModalTitle').innerText = 'Edit Task';
         document.getElementById('riTitle').value = item.title;
-        document.getElementById('riType').value = item.item_type;
-        document.getElementById('riTarget').value = item.target_value || '';
-        document.getElementById('riUnit').value = item.unit || '';
-        document.getElementById('riChallengeDate').value = item.challenge_start_date || todayISO();
         document.getElementById('riNote').value = item.note || '';
         const days = (item.days_of_week || '').split(',').filter(s => s !== '').map(Number);
-        renderDayPicker(days);
-        updateTypeFields();
+        renderDayPicker(days.length ? days : [0,1,2,3,4,5,6]);
         openModal('respectItemModal');
     }
 
@@ -1819,28 +1545,16 @@
         return [...document.querySelectorAll('#riDays .respect-day-pill.active')].map(p => p.dataset.day).join(',');
     }
 
-    document.getElementById('riType').addEventListener('change', updateTypeFields);
-    function updateTypeFields() {
-        const isChallenge = document.getElementById('riType').value === 'challenge';
-        document.getElementById('riTargetGroup').style.display = isChallenge ? 'none' : '';
-        document.getElementById('riUnitGroup').style.display = isChallenge ? 'none' : '';
-        document.getElementById('riChallengeGroup').style.display = isChallenge ? '' : 'none';
-    }
-
     async function saveRespectItem() {
         const title = document.getElementById('riTitle').value.trim();
         if (!title) { toast('Enter a title'); return; }
-        const type = document.getElementById('riType').value;
         const days = getSelectedDays();
         if (!days) { toast('Pick at least one day'); return; }
         const payload = {
             title,
-            item_type: type,
-            target_value: type === 'task' ? (parseInt(document.getElementById('riTarget').value) || 1) : 1,
-            unit: document.getElementById('riUnit').value.trim(),
+            item_type: 'task',
             days_of_week: days,
-            note: document.getElementById('riNote').value.trim(),
-            challenge_start_date: type === 'challenge' ? document.getElementById('riChallengeDate').value : null
+            note: document.getElementById('riNote').value.trim()
         };
         if (state.respect.editingId) {
             const { error } = await sb.from('respect_items').update(payload).eq('id', state.respect.editingId);
@@ -1861,68 +1575,21 @@
     function deleteRespectItem(id) {
         const item = state.respect.items.find(i => i.id === id);
         if (!item) return;
-        confirmAction('Delete Item', `Remove "${item.title}" and all its history?`, async () => {
+        confirmAction('Delete Task', `Remove "${item.title}" and all its history?`, async () => {
             await sb.from('respect_logs').delete().eq('item_id', id);
             await sb.from('respect_items').delete().eq('id', id);
+            state.respect.expandedId = null;
             await loadRespect();
             renderRespectList();
             toast('Deleted');
         });
     }
 
-    /* ----- Loser / Winner ----- */
-    function confirmLoser(id) {
-        haptic(HAPTIC.warning);
-        const item = state.respect.items.find(i => i.id === id);
-        if (!item) return;
-        document.getElementById('loserConfirmBtn').onclick = async () => {
-            haptic(HAPTIC.delete);
-            await upsertLog(id, 'loser', 0);
-            closeModal('loserModal');
-            await loadRespect();
-            renderRespectList();
-            toast('Logged. Tomorrow is a new day.');
-        };
-        openModal('loserModal');
-    }
-
-    function confirmWinner(id) {
-        haptic(HAPTIC.medium);
-        const item = state.respect.items.find(i => i.id === id);
-        if (!item) return;
-        const isChallenge = item.item_type === 'challenge';
-        document.getElementById('winnerSub').innerText = isChallenge
-            ? `Confirm you held strong on "${item.title}" today?`
-            : `How many ${item.unit || 'units'} did you do? (Target: ${item.target_value})`;
-        document.getElementById('winnerValueGroup').style.display = isChallenge ? 'none' : '';
-        document.getElementById('winnerValueInput').value = isChallenge ? '' : item.target_value;
-        document.getElementById('winnerConfirmBtn').onclick = async () => {
-            const val = isChallenge ? 1 : (parseInt(document.getElementById('winnerValueInput').value) || 0);
-            if (!isChallenge && val <= 0) { toast('Enter a value'); return; }
-            haptic(HAPTIC.success);
-            await upsertLog(id, 'winner', val);
-            closeModal('winnerModal');
-            await loadRespect();
-            renderRespectList();
-            toast('🏆 Winner!');
-        };
-        openModal('winnerModal');
-    }
-
-    async function upsertLog(itemId, status, value) {
-        const t = todayISO();
-        const existing = state.respect.logs.find(l => l.item_id === itemId && l.log_date === t);
-        if (existing) {
-            await sb.from('respect_logs').update({ status, actual_value: value }).eq('id', existing.id);
-        } else {
-            await sb.from('respect_logs').insert([{ item_id: itemId, log_date: t, status, actual_value: value }]);
-        }
-    }
-
     /* ----- Detail View ----- */
     function openRespectDetail(id) {
         haptic(HAPTIC.light);
         state.respect.currentDetailId = id;
+        state.respect.expandedId = null;
         switchView('respectDetail');
     }
 
@@ -1935,44 +1602,25 @@
 
         const itemLogs = state.respect.logs.filter(l => l.item_id === id).sort((a,b) => new Date(a.log_date) - new Date(b.log_date));
         const winners = itemLogs.filter(l => l.status === 'winner');
-        const losers = itemLogs.filter(l => l.status === 'loser');
         const totalDays = itemLogs.length;
         const winRate = totalDays ? Math.round((winners.length / totalDays) * 100) : 0;
 
-        // Calculate streaks (consecutive winner days, by date order)
         let currentStreak = 0, bestStreak = 0, runStreak = 0;
         const sortedDesc = [...itemLogs].sort((a,b) => new Date(b.log_date) - new Date(a.log_date));
-        for (const l of sortedDesc) {
-            if (l.status === 'winner') { currentStreak++; } else { break; }
-        }
-        for (const l of itemLogs) {
-            if (l.status === 'winner') { runStreak++; bestStreak = Math.max(bestStreak, runStreak); }
-            else { runStreak = 0; }
-        }
+        for (const l of sortedDesc) { if (l.status === 'winner') currentStreak++; else break; }
+        for (const l of itemLogs) { if (l.status === 'winner') { runStreak++; bestStreak = Math.max(bestStreak, runStreak); } else runStreak = 0; }
 
-        const isChallenge = item.item_type === 'challenge';
-        const avgVal = (!isChallenge && winners.length) ? (winners.reduce((a,b)=>a+(b.actual_value||0),0) / winners.length).toFixed(1) : null;
-        const bestVal = (!isChallenge && winners.length) ? Math.max(...winners.map(w=>w.actual_value||0)) : null;
-
-        let statsHtml = `
-            <div class="detail-stat"><div class="detail-stat-val">${winners.length}</div><div class="detail-stat-label">Winner Days</div></div>
-            <div class="detail-stat"><div class="detail-stat-val">${losers.length}</div><div class="detail-stat-label">Loser Days</div></div>
+        const statsHtml = `
+            <div class="detail-stat"><div class="detail-stat-val">${winners.length}</div><div class="detail-stat-label">Done Days</div></div>
             <div class="detail-stat"><div class="detail-stat-val">${currentStreak}</div><div class="detail-stat-label">Current Streak</div></div>
             <div class="detail-stat"><div class="detail-stat-val">${bestStreak}</div><div class="detail-stat-label">Best Streak</div></div>
-            <div class="detail-stat"><div class="detail-stat-val">${winRate}%</div><div class="detail-stat-label">Win Rate</div></div>`;
-        if (isChallenge) {
-            statsHtml += `<div class="detail-stat"><div class="detail-stat-val">${daysSince(item.challenge_start_date)}</div><div class="detail-stat-label">Days Since Start</div></div>`;
-        } else {
-            statsHtml += `<div class="detail-stat"><div class="detail-stat-val">${avgVal||'0'}</div><div class="detail-stat-label">Avg ${item.unit||'Value'}</div></div>`;
-        }
-
-        const daysActive = (item.days_of_week||'').split(',').filter(s=>s!=='').map(n => DAY_NAMES[parseInt(n)]).join(', ');
+            <div class="detail-stat"><div class="detail-stat-val">${winRate}%</div><div class="detail-stat-label">Completion Rate</div></div>`;
 
         host.innerHTML = `
             <div class="card">
                 <div class="card-head"><div class="card-title"><strong>Your</strong> Stats</div></div>
                 <div class="detail-stat-grid">${statsHtml}</div>
-                <div style="font-size:0.78rem;color:var(--text-muted);text-align:center;">Active days: ${daysActive || 'Every day'}</div>
+                <div style="font-size:0.78rem;color:var(--text-muted);text-align:center;">Active days: ${daysActiveLabel(item)}</div>
             </div>
             ${item.note ? `<div class="card"><div class="card-head"><div class="card-title"><strong>Why</strong> I Started</div></div><div class="detail-note-box">${escapeHtml(item.note)}</div></div>` : ''}
             <div class="card">
@@ -1984,11 +1632,11 @@
                 <div id="respectRecentLogs"></div>
             </div>`;
 
-        renderDetailChart(itemLogs, item);
-        renderRecentLogs(itemLogs, item);
+        renderDetailChart(itemLogs);
+        renderRecentLogs(itemLogs);
     }
 
-    function renderDetailChart(logs, item) {
+    function renderDetailChart(logs) {
         const canvas = document.getElementById('respectDetailChart');
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -2000,63 +1648,43 @@
         const point = dark ? '#0F1419' : '#FFFFFF';
 
         const last30 = logs.slice(-30);
-        const labels = last30.map(l => new Date(l.log_date).toLocaleDateString('en-US', { month:'short', day:'numeric' }));
-        const isChallenge = item.item_type === 'challenge';
-        const data = last30.map(l => isChallenge ? (l.status==='winner'?1:0) : (l.actual_value||0));
+        const labels = last30.map(l => new Date(l.log_date).toLocaleDateString('en-US',{month:'short',day:'numeric'}));
+        const data = last30.map(l => l.status === 'winner' ? 1 : 0);
 
-        const grad = ctx.createLinearGradient(0, 0, 0, 220);
-        grad.addColorStop(0, accent + '55'); grad.addColorStop(1, accent + '00');
+        const grad = ctx.createLinearGradient(0,0,0,220);
+        grad.addColorStop(0, accent+'55'); grad.addColorStop(1, accent+'00');
 
         state.respect.detailChart = new Chart(ctx, {
             type: 'line',
-            data: {
-                labels: labels.length ? labels : ['—'],
-                datasets: [{
-                    data: data.length ? data : [0],
-                    borderColor: accent, backgroundColor: grad,
-                    borderWidth: 2.5, tension: 0.35, fill: true,
-                    pointBackgroundColor: last30.map(l => l.status==='winner' ? '#10B981' : '#EF4444'),
-                    pointBorderColor: point, pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 6
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: {
-                    legend: { display:false },
-                    tooltip: {
-                        backgroundColor: dark ? '#161C24' : '#0A2540',
-                        titleColor:'#fff', bodyColor:'#fff', cornerRadius:4, padding:10, displayColors:false,
-                        callbacks: {
-                            label: (c) => isChallenge
-                                ? (last30[c.dataIndex].status==='winner' ? 'Winner ✓' : 'Loser ✗')
-                                : `${c.parsed.y} ${item.unit||''} (target: ${item.target_value})`
-                        }
-                    }
-                },
-                scales: {
-                    y: { beginAtZero:true, grid:{color:grid}, ticks:{precision:0,color:txt,font:{size:11}} },
-                    x: { grid:{display:false}, ticks:{color:txt,font:{size:11}, maxTicksLimit:7} }
-                }
-            }
+            data: { labels: labels.length?labels:['—'], datasets: [{ data: data.length?data:[0], borderColor:accent, backgroundColor:grad, borderWidth:2.5, tension:0.35, fill:true, pointBackgroundColor: last30.map(l => l.status==='winner'?'#10B981':'#EF4444'), pointBorderColor:point, pointBorderWidth:2, pointRadius:4, pointHoverRadius:6 }] },
+            options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{ backgroundColor: dark?'#161C24':'#0A2540', titleColor:'#fff', bodyColor:'#fff', cornerRadius:4, padding:10, displayColors:false, callbacks:{ label: c => last30[c.dataIndex].status==='winner' ? 'Done ✓' : 'Missed ✗' } }}, scales:{ y:{ beginAtZero:true, max:1, grid:{color:grid}, ticks:{ stepSize:1, color:txt, font:{size:11}, callback: v => v === 1 ? 'Done' : v === 0 ? 'Missed' : '' } }, x:{ grid:{display:false}, ticks:{color:txt,font:{size:11}, maxTicksLimit:7} } } }
         });
     }
 
-    function renderRecentLogs(logs, item) {
+    function renderRecentLogs(logs) {
         const host = document.getElementById('respectRecentLogs');
         if (!logs.length) { host.innerHTML = '<div class="empty-state">No history yet.</div>'; return; }
         const recent = [...logs].reverse().slice(0, 14);
         host.innerHTML = recent.map(l => {
             const dateStr = new Date(l.log_date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
             const isWin = l.status === 'winner';
-            const valTxt = (item.item_type !== 'challenge' && isWin) ? ` — ${l.actual_value} ${item.unit||''}` : '';
-            return `<div class="hist-set-row"><div class="left"><span class="reps" style="color:${isWin?'var(--success)':'var(--danger)'}">${isWin?'✓ Winner':'✗ Loser'}</span><span class="dur">${dateStr}${valTxt}</span></div></div>`;
+            return `<div class="hist-set-row"><div class="left"><span class="reps" style="color:${isWin?'var(--success)':'var(--danger)'}">${isWin?'✓ Done':'✗ Missed'}</span><span class="dur">${dateStr}</span></div></div>`;
         }).join('');
     }
 
-    // Patch boot to also load respect data BEFORE applying view
-    const _origBoot = boot;
-    boot = async function() {
-        // Load exercises and sessions
+    /* ============================================
+       BOOT
+       ============================================ */
+    async function loadSessions() {
+        const { data: sessions } = await sb.from('workout_sessions').select('*').order('started_at', { ascending: false });
+        state.sessions = sessions || [];
+        const { data: allSets } = await sb.from('sets').select('*').order('started_at', { ascending: true });
+        const setsBySession = {};
+        (allSets || []).forEach(s => { if (s.session_id) { if (!setsBySession[s.session_id]) setsBySession[s.session_id] = []; setsBySession[s.session_id].push(s); } });
+        state.sessions.forEach(sess => { sess.sets = setsBySession[sess.id] || []; });
+    }
+
+    async function boot() {
         const { data: exData } = await sb.from('exercises').select('name').order('created_at', { ascending: true });
         state.exercises = (exData || []).map(e => e.name);
         rebuildExerciseSelect();
@@ -2067,20 +1695,19 @@
         handleExerciseChange();
         await loadSessions();
         renderActiveSets();
-
-        loadBirthday();
-
+        await loadBirthday();
         initVoiceRecognition();
         updateVoiceUI();
-
-        // Load respect data BEFORE applying view so respect view renders correctly on refresh
         await loadRespect();
-
         const params = new URLSearchParams(location.search);
         const initialView = params.get('view') || 'logger';
         history.replaceState({ view: initialView }, '', initialView === 'logger' ? location.pathname : `${location.pathname}?view=${initialView}`);
         applyView(initialView);
-    };
+    }
+
+    document.getElementById('repsInput').addEventListener('keypress', e => { if (e.key === 'Enter') saveSet(); });
+    document.getElementById('newExerciseName').addEventListener('keypress', e => { if (e.key === 'Enter') saveNewExercise(); });
+    document.getElementById('birthdayInput').addEventListener('keypress', e => { if (e.key === 'Enter') saveBirthday(); });
 
     window.addEventListener('DOMContentLoaded', boot);
 
