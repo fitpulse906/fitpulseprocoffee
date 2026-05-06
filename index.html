@@ -95,7 +95,6 @@
         .age-badge:hover { border-color: var(--border-strong); color: var(--text); }
         .age-badge.placeholder { color: var(--text-faint); font-family: 'Inter', sans-serif; font-weight: 500; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; }
 
-        /* Install Button */
         .install-btn {
             display: none;
             align-items: center;
@@ -248,10 +247,10 @@
 
         .chart-wrap { position: relative; height: 220px; }
 
-        .modal-overlay { position: fixed; inset: 0; background: rgba(10, 37, 64, 0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.18s ease; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(10, 37, 64, 0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.18s ease; padding: 16px; }
         [data-theme="dark"] .modal-overlay { background: rgba(0, 0, 0, 0.7); }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-content { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 22px; width: 90%; max-width: 360px; box-shadow: var(--shadow-lift); transform: scale(0.96); transition: transform 0.18s ease; }
+        .modal-content { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 22px; width: 100%; max-width: 360px; box-shadow: var(--shadow-lift); transform: scale(0.96); transition: transform 0.18s ease; max-height: 90vh; overflow-y: auto; }
         .modal-overlay.active .modal-content { transform: scale(1); }
         .modal-title { font-weight: 700; font-size: 1rem; margin-bottom: 6px; letter-spacing: -0.02em; }
         .modal-sub { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px; }
@@ -474,6 +473,207 @@
         .detail-stat-val { font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 700; color: var(--accent); letter-spacing: -0.02em; }
         .detail-stat-label { font-size: 0.65rem; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; margin-top: 4px; }
         .detail-note-box { background: var(--surface-2); border-left: 3px solid var(--accent); padding: 12px 14px; border-radius: 4px; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; font-style: italic; }
+
+        /* ===== EXERCISE SCHEDULE ===== */
+        .schedule-day-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: 14px 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 10px;
+        }
+        .schedule-day-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .schedule-day-name {
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: -0.01em;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .schedule-day-name.today {
+            color: var(--accent);
+        }
+        .schedule-today-badge {
+            font-size: 0.6rem;
+            background: var(--accent);
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .schedule-day-count {
+            font-size: 0.72rem;
+            color: var(--text-faint);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+        .schedule-ex-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .schedule-ex-pill {
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 4px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.15s ease;
+            font-family: inherit;
+        }
+        .schedule-ex-pill:hover { border-color: var(--border-strong); }
+        .schedule-ex-pill.selected {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+        .schedule-empty-pill {
+            font-size: 0.78rem;
+            color: var(--text-faint);
+            font-style: italic;
+            padding: 6px 0;
+        }
+
+        .schedule-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .schedule-mode-toggle {
+            display: inline-flex;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 3px;
+            gap: 2px;
+        }
+        .schedule-mode-btn {
+            padding: 6px 14px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            font-family: inherit;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .schedule-mode-btn.active {
+            background: var(--surface);
+            color: var(--text);
+            box-shadow: var(--shadow);
+        }
+
+        .today-schedule-banner {
+            background: var(--accent-soft);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            border-radius: var(--r-lg);
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        [data-theme="dark"] .today-schedule-banner {
+            border-color: rgba(96, 165, 250, 0.2);
+        }
+        .today-schedule-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            flex-shrink: 0;
+        }
+        .today-schedule-text {
+            flex: 1;
+            min-width: 0;
+        }
+        .today-schedule-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .today-schedule-list {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .today-schedule-empty {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+            font-style: italic;
+        }
+
+        /* Confirmation Diff */
+        .confirm-diff {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 12px;
+            margin-top: 10px;
+            max-height: 240px;
+            overflow-y: auto;
+        }
+        .confirm-diff-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 6px 0;
+            font-size: 0.82rem;
+            border-bottom: 1px dashed var(--border);
+        }
+        .confirm-diff-row:last-child { border-bottom: none; }
+        .confirm-diff-day {
+            font-weight: 700;
+            color: var(--text);
+            min-width: 42px;
+            font-size: 0.82rem;
+        }
+        .confirm-diff-changes { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+        .confirm-diff-add {
+            color: var(--success);
+            font-weight: 600;
+        }
+        .confirm-diff-remove {
+            color: var(--danger);
+            font-weight: 600;
+        }
+        .confirm-diff-summary {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 6px 0;
+            font-weight: 500;
+        }
     </style>
 
 </head>
@@ -501,6 +701,7 @@
                         <button class="dropdown-item active" data-view="logger" onclick="switchView('logger')"><i class="fa-solid fa-stopwatch"></i> Logger</button>
                         <button class="dropdown-item" data-view="history" onclick="switchView('history')"><i class="fa-solid fa-clock-rotate-left"></i> History</button>
                         <button class="dropdown-item" data-view="analytics" onclick="switchView('analytics')"><i class="fa-solid fa-chart-line"></i> Trend</button>
+                        <button class="dropdown-item" data-view="schedule" onclick="switchView('schedule')"><i class="fa-solid fa-calendar-days"></i> Exercise Schedule</button>
                     </div>
                     <div class="dropdown-section">
                         <div class="dropdown-label">Settings</div>
@@ -522,6 +723,8 @@
                 <h1>Today's Workout</h1>
                 <small id="todayDate"></small>
             </div>
+
+            <div id="todayScheduleBanner"></div>
 
             <div class="card">
                 <div class="card-head"><div class="card-title"><strong>Choose</strong> Exercise</div></div>
@@ -641,6 +844,32 @@
             </div>
         </div>
 
+        <!-- EXERCISE SCHEDULE -->
+        <div class="view" id="scheduleView">
+            <div class="page-title">
+                <h1>Exercise Schedule</h1>
+                <small>Plan your week</small>
+            </div>
+
+            <div class="card" style="padding: 14px;">
+                <div class="schedule-toolbar">
+                    <div class="schedule-mode-toggle">
+                        <button class="schedule-mode-btn active" id="scheduleModeView" onclick="setScheduleMode('view')">View</button>
+                        <button class="schedule-mode-btn" id="scheduleModeEdit" onclick="setScheduleMode('edit')">Edit</button>
+                    </div>
+                    <div id="scheduleEditActions" style="display:none;gap:8px;display:none;">
+                        <button class="respect-tool-btn" onclick="cancelScheduleEdit()"><i class="fa-solid fa-xmark"></i> Cancel</button>
+                        <button class="respect-tool-btn primary" onclick="reviewScheduleChanges()"><i class="fa-solid fa-check"></i> Save</button>
+                    </div>
+                </div>
+                <div style="font-size:0.78rem; color:var(--text-muted); margin-top:10px;" id="scheduleHelpText">
+                    Tap Edit to assign exercises to specific days. Today's plan is auto-applied to the Logger.
+                </div>
+            </div>
+
+            <div id="scheduleList"></div>
+        </div>
+
     </div>
 
     <!-- MODALS -->
@@ -691,6 +920,19 @@
             <div class="modal-actions">
                 <button class="btn btn-outline" onclick="closeModal('confirmModal')">Cancel</button>
                 <button class="btn btn-primary" id="confirmOk">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Confirmation Modal -->
+    <div class="modal-overlay" id="scheduleConfirmModal">
+        <div class="modal-content" style="max-width:440px;">
+            <div class="modal-title">Confirm Schedule Update</div>
+            <div class="modal-sub">Review the changes below before applying.</div>
+            <div class="confirm-diff" id="scheduleDiffContent"></div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeModal('scheduleConfirmModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="applyScheduleChanges()"><i class="fa-solid fa-check"></i> Confirm & Apply</button>
             </div>
         </div>
     </div>
@@ -749,7 +991,6 @@
         document.getElementById('manifestLink').setAttribute('href', url);
     })();
 
-    /* Register a minimal service worker (required for installability on Chrome) */
     if ('serviceWorker' in navigator) {
         const swCode = `
             const CACHE = 'fitpulse-v1';
@@ -771,7 +1012,6 @@
         navigator.serviceWorker.register(swUrl).catch(err => console.warn('SW registration failed:', err));
     }
 
-    /* Install Prompt Handling */
     let deferredInstallPrompt = null;
     const installBtn = document.getElementById('installBtn');
     const menuInstallItem = document.getElementById('menuInstallItem');
@@ -835,7 +1075,6 @@
         toast('Fit Pulse installed ✓');
     });
 
-    /* If already installed (running as PWA), keep button hidden */
     if (isStandalone()) hideInstallButton();
 
     /* ============================================
@@ -845,6 +1084,8 @@
     const supabaseUrl = 'https://honnodwiwqtcbyasogli.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhvbm5vZHdpd3F0Y2J5YXNvZ2xpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5OTAwNzYsImV4cCI6MjA5MzU2NjA3Nn0.bamnNenXtnsAsV27JFVNyGI6a4JP-nJxBxQwNRFP99E';
     const sb = createClient(supabaseUrl, supabaseKey);
+
+    const DAY_NAMES_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
     const state = {
         currentExercise: "",
@@ -870,7 +1111,15 @@
             recognition: null, enabled: false, supported: false, shouldRun: false,
             lastTrigger: 0, audioUnlocked: false
         },
-        respect: { items: [], logs: [], reorderMode: false, editingId: null, currentDetailId: null, detailChart: null, expandedId: null }
+        respect: { items: [], logs: [], reorderMode: false, editingId: null, currentDetailId: null, detailChart: null, expandedId: null },
+
+        schedule: {
+            // Map: { 0: ['Pushups', 'Squats'], 1: [...], ... 6: [...] }
+            current: { 0:[], 1:[], 2:[], 3:[], 4:[], 5:[], 6:[] },
+            // Working copy used in edit mode
+            draft:   { 0:[], 1:[], 2:[], 3:[], 4:[], 5:[], 6:[] },
+            mode: 'view' // 'view' | 'edit'
+        }
     };
 
     /* ---------- SOUND ---------- */
@@ -921,7 +1170,7 @@
     document.addEventListener('click', e => { if (!e.target.closest('.menu-btn')) document.getElementById('dropdownMenu').classList.remove('show'); });
 
     /* ---------- VIEWS ---------- */
-    const VALID_VIEWS = ['logger','history','analytics','respect','respectDetail'];
+    const VALID_VIEWS = ['logger','history','analytics','respect','respectDetail','schedule'];
     function applyView(view) {
         if (!VALID_VIEWS.includes(view)) view = 'logger';
         state.currentView = view;
@@ -934,11 +1183,23 @@
         if (view === 'analytics') renderAnalytics();
         if (view === 'respect') renderRespectList();
         if (view === 'respectDetail') renderRespectDetail();
+        if (view === 'schedule') renderScheduleView();
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     function switchView(view) {
         haptic(HAPTIC.light);
         if (state.currentView === view) return;
+        // If leaving schedule edit mode unsaved, ask
+        if (state.currentView === 'schedule' && state.schedule.mode === 'edit' && hasScheduleChanges()) {
+            confirmAction('Discard changes?', 'You have unsaved schedule edits. Leave anyway?', () => {
+                cancelScheduleEdit(true);
+                _doSwitch(view);
+            });
+            return;
+        }
+        _doSwitch(view);
+    }
+    function _doSwitch(view) {
         const url = view === 'logger' ? location.pathname : `${location.pathname}?view=${view}`;
         history.pushState({ view }, '', url);
         applyView(view);
@@ -974,7 +1235,7 @@
     document.getElementById('todayDate').innerText = todayLabel();
 
     /* ============================================
-       BIRTHDAY (saved to Supabase + localStorage)
+       BIRTHDAY
        ============================================ */
     async function loadBirthday() {
         try {
@@ -1246,12 +1507,19 @@
             await sb.from('workout_sessions').delete().eq('exercise', ex);
             await sb.from('sets').delete().eq('exercise', ex);
             await sb.from('exercises').delete().eq('name', ex);
+            await sb.from('exercise_schedule').delete().eq('exercise', ex);
+            // remove from local schedule
+            for (let d = 0; d < 7; d++) {
+                state.schedule.current[d] = state.schedule.current[d].filter(e => e !== ex);
+                state.schedule.draft[d]   = state.schedule.draft[d].filter(e => e !== ex);
+            }
             state.exercises = state.exercises.filter(x => x !== ex);
             state.sessions = state.sessions.filter(s => s.exercise !== ex);
             rebuildExerciseSelect();
             state.currentExercise = state.exercises[0] || "";
             document.getElementById('exerciseSelect').value = state.currentExercise;
             handleExerciseChange();
+            renderTodayScheduleBanner();
             toast(`Removed "${ex}"`);
         });
     }
@@ -1387,7 +1655,7 @@
     }
 
     /* ============================================
-       VOICE (Vosk)
+       VOICE
        ============================================ */
     const START_KEYWORDS = ['start','begin','go','shuru','shuroo','shuru kar','shuru karo','shuroo karo','chal','chalo','chalu','chalu kar','set start','start set'];
     const STOP_KEYWORDS = ['stop','end','finish','ruk','ruko','rukja','ruk ja','chup','chup kar','band','band kar','band karo','set stop','stop set'];
@@ -1827,6 +2095,249 @@
     }
 
     /* ============================================
+       EXERCISE SCHEDULE
+       ============================================ */
+    async function loadSchedule() {
+        const empty = { 0:[], 1:[], 2:[], 3:[], 4:[], 5:[], 6:[] };
+        const { data, error } = await sb.from('exercise_schedule').select('*').order('id', { ascending: true });
+        if (error) { console.warn('Schedule load error', error); state.schedule.current = empty; return; }
+        const map = { 0:[], 1:[], 2:[], 3:[], 4:[], 5:[], 6:[] };
+        (data || []).forEach(r => {
+            if (r.day_of_week >= 0 && r.day_of_week <= 6 && state.exercises.includes(r.exercise)) {
+                if (!map[r.day_of_week].includes(r.exercise)) map[r.day_of_week].push(r.exercise);
+            }
+        });
+        state.schedule.current = map;
+        state.schedule.draft = cloneSchedule(map);
+    }
+
+    function cloneSchedule(s) {
+        const o = {};
+        for (let d = 0; d < 7; d++) o[d] = [...(s[d] || [])];
+        return o;
+    }
+
+    function setScheduleMode(mode) {
+        haptic(HAPTIC.light);
+        state.schedule.mode = mode;
+        if (mode === 'edit') {
+            state.schedule.draft = cloneSchedule(state.schedule.current);
+        } else {
+            state.schedule.draft = cloneSchedule(state.schedule.current);
+        }
+        document.getElementById('scheduleModeView').classList.toggle('active', mode === 'view');
+        document.getElementById('scheduleModeEdit').classList.toggle('active', mode === 'edit');
+        document.getElementById('scheduleEditActions').style.display = mode === 'edit' ? 'flex' : 'none';
+        document.getElementById('scheduleHelpText').innerText = mode === 'edit'
+            ? 'Tap exercise pills to toggle them for each day. Tap Save to review and confirm changes.'
+            : "Tap Edit to assign exercises to specific days. Today's plan is auto-applied to the Logger.";
+        renderScheduleList();
+    }
+
+    function cancelScheduleEdit(silent) {
+        if (!silent) haptic(HAPTIC.light);
+        state.schedule.draft = cloneSchedule(state.schedule.current);
+        state.schedule.mode = 'view';
+        document.getElementById('scheduleModeView').classList.add('active');
+        document.getElementById('scheduleModeEdit').classList.remove('active');
+        document.getElementById('scheduleEditActions').style.display = 'none';
+        document.getElementById('scheduleHelpText').innerText = "Tap Edit to assign exercises to specific days. Today's plan is auto-applied to the Logger.";
+        renderScheduleList();
+        if (!silent) toast('Edit cancelled');
+    }
+
+    function hasScheduleChanges() {
+        for (let d = 0; d < 7; d++) {
+            const a = [...(state.schedule.current[d] || [])].sort();
+            const b = [...(state.schedule.draft[d] || [])].sort();
+            if (a.length !== b.length) return true;
+            for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return true;
+        }
+        return false;
+    }
+
+    function toggleScheduleAssignment(day, exercise) {
+        haptic(HAPTIC.light);
+        const arr = state.schedule.draft[day];
+        const idx = arr.indexOf(exercise);
+        if (idx >= 0) arr.splice(idx, 1); else arr.push(exercise);
+        renderScheduleList();
+    }
+
+    function renderScheduleView() {
+        // Ensure mode UI is correct
+        document.getElementById('scheduleModeView').classList.toggle('active', state.schedule.mode === 'view');
+        document.getElementById('scheduleModeEdit').classList.toggle('active', state.schedule.mode === 'edit');
+        document.getElementById('scheduleEditActions').style.display = state.schedule.mode === 'edit' ? 'flex' : 'none';
+        renderScheduleList();
+    }
+
+    function renderScheduleList() {
+        const list = document.getElementById('scheduleList');
+        list.innerHTML = '';
+        const today = new Date().getDay();
+        const source = state.schedule.mode === 'edit' ? state.schedule.draft : state.schedule.current;
+
+        if (!state.exercises.length) {
+            list.innerHTML = '<div class="card"><div class="empty-state">Add at least one exercise (from the Logger) to start scheduling.</div></div>';
+            return;
+        }
+
+        for (let d = 0; d < 7; d++) {
+            const card = document.createElement('div');
+            card.className = 'schedule-day-card';
+            const assigned = source[d] || [];
+            const isToday = d === today;
+
+            const headHtml = `
+                <div class="schedule-day-head">
+                    <div class="schedule-day-name ${isToday ? 'today' : ''}">
+                        ${DAY_NAMES_FULL[d]}
+                        ${isToday ? '<span class="schedule-today-badge">Today</span>' : ''}
+                    </div>
+                    <div class="schedule-day-count">${assigned.length} exercise${assigned.length === 1 ? '' : 's'}</div>
+                </div>`;
+
+            let bodyHtml = '';
+            if (state.schedule.mode === 'edit') {
+                bodyHtml = '<div class="schedule-ex-grid">';
+                state.exercises.forEach(ex => {
+                    const sel = assigned.includes(ex);
+                    bodyHtml += `<button class="schedule-ex-pill ${sel ? 'selected' : ''}" onclick="toggleScheduleAssignment(${d}, ${JSON.stringify(ex).replace(/"/g,'&quot;')})">${escapeHtml(ex)}</button>`;
+                });
+                bodyHtml += '</div>';
+            } else {
+                if (!assigned.length) {
+                    bodyHtml = '<div class="schedule-empty-pill">No exercises assigned</div>';
+                } else {
+                    bodyHtml = '<div class="schedule-ex-grid">';
+                    assigned.forEach(ex => {
+                        bodyHtml += `<span class="schedule-ex-pill selected" style="cursor:default;">${escapeHtml(ex)}</span>`;
+                    });
+                    bodyHtml += '</div>';
+                }
+            }
+
+            card.innerHTML = headHtml + bodyHtml;
+            list.appendChild(card);
+        }
+    }
+
+    function reviewScheduleChanges() {
+        haptic(HAPTIC.medium);
+        if (!hasScheduleChanges()) { toast('No changes to save'); return; }
+
+        // Build diff
+        const diffHost = document.getElementById('scheduleDiffContent');
+        diffHost.innerHTML = '';
+        let totalAdds = 0, totalRemoves = 0;
+        for (let d = 0; d < 7; d++) {
+            const cur = new Set(state.schedule.current[d] || []);
+            const next = new Set(state.schedule.draft[d] || []);
+            const added = [...next].filter(x => !cur.has(x));
+            const removed = [...cur].filter(x => !next.has(x));
+            if (!added.length && !removed.length) continue;
+            totalAdds += added.length;
+            totalRemoves += removed.length;
+            const row = document.createElement('div');
+            row.className = 'confirm-diff-row';
+            const changesHtml = [];
+            added.forEach(a => changesHtml.push(`<span class="confirm-diff-add">+ ${escapeHtml(a)}</span>`));
+            removed.forEach(r => changesHtml.push(`<span class="confirm-diff-remove">− ${escapeHtml(r)}</span>`));
+            row.innerHTML = `
+                <div class="confirm-diff-day">${DAY_NAMES[d]}</div>
+                <div class="confirm-diff-changes">${changesHtml.join('')}</div>`;
+            diffHost.appendChild(row);
+        }
+        const summary = document.createElement('div');
+        summary.className = 'confirm-diff-summary';
+        summary.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${totalAdds} added · ${totalRemoves} removed`;
+        diffHost.prepend(summary);
+
+        openModal('scheduleConfirmModal');
+    }
+
+    async function applyScheduleChanges() {
+        haptic(HAPTIC.success);
+        closeModal('scheduleConfirmModal');
+
+        // Compute add/remove lists
+        const adds = [];
+        const removes = [];
+        for (let d = 0; d < 7; d++) {
+            const cur = new Set(state.schedule.current[d] || []);
+            const next = new Set(state.schedule.draft[d] || []);
+            [...next].forEach(x => { if (!cur.has(x)) adds.push({ exercise: x, day_of_week: d }); });
+            [...cur].forEach(x => { if (!next.has(x)) removes.push({ exercise: x, day_of_week: d }); });
+        }
+
+        try {
+            // Apply removes
+            for (const r of removes) {
+                await sb.from('exercise_schedule').delete().eq('exercise', r.exercise).eq('day_of_week', r.day_of_week);
+            }
+            // Apply adds
+            if (adds.length) {
+                const { error } = await sb.from('exercise_schedule').insert(adds);
+                if (error) { console.warn(error); toast('Some adds failed'); }
+            }
+            // Refresh local state
+            state.schedule.current = cloneSchedule(state.schedule.draft);
+            toast('Schedule updated ✓');
+            // Apply today's schedule to logger
+            applyTodayScheduleToLogger();
+            // Switch back to view mode
+            cancelScheduleEdit(true);
+            renderTodayScheduleBanner();
+        } catch (e) {
+            console.error(e);
+            toast('Save failed');
+        }
+    }
+
+    function applyTodayScheduleToLogger() {
+        const today = new Date().getDay();
+        const todays = state.schedule.current[today] || [];
+        if (!todays.length) return;
+        // If current selection isn't in today's list, pick the first
+        if (!todays.includes(state.currentExercise)) {
+            const first = todays[0];
+            if (state.exercises.includes(first)) {
+                state.currentExercise = first;
+                document.getElementById('exerciseSelect').value = first;
+                handleExerciseChange();
+            }
+        }
+    }
+
+    function renderTodayScheduleBanner() {
+        const host = document.getElementById('todayScheduleBanner');
+        if (!host) return;
+        const today = new Date().getDay();
+        const todays = state.schedule.current[today] || [];
+
+        if (!todays.length) {
+            host.innerHTML = `
+                <div class="today-schedule-banner">
+                    <div class="today-schedule-icon"><i class="fa-solid fa-calendar-day"></i></div>
+                    <div class="today-schedule-text">
+                        <div class="today-schedule-label">${DAY_NAMES_FULL[today]} · Today</div>
+                        <div class="today-schedule-empty">No exercises scheduled — <a href="#" onclick="event.preventDefault();switchView('schedule')" style="color:var(--accent);text-decoration:none;font-weight:600;">set a plan</a></div>
+                    </div>
+                </div>`;
+            return;
+        }
+        host.innerHTML = `
+            <div class="today-schedule-banner" onclick="switchView('schedule')" style="cursor:pointer;">
+                <div class="today-schedule-icon"><i class="fa-solid fa-calendar-day"></i></div>
+                <div class="today-schedule-text">
+                    <div class="today-schedule-label">${DAY_NAMES_FULL[today]}'s Plan</div>
+                    <div class="today-schedule-list">${todays.map(escapeHtml).join(' · ')}</div>
+                </div>
+            </div>`;
+    }
+
+    /* ============================================
        BOOT
        ============================================ */
     async function loadSessions() {
@@ -1848,11 +2359,15 @@
         }
         handleExerciseChange();
         await loadSessions();
+        await loadSchedule();
         renderActiveSets();
         await loadBirthday();
         initVoiceRecognition();
         updateVoiceUI();
         await loadRespect();
+        // Auto-apply today's schedule to logger on boot
+        applyTodayScheduleToLogger();
+        renderTodayScheduleBanner();
         const params = new URLSearchParams(location.search);
         const initialView = params.get('view') || 'logger';
         history.replaceState({ view: initialView }, '', initialView === 'logger' ? location.pathname : `${location.pathname}?view=${initialView}`);
