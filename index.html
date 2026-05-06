@@ -1962,166 +1962,224 @@ function updateCancelWorkoutVisibility() {
     btn.classList.toggle('visible', active);
 }
 
+function saveWorkoutState() {
+    const data = {
+        currentExercise: state.currentExercise,
+        session: { ...state.activeSession, sessionInterval: null },
+        set: { ...state.activeSet, interval: null }
+    };
+    localStorage.setItem('fp_live_workout', JSON.stringify(data));
+}
+
+function restoreActiveWorkout() {
+    try {
+        const saved = JSON.parse(localStorage.getItem('fp_live_workout'));
+        if (!saved || (!saved.session.running && saved.session.sessionSeconds === 0 && saved.session.sets.length === 0)) return;
+        
+        state.currentExercise = saved.currentExercise || state.currentExercise;
+        if (state.currentExercise) {
+            const sel = document.getElementById('exerciseSelect');
+            if (sel) { sel.value = state.currentExercise; handleExerciseChange(); }
+        }
+        
+        Object.assign(state.activeSession, saved.session);
+        Object.assign(state.activeSet, saved.set);
+        state.activeSession.sessionInterval = null;
+        state.activeSet.interval = null;
+        
+        document.getElementById('sessionTimer').innerText = fmtTime(state.activeSession.sessionSeconds);
+        document.getElementById('setTimer').innerText = fmtTime(state.activeSet.seconds);
+        
+        if (state.activeSession.running) {
+            document.getElementById('sessionTimerBox').classList.add('live');
+            document.getElementById('sessionStatus').innerText = 'Running…';
+            document.getElementById('sessionBtnLabel').innerText = 'Pause Workout';
+            document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-pause';
+            state.activeSession.sessionInterval = setInterval(() => { state.activeSession.sessionSeconds++; document.getElementById('sessionTimer').innerText = fmtTime(state.activeSession.sessionSeconds); saveWorkoutState(); }, 1000);
+        } else if (state.activeSession.sessionSeconds > 0) {
+            document.getElementById('sessionStatus').innerText = 'Paused';
+            document.getElementById('sessionBtnLabel').innerText = 'Resume Workout';
+        }
+        
+        if (state.activeSession.sessionSeconds > 0 || state.activeSession.running || state.activeSession.sets.length > 0) {
+            document.getElementById('setBtn').disabled = false;
+            document.getElementById('completeBtn').disabled = false;
+        }
+        
+        if (state.activeSet.running) {
+            document.getElementById('setTimerBox').classList.add('live-set');
+            document.getElementById('setBtnLabel').innerText = 'Stop Set';
+            document.getElementById('setBtn').querySelector('i').className = 'fa-solid fa-stop';
+            state.activeSet.interval = setInterval(() => { state.activeSet.seconds++; document.getElementById('setTimer').innerText = fmtTime(state.activeSet.seconds); saveWorkoutState(); }, 1000);
+        }
+        
+        renderActiveSets();
+        updateCancelWorkoutVisibility();
+    } catch (e) { console.error('Restore failed', e); }
+}
+
 function cancelWorkout() {
-    haptic(HAPTIC.warning);
-    const setCount = state.activeSession.sets.length;
-    const text = setCount > 0
-        ? `This will discard ${setCount} logged set${setCount === 1 ? '' : 's'} and reset the timer. This cannot be undone.`
-        : 'This will reset the workout timer. Are you sure?';
-    confirmActionDanger('Cancel Workout?', text, 'Yes, Cancel Workout', () => {
-        if (state.rest.running) cancelRest();
-        clearInterval(state.activeSession.sessionInterval);
-        clearInterval(state.activeSet.interval);
-        resetSession();
-        toast('Workout cancelled');
-    });
+    haptic(HAPTIC.warning);
+    const setCount = state.activeSession.sets.length;
+    const text = setCount > 0
+        ? `This will discard ${setCount} logged set${setCount === 1 ? '' : 's'} and reset the timer. This cannot be undone.`
+        : 'This will reset the workout timer. Are you sure?';
+    confirmActionDanger('Cancel Workout?', text, 'Yes, Cancel Workout', () => {
+        if (state.rest.running) cancelRest();
+        clearInterval(state.activeSession.sessionInterval);
+        clearInterval(state.activeSet.interval);
+        resetSession();
+        toast('Workout cancelled');
+    });
 }
 
 function toggleSession() {
-    haptic(HAPTIC.medium);
-    if (!state.activeSession.running && state.activeSession.sessionSeconds === 0) startSession();
-    else if (state.activeSession.running) pauseSession();
-    else resumeSession();
+    haptic(HAPTIC.medium);
+    if (!state.activeSession.running && state.activeSession.sessionSeconds === 0) startSession();
+    else if (state.activeSession.running) pauseSession();
+    else resumeSession();
 }
 function startSession() {
-    if (!state.currentExercise) { toast('Pick an exercise first'); return; }
-    state.activeSession.running = true;
-    state.activeSession.startedAt = new Date().toISOString();
-    state.activeSession.sessionSeconds = 0; state.activeSession.sets = [];
-    if (state.activeSession.sessionInterval) clearInterval(state.activeSession.sessionInterval);
-    state.activeSession.sessionInterval = setInterval(() => { state.activeSession.sessionSeconds++; document.getElementById('sessionTimer').innerText = fmtTime(state.activeSession.sessionSeconds); }, 1000);
-    document.getElementById('sessionTimerBox').classList.add('live');
-    document.getElementById('sessionStatus').innerText = 'Running…';
-    document.getElementById('sessionBtnLabel').innerText = 'Pause Workout';
-    document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-pause';
-    document.getElementById('setBtn').disabled = false;
-    document.getElementById('completeBtn').disabled = false;
-    renderActiveSets(); updateCancelWorkoutVisibility(); toast('Workout started');
+    if (!state.currentExercise) { toast('Pick an exercise first'); return; }
+    state.activeSession.running = true;
+    state.activeSession.startedAt = new Date().toISOString();
+    state.activeSession.sessionSeconds = 0; state.activeSession.sets = [];
+    if (state.activeSession.sessionInterval) clearInterval(state.activeSession.sessionInterval);
+    state.activeSession.sessionInterval = setInterval(() => { state.activeSession.sessionSeconds++; document.getElementById('sessionTimer').innerText = fmtTime(state.activeSession.sessionSeconds); saveWorkoutState(); }, 1000);
+    document.getElementById('sessionTimerBox').classList.add('live');
+    document.getElementById('sessionStatus').innerText = 'Running…';
+    document.getElementById('sessionBtnLabel').innerText = 'Pause Workout';
+    document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-pause';
+    document.getElementById('setBtn').disabled = false;
+    document.getElementById('completeBtn').disabled = false;
+    renderActiveSets(); updateCancelWorkoutVisibility(); saveWorkoutState(); toast('Workout started');
 }
 function pauseSession() {
-    clearInterval(state.activeSession.sessionInterval);
-    state.activeSession.running = false;
-    document.getElementById('sessionTimerBox').classList.remove('live');
-    document.getElementById('sessionStatus').innerText = 'Paused';
-    document.getElementById('sessionBtnLabel').innerText = 'Resume Workout';
-    document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-play';
-    updateCancelWorkoutVisibility();
-    toast('Workout paused');
+    clearInterval(state.activeSession.sessionInterval);
+    state.activeSession.running = false;
+    document.getElementById('sessionTimerBox').classList.remove('live');
+    document.getElementById('sessionStatus').innerText = 'Paused';
+    document.getElementById('sessionBtnLabel').innerText = 'Resume Workout';
+    document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-play';
+    updateCancelWorkoutVisibility(); saveWorkoutState();
+    toast('Workout paused');
 }
 function resumeSession() {
-    state.activeSession.running = true;
-    if (state.activeSession.sessionInterval) clearInterval(state.activeSession.sessionInterval);
-    state.activeSession.sessionInterval = setInterval(() => { state.activeSession.sessionSeconds++; document.getElementById('sessionTimer').innerText = fmtTime(state.activeSession.sessionSeconds); }, 1000);
-    document.getElementById('sessionTimerBox').classList.add('live');
-    document.getElementById('sessionStatus').innerText = 'Running…';
-    document.getElementById('sessionBtnLabel').innerText = 'Pause Workout';
-    document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-pause';
-    updateCancelWorkoutVisibility();
+    state.activeSession.running = true;
+    if (state.activeSession.sessionInterval) clearInterval(state.activeSession.sessionInterval);
+    state.activeSession.sessionInterval = setInterval(() => { state.activeSession.sessionSeconds++; document.getElementById('sessionTimer').innerText = fmtTime(state.activeSession.sessionSeconds); saveWorkoutState(); }, 1000);
+    document.getElementById('sessionTimerBox').classList.add('live');
+    document.getElementById('sessionStatus').innerText = 'Running…';
+    document.getElementById('sessionBtnLabel').innerText = 'Pause Workout';
+    document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-pause';
+    updateCancelWorkoutVisibility(); saveWorkoutState();
 }
 function toggleSet() { haptic(HAPTIC.medium); if (!state.activeSet.running) startSet(); else stopSet(); }
 function startSet() {
-    if (!state.currentExercise) { toast('Pick an exercise first'); return; }
-    if (state.activeSet.running) return;
-    if (state.rest.running) cancelRest();
-    if (!state.activeSession.running && state.activeSession.sessionSeconds === 0) startSession();
-    else if (!state.activeSession.running) resumeSession();
-    state.activeSet.running = true;
-    state.activeSet.startedAt = new Date().toISOString(); state.activeSet.seconds = 0;
-    document.getElementById('setTimer').innerText = '00:00';
-    if (state.activeSet.interval) clearInterval(state.activeSet.interval);
-    state.activeSet.interval = setInterval(() => { state.activeSet.seconds++; document.getElementById('setTimer').innerText = fmtTime(state.activeSet.seconds); }, 1000);
-    document.getElementById('setTimerBox').classList.add('live-set');
-    document.getElementById('setBtnLabel').innerText = 'Stop Set';
-    document.getElementById('setBtn').querySelector('i').className = 'fa-solid fa-stop';
-    document.getElementById('setBtn').disabled = false; playSFX('start');
-    updateCancelWorkoutVisibility();
+    if (!state.currentExercise) { toast('Pick an exercise first'); return; }
+    if (state.activeSet.running) return;
+    if (state.rest.running) cancelRest();
+    if (!state.activeSession.running && state.activeSession.sessionSeconds === 0) startSession();
+    else if (!state.activeSession.running) resumeSession();
+    state.activeSet.running = true;
+    state.activeSet.startedAt = new Date().toISOString(); state.activeSet.seconds = 0;
+    document.getElementById('setTimer').innerText = '00:00';
+    if (state.activeSet.interval) clearInterval(state.activeSet.interval);
+    state.activeSet.interval = setInterval(() => { state.activeSet.seconds++; document.getElementById('setTimer').innerText = fmtTime(state.activeSet.seconds); saveWorkoutState(); }, 1000);
+    document.getElementById('setTimerBox').classList.add('live-set');
+    document.getElementById('setBtnLabel').innerText = 'Stop Set';
+    document.getElementById('setBtn').querySelector('i').className = 'fa-solid fa-stop';
+    document.getElementById('setBtn').disabled = false; playSFX('start');
+    updateCancelWorkoutVisibility(); saveWorkoutState();
 }
 function stopSet() {
-    if (!state.activeSet.running) return;
-    clearInterval(state.activeSet.interval);
-    state.activeSet.running = false;
-    state.activeSet.lastDuration = state.activeSet.seconds;
-    state.activeSet.lastStartedAt = state.activeSet.startedAt;
-    document.getElementById('setTimerBox').classList.remove('live-set');
-    document.getElementById('setBtnLabel').innerText = 'Start Set';
-    document.getElementById('setBtn').querySelector('i').className = 'fa-solid fa-stopwatch';
-    playSFX('stop');
-    document.getElementById('modalTimeDisplay').innerText = fmtTime(state.activeSet.lastDuration);
-    document.getElementById('repsInput').value = '';
-    openModal('repsModal');
-    setTimeout(() => document.getElementById('repsInput').focus(), 100);
+    if (!state.activeSet.running) return;
+    clearInterval(state.activeSet.interval);
+    state.activeSet.running = false;
+    state.activeSet.lastDuration = state.activeSet.seconds;
+    state.activeSet.lastStartedAt = state.activeSet.startedAt;
+    document.getElementById('setTimerBox').classList.remove('live-set');
+    document.getElementById('setBtnLabel').innerText = 'Start Set';
+    document.getElementById('setBtn').querySelector('i').className = 'fa-solid fa-stopwatch';
+    playSFX('stop');
+    document.getElementById('modalTimeDisplay').innerText = fmtTime(state.activeSet.lastDuration);
+    document.getElementById('repsInput').value = '';
+    saveWorkoutState();
+    openModal('repsModal');
+    setTimeout(() => document.getElementById('repsInput').focus(), 100);
 }
 function saveSet() {
-    const reps = parseInt(document.getElementById('repsInput').value);
-    if (!reps || reps <= 0) { toast('Enter valid reps'); return; }
-    haptic(HAPTIC.success);
-    state.activeSession.sets.push({ reps, durationSec: state.activeSet.lastDuration, startedAt: state.activeSet.lastStartedAt, endedAt: new Date().toISOString() });
-    closeModal('repsModal'); document.getElementById('setTimer').innerText = '00:00';
-    renderActiveSets(); updateCancelWorkoutVisibility(); toast(`Set logged — ${reps} reps`);
-    if (state.rest.autoStart) {
-        setTimeout(() => startRest(), 300);
-    }
+    const reps = parseInt(document.getElementById('repsInput').value);
+    if (!reps || reps <= 0) { toast('Enter valid reps'); return; }
+    haptic(HAPTIC.success);
+    state.activeSession.sets.push({ reps, durationSec: state.activeSet.lastDuration, startedAt: state.activeSet.lastStartedAt, endedAt: new Date().toISOString() });
+    closeModal('repsModal'); document.getElementById('setTimer').innerText = '00:00';
+    renderActiveSets(); updateCancelWorkoutVisibility(); saveWorkoutState(); toast(`Set logged — ${reps} reps`);
+    if (state.rest.autoStart) {
+        setTimeout(() => startRest(), 300);
+    }
 }
-function deleteActiveSet(idx) { haptic(HAPTIC.delete); state.activeSession.sets.splice(idx, 1); renderActiveSets(); updateCancelWorkoutVisibility(); }
+function deleteActiveSet(idx) { haptic(HAPTIC.delete); state.activeSession.sets.splice(idx, 1); renderActiveSets(); updateCancelWorkoutVisibility(); saveWorkoutState(); }
 function renderActiveSets() {
-    const list = document.getElementById('setsList');
-    const summary = document.getElementById('setsSummary');
-    document.getElementById('currentExLabel').innerText = state.currentExercise ? `— ${state.currentExercise}` : '';
-    list.innerHTML = '';
-    const sets = state.activeSession.sets;
-    if (!sets.length) { list.innerHTML = '<li class="empty-state">No sets yet. Start a set above.</li>'; summary.innerText = ''; return; }
-    const totalReps = sets.reduce((a,s) => a+s.reps, 0);
-    summary.innerText = `${sets.length} sets · ${totalReps} reps`;
-    sets.forEach((s,i) => {
-        const li = document.createElement('li'); li.className = 'set-item';
-        li.innerHTML = `<div class="set-info"><span class="set-num">#${i+1}</span><span class="set-reps">${s.reps} reps</span><span class="set-time">${fmtTime(s.durationSec)}</span><span class="set-time" style="color:var(--text-faint)">${fmtClock(s.startedAt)}</span></div><div class="set-actions"><button class="icon-btn danger" onclick="deleteActiveSet(${i})"><i class="fa-regular fa-trash-can"></i></button></div>`;
-        list.appendChild(li);
-    });
+    const list = document.getElementById('setsList');
+    const summary = document.getElementById('setsSummary');
+    document.getElementById('currentExLabel').innerText = state.currentExercise ? `— ${state.currentExercise}` : '';
+    list.innerHTML = '';
+    const sets = state.activeSession.sets;
+    if (!sets.length) { list.innerHTML = '<li class="empty-state">No sets yet. Start a set above.</li>'; summary.innerText = ''; return; }
+    const totalReps = sets.reduce((a,s) => a+s.reps, 0);
+    summary.innerText = `${sets.length} sets · ${totalReps} reps`;
+    sets.forEach((s,i) => {
+        const li = document.createElement('li'); li.className = 'set-item';
+        li.innerHTML = `<div class="set-info"><span class="set-num">#${i+1}</span><span class="set-reps">${s.reps} reps</span><span class="set-time">${fmtTime(s.durationSec)}</span><span class="set-time" style="color:var(--text-faint)">${fmtClock(s.startedAt)}</span></div><div class="set-actions"><button class="icon-btn danger" onclick="deleteActiveSet(${i})"><i class="fa-regular fa-trash-can"></i></button></div>`;
+        list.appendChild(li);
+    });
 }
 async function completeWorkout() {
-    haptic(HAPTIC.medium);
-    if (!state.activeSession.sets.length) { toast('Log at least one set first'); return; }
-    if (!state.currentExercise) { toast('No exercise selected'); return; }
-    confirmAction('Finish Workout?', `Save ${state.activeSession.sets.length} sets and end this session?`, async () => {
-        if (state.rest.running) cancelRest();
-        clearInterval(state.activeSession.sessionInterval);
-        clearInterval(state.activeSet.interval);
-        const startedAt = state.activeSession.startedAt;
-        const endedAt = new Date().toISOString();
-        const totalDuration = state.activeSession.sessionSeconds;
-        const totalSets = state.activeSession.sets.length;
-        const totalReps = state.activeSession.sets.reduce((a,s) => a+s.reps, 0);
-        const { data: sessionRow, error: sessErr } = await DB.insertSession({
-            exercise: state.currentExercise, started_at: startedAt, ended_at: endedAt,
-            total_duration: totalDuration, total_sets: totalSets, total_reps: totalReps
-        });
-        if (sessErr || !sessionRow || !sessionRow.length) { toast('Save failed'); console.error(sessErr); return; }
-        const sessionId = sessionRow[0].id;
-        const setsPayload = state.activeSession.sets.map(s => ({
-            exercise: state.currentExercise, reps: s.reps, duration: s.durationSec, session_id: sessionId, started_at: s.startedAt
-        }));
-        const { error: setsErr } = await DB.insertSets(setsPayload);
-        if (setsErr) { console.error(setsErr); toast('Sets save warning'); }
-        haptic(HAPTIC.success); toast('Workout saved!');
-        resetSession(); await loadSessions();
-    });
+    haptic(HAPTIC.medium);
+    if (!state.activeSession.sets.length) { toast('Log at least one set first'); return; }
+    if (!state.currentExercise) { toast('No exercise selected'); return; }
+    confirmAction('Finish Workout?', `Save ${state.activeSession.sets.length} sets and end this session?`, async () => {
+        if (state.rest.running) cancelRest();
+        clearInterval(state.activeSession.sessionInterval);
+        clearInterval(state.activeSet.interval);
+        const startedAt = state.activeSession.startedAt;
+        const endedAt = new Date().toISOString();
+        const totalDuration = state.activeSession.sessionSeconds;
+        const totalSets = state.activeSession.sets.length;
+        const totalReps = state.activeSession.sets.reduce((a,s) => a+s.reps, 0);
+        const { data: sessionRow, error: sessErr } = await DB.insertSession({
+            exercise: state.currentExercise, started_at: startedAt, ended_at: endedAt,
+            total_duration: totalDuration, total_sets: totalSets, total_reps: totalReps
+        });
+        if (sessErr || !sessionRow || !sessionRow.length) { toast('Save failed'); console.error(sessErr); return; }
+        const sessionId = sessionRow[0].id;
+        const setsPayload = state.activeSession.sets.map(s => ({
+            exercise: state.currentExercise, reps: s.reps, duration: s.durationSec, session_id: sessionId, started_at: s.startedAt
+        }));
+        const { error: setsErr } = await DB.insertSets(setsPayload);
+        if (setsErr) { console.error(setsErr); toast('Sets save warning'); }
+        haptic(HAPTIC.success); toast('Workout saved!');
+        resetSession(); await loadSessions();
+    });
 }
 function resetSession() {
-    state.activeSession = { running:false, startedAt:null, sessionSeconds:0, sessionInterval:null, sets:[] };
-    state.activeSet = { running:false, startedAt:null, seconds:0, interval:null, lastDuration:0, lastStartedAt:null };
-    document.getElementById('sessionTimer').innerText = '00:00';
-    document.getElementById('setTimer').innerText = '00:00';
-    document.getElementById('sessionTimerBox').classList.remove('live');
-    document.getElementById('setTimerBox').classList.remove('live-set');
-    document.getElementById('sessionStatus').innerText = 'Not started';
-    document.getElementById('sessionBtnLabel').innerText = 'Start Workout';
-    document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-play';
-    document.getElementById('setBtnLabel').innerText = 'Start Set';
-    document.getElementById('setBtn').querySelector('i').className = 'fa-solid fa-stopwatch';
-    document.getElementById('setBtn').disabled = true;
-    document.getElementById('completeBtn').disabled = true;
-    renderActiveSets();
-    updateCancelWorkoutVisibility();
+    localStorage.removeItem('fp_live_workout');
+    state.activeSession = { running:false, startedAt:null, sessionSeconds:0, sessionInterval:null, sets:[] };
+    state.activeSet = { running:false, startedAt:null, seconds:0, interval:null, lastDuration:0, lastStartedAt:null };
+    document.getElementById('sessionTimer').innerText = '00:00';
+    document.getElementById('setTimer').innerText = '00:00';
+    document.getElementById('sessionTimerBox').classList.remove('live');
+    document.getElementById('setTimerBox').classList.remove('live-set');
+    document.getElementById('sessionStatus').innerText = 'Not started';
+    document.getElementById('sessionBtnLabel').innerText = 'Start Workout';
+    document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-play';
+    document.getElementById('setBtnLabel').innerText = 'Start Set';
+    document.getElementById('setBtn').querySelector('i').className = 'fa-solid fa-stopwatch';
+    document.getElementById('setBtn').disabled = true;
+    document.getElementById('completeBtn').disabled = true;
+    renderActiveSets();
+    updateCancelWorkoutVisibility();
 }
 
 function openAddExerciseModal() {
@@ -2986,7 +3044,7 @@ function renderTodayScheduleBanner() {
     const today = new Date().getDay();
     const todayExs = state.schedule.current[today] || [];
     if (!todayExs.length) { host.innerHTML = ''; return; }
-    host.innerHTML = `<div class="today-schedule-banner"><div class="today-schedule-icon"><i class="fa-solid fa-calendar-day"></i></div><div class="today-schedule-text"><div class="today-schedule-label">Today's Plan</div><div class="today-schedule-list">${todayExs.map(escapeHtml).join(', ')}</div></div></div>`;
+    host.innerHTML = `<div class="today-schedule-banner" onclick="switchView('schedule')" style="cursor:pointer;"><div class="today-schedule-icon"><i class="fa-solid fa-calendar-day"></i></div><div class="today-schedule-text"><div class="today-schedule-label">Today's Plan</div><div class="today-schedule-list">${todayExs.map(escapeHtml).join(', ')}</div></div></div>`;
 }
 
 async function init() {
@@ -3001,25 +3059,26 @@ async function init() {
 }
 
 async function initData() {
-    try {
-        updateAccountUI();
-        await loadSoundMaster();
-        await loadBirthday();
-        await loadRestSettings();
-        await loadExercises();
-        await loadSessions();
-        await loadSchedule();
-        await loadRespect();
-        initVoiceRecognition();
-        renderTodayScheduleBanner();
-        updateCancelWorkoutVisibility();
-        const params = new URLSearchParams(location.search); applyView(params.get('view') || 'logger');
-        const loader = document.getElementById('bootLoader');
-        if (loader) {
-            loader.classList.add('hidden');
-            setTimeout(() => { if (loader) loader.style.display = 'none'; }, 300);
-        }
-    } catch (e) {
+    try {
+        updateAccountUI();
+        await loadSoundMaster();
+        await loadBirthday();
+        await loadRestSettings();
+        await loadExercises();
+        await loadSessions();
+        await loadSchedule();
+        await loadRespect();
+        initVoiceRecognition();
+        renderTodayScheduleBanner();
+        restoreActiveWorkout();
+        updateCancelWorkoutVisibility();
+        const params = new URLSearchParams(location.search); applyView(params.get('view') || 'logger');
+        const loader = document.getElementById('bootLoader');
+        if (loader) {
+            loader.classList.add('hidden');
+            setTimeout(() => { if (loader) loader.style.display = 'none'; }, 300);
+        }
+    } catch (e) {
         console.error('Boot loading error:', e);
         const spinner = document.querySelector('.spinner');
         const bootText = document.getElementById('bootLoaderText');
