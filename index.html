@@ -49,7 +49,6 @@
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; transition: background 0.25s ease, color 0.25s ease; }
 body { padding-bottom: 60px; min-height: 100vh; }
-body.menu-open { overflow: hidden; position: fixed; width: 100%; }
 
 header {
     background: var(--surface); border-bottom: 1px solid var(--border);
@@ -113,15 +112,7 @@ header {
 .menu-btn { background: transparent; border: 1px solid var(--border); color: var(--text); width: 36px; height: 36px; border-radius: var(--r); cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .menu-btn:hover { background: var(--surface-2); }
 .dropdown { position: relative; }
-.dropdown-content {
-    display: none; position: absolute; right: 0; top: 44px;
-    background: var(--surface); min-width: 260px;
-    border: 1px solid var(--border); border-radius: var(--r);
-    box-shadow: var(--shadow-lift); overflow-y: auto; overflow-x: hidden;
-    z-index: 200; max-height: calc(100vh - 80px);
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
-}
+.dropdown-content { display: none; position: absolute; right: 0; top: 44px; background: var(--surface); min-width: 260px; border: 1px solid var(--border); border-radius: var(--r); box-shadow: var(--shadow-lift); overflow: hidden; z-index: 200; }
 .dropdown-content.show { display: block; }
 .dropdown-section { padding: 6px 0; border-bottom: 1px solid var(--border); }
 .dropdown-section:last-child { border-bottom: none; }
@@ -149,12 +140,6 @@ header {
 .toggle-switch-mini .slider-mini::before { content: ''; position: absolute; left: 2px; top: 2px; width: 16px; height: 16px; background: #fff; border-radius: 50%; transition: 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
 .toggle-switch-mini input:checked + .slider-mini { background: var(--success); }
 .toggle-switch-mini input:checked + .slider-mini::before { transform: translateX(16px); }
-
-.menu-backdrop {
-    position: fixed; inset: 0; background: transparent;
-    z-index: 150; display: none;
-}
-.menu-backdrop.show { display: block; }
 
 .account-block { padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
 .account-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.95rem; overflow: hidden; flex-shrink: 0; }
@@ -194,51 +179,20 @@ header {
 .card-title strong { color: var(--text); font-weight: 700; }
 .card-meta { font-size: 0.72rem; color: var(--text-faint); font-weight: 500; }
 
-.todays-plan-card {
-    background: var(--accent-soft);
-    border: 1px solid rgba(37, 99, 235, 0.2);
-    border-radius: var(--r-lg);
-    padding: 12px 14px;
-    display: flex; align-items: center; gap: 12px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    user-select: none;
-}
-.todays-plan-card:hover { background: rgba(37, 99, 235, 0.12); border-color: var(--accent); }
-.todays-plan-card:active { transform: scale(0.99); }
-.todays-plan-icon {
-    width: 36px; height: 36px;
-    background: var(--accent); color: #fff;
-    border-radius: var(--r);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; font-size: 0.95rem;
-}
-.todays-plan-text { flex: 1; min-width: 0; }
-.todays-plan-label {
-    font-size: 0.62rem; text-transform: uppercase;
-    letter-spacing: 0.1em; color: var(--text-muted);
-    font-weight: 700;
-}
-.todays-plan-value {
-    font-size: 0.95rem; font-weight: 700; color: var(--text);
-    margin-top: 2px;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.todays-plan-arrow { color: var(--accent); font-size: 0.85rem; flex-shrink: 0; }
-
 .cancel-workout-btn {
-    display: none; align-items: center;
-    background: transparent; color: var(--danger);
-    border: 1px solid rgba(239, 68, 68, 0.4);
-    padding: 0 10px; height: 22px; border-radius: 4px;
-    font-family: 'Inter', sans-serif; font-size: 0.7rem; font-weight: 600;
-    letter-spacing: 0.02em;
+    display: none; align-items: center; gap: 6px;
+    background: var(--danger); color: #fff; border: 1px solid var(--danger);
+    padding: 4px 10px; height: 24px; border-radius: 6px;
+    font-family: 'Inter', sans-serif; font-size: 0.68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.04em;
     cursor: pointer; white-space: nowrap;
-    transition: all 0.15s ease;
+    transition: filter 0.15s ease, transform 0.1s ease;
+    box-shadow: 0 1px 4px rgba(239, 68, 68, 0.25);
 }
 .cancel-workout-btn.visible { display: inline-flex; }
-.cancel-workout-btn:hover { background: rgba(239, 68, 68, 0.08); border-color: var(--danger); }
-.cancel-workout-btn:active { transform: scale(0.96); }
+.cancel-workout-btn:hover { filter: brightness(1.08); }
+.cancel-workout-btn:active { transform: scale(0.95); }
+.cancel-workout-btn i { font-size: 0.65rem; }
 
 select, input[type="text"], input[type="number"], input[type="date"], input[type="email"], input[type="password"], textarea {
     width: 100%; padding: 10px 12px; height: 40px;
@@ -533,16 +487,6 @@ input::placeholder, textarea::placeholder { color: var(--text-faint); }
 .guest-banner-btn { padding: 6px 12px; background: var(--accent); color: #fff; border: none; border-radius: var(--r); font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
 .guest-banner-btn:hover { filter: brightness(1.05); }
 
-.workout-resume-banner {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(37, 99, 235, 0.12));
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    border-radius: var(--r-lg); padding: 10px 14px;
-    display: flex; align-items: center; gap: 10px;
-    font-size: 0.82rem; color: var(--text);
-    animation: viewIn 0.3s ease;
-}
-.workout-resume-banner i { color: var(--success); }
-
 @media (max-width: 480px) {
     .timer-box-value { font-size: 1.5rem; }
     .container { padding: 10px 12px 20px; }
@@ -558,7 +502,7 @@ input::placeholder, textarea::placeholder { color: var(--text-faint); }
     .history-summary-value { font-size: 1.15rem; }
     .page-title-slim h1 { font-size: 0.98rem; }
     .page-title-slim small { font-size: 0.66rem; }
-    .cancel-workout-btn { padding: 0 8px; font-size: 0.65rem; height: 20px; }
+    .cancel-workout-btn { padding: 3px 9px; font-size: 0.62rem; height: 22px; }
 }
 @media (max-width: 360px) { .brand-name { display: none; } }
 
@@ -660,15 +604,12 @@ input::placeholder, textarea::placeholder { color: var(--text-faint); }
 .schedule-mode-toggle { display: inline-flex; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 3px; gap: 2px; }
 .schedule-mode-btn { padding: 6px 14px; font-size: 0.78rem; font-weight: 600; font-family: inherit; background: transparent; border: none; color: var(--text-muted); cursor: pointer; border-radius: 3px; }
 .schedule-mode-btn.active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
-.today-schedule-banner { background: var(--accent-soft); border: 1px solid rgba(37, 99, 235, 0.2); border-radius: var(--r-lg); padding: 12px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.15s ease; }
-.today-schedule-banner:hover { background: rgba(37, 99, 235, 0.12); border-color: var(--accent); }
-.today-schedule-banner:active { transform: scale(0.99); }
+.today-schedule-banner { background: var(--accent-soft); border: 1px solid rgba(37, 99, 235, 0.2); border-radius: var(--r-lg); padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
 .today-schedule-icon { width: 36px; height: 36px; background: var(--accent); color: #fff; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .today-schedule-text { flex: 1; min-width: 0; }
 .today-schedule-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); font-weight: 600; }
 .today-schedule-list { font-size: 0.88rem; font-weight: 600; color: var(--text); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .today-schedule-empty { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; font-style: italic; }
-.today-schedule-arrow { color: var(--accent); font-size: 0.85rem; flex-shrink: 0; }
 
 .confirm-diff { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin-top: 10px; max-height: 240px; overflow-y: auto; }
 .confirm-diff-row { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; font-size: 0.82rem; border-bottom: 1px dashed var(--border); }
@@ -769,8 +710,6 @@ input::placeholder, textarea::placeholder { color: var(--text-faint); }
     </div>
 </header>
 
-<div class="menu-backdrop" id="menuBackdrop"></div>
-
 <div class="container">
 
     <div class="view active" id="loggerView">
@@ -798,7 +737,9 @@ input::placeholder, textarea::placeholder { color: var(--text-faint); }
             <div class="card-head">
                 <div class="card-title">
                     <span><strong>Workout</strong> Tracker</span>
-                    <button class="cancel-workout-btn" id="cancelWorkoutBtn" onclick="cancelWorkout()" title="Cancel current workout">Cancel</button>
+                    <button class="cancel-workout-btn" id="cancelWorkoutBtn" onclick="cancelWorkout()" title="Cancel current workout">
+                        <i class="fa-solid fa-xmark"></i> Cancel Workout
+                    </button>
                 </div>
                 <span class="card-meta" id="sessionStatus">Not started</span>
             </div>
@@ -1202,7 +1143,7 @@ input::placeholder, textarea::placeholder { color: var(--text-faint); }
 
 if ('serviceWorker' in navigator) {
     const swCode = `
-        const CACHE = 'fitpulse-v5';
+        const CACHE = 'fitpulse-v4';
         self.addEventListener('install', e => self.skipWaiting());
         self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
         self.addEventListener('fetch', e => {
@@ -1226,7 +1167,7 @@ function showInstallButton() { if (isStandalone()) return; installBtn.classList.
 function hideInstallButton() { installBtn.classList.remove('visible'); if (menuInstallItem) menuInstallItem.style.display = 'none'; }
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstallPrompt = e; showInstallButton(); });
 async function triggerInstall() {
-    closeMenu();
+    document.getElementById('dropdownMenu').classList.remove('show');
     if (!deferredInstallPrompt) {
         const ua = navigator.userAgent.toLowerCase();
         if (/iphone|ipad|ipod/.test(ua)) toast('On iOS: tap Share → Add to Home Screen');
@@ -1253,8 +1194,6 @@ const DAY_NAMES_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Frid
 const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const REST_PRESETS = [30, 45, 60, 90, 120, 180, 240, 300];
 
-const WORKOUT_PERSIST_KEY = 'fp_active_workout_v1';
-
 function withTimeout(promise, ms, label) {
     return new Promise((resolve) => {
         let done = false;
@@ -1268,7 +1207,7 @@ function withTimeout(promise, ms, label) {
 const state = {
     currentExercise: "", exercises: [], exerciseRows: [], sessions: [],
     currentView: 'logger',
-    activeSession: { running: false, startedAt: null, sessionSeconds: 0, sessionInterval: null, sets: [], pausedAt: null, accumulatedPause: 0 },
+    activeSession: { running: false, startedAt: null, sessionSeconds: 0, sessionInterval: null, sets: [] },
     activeSet: { running: false, startedAt: null, seconds: 0, interval: null, lastDuration: 0, lastStartedAt: null },
     rest: {
         defaultSeconds: 60, autoStart: true, soundEnabled: true, warningSeconds: 10,
@@ -1283,9 +1222,7 @@ const state = {
     exManager: { editingName: null, draggingId: null, draft: null },
     schedule: { current: { 0:[], 1:[], 2:[], 3:[], 4:[], 5:[], 6:[] }, draft: { 0:[], 1:[], 2:[], 3:[], 4:[], 5:[], 6:[] }, mode: 'view' },
     auth: { user: null, isGuest: true, ready: false },
-    soundMaster: true,
-    menuOpen: false,
-    initialized: false
+    soundMaster: true
 };
 
 const GUEST_KEYS = {
@@ -1296,158 +1233,6 @@ const GUEST_KEYS = {
 function gGet(k, def) { try { return JSON.parse(localStorage.getItem(k)) ?? def; } catch(e){ return def; } }
 function gSet(k, v) { localStorage.setItem(k, JSON.stringify(v)); }
 function gNextId() { let n = parseInt(localStorage.getItem(GUEST_KEYS.nextId) || '1'); localStorage.setItem(GUEST_KEYS.nextId, String(n+1)); return n; }
-
-function persistActiveWorkout() {
-    try {
-        const s = state.activeSession;
-        const set = state.activeSet;
-        const r = state.rest;
-        const hasAnything = s.running || s.sessionSeconds > 0 || s.sets.length > 0 || set.running || r.running;
-        if (!hasAnything) {
-            localStorage.removeItem(WORKOUT_PERSIST_KEY);
-            return;
-        }
-        const payload = {
-            ts: Date.now(),
-            currentExercise: state.currentExercise,
-            session: {
-                running: s.running,
-                startedAt: s.startedAt,
-                sessionSeconds: s.sessionSeconds,
-                sets: s.sets,
-                runningSince: s.running ? Date.now() : null
-            },
-            set: {
-                running: set.running,
-                startedAt: set.startedAt,
-                seconds: set.seconds,
-                lastDuration: set.lastDuration,
-                lastStartedAt: set.lastStartedAt,
-                runningSince: set.running ? Date.now() : null
-            },
-            rest: {
-                running: r.running,
-                secondsLeft: r.secondsLeft,
-                totalSeconds: r.totalSeconds,
-                warningPlayed: r.warningPlayed,
-                runningSince: r.running ? Date.now() : null
-            }
-        };
-        localStorage.setItem(WORKOUT_PERSIST_KEY, JSON.stringify(payload));
-    } catch (e) { console.warn('persist failed', e); }
-}
-
-function clearPersistedWorkout() {
-    try { localStorage.removeItem(WORKOUT_PERSIST_KEY); } catch(e){}
-}
-
-function restoreActiveWorkout() {
-    try {
-        const raw = localStorage.getItem(WORKOUT_PERSIST_KEY);
-        if (!raw) return false;
-        const p = JSON.parse(raw);
-        if (!p || !p.session) return false;
-        const ageHours = (Date.now() - p.ts) / 3600000;
-        if (ageHours > 12) { clearPersistedWorkout(); return false; }
-
-        if (p.currentExercise && state.exercises.includes(p.currentExercise)) {
-            state.currentExercise = p.currentExercise;
-            const sel = document.getElementById('exerciseSelect');
-            if (sel) sel.value = p.currentExercise;
-        }
-
-        const s = state.activeSession;
-        s.startedAt = p.session.startedAt;
-        s.sets = p.session.sets || [];
-        s.sessionSeconds = p.session.sessionSeconds || 0;
-        if (p.session.running && p.session.runningSince) {
-            const elapsedAway = Math.floor((Date.now() - p.session.runningSince) / 1000);
-            s.sessionSeconds += elapsedAway;
-            s.running = true;
-        } else {
-            s.running = false;
-        }
-
-        const set = state.activeSet;
-        set.lastDuration = p.set.lastDuration || 0;
-        set.lastStartedAt = p.set.lastStartedAt;
-        if (p.set.running && p.set.runningSince) {
-            const elapsedAway = Math.floor((Date.now() - p.set.runningSince) / 1000);
-            set.seconds = (p.set.seconds || 0) + elapsedAway;
-            set.startedAt = p.set.startedAt;
-            set.running = true;
-        } else {
-            set.running = false;
-            set.seconds = 0;
-        }
-
-        const r = state.rest;
-        if (p.rest && p.rest.running && p.rest.runningSince) {
-            const elapsedAway = Math.floor((Date.now() - p.rest.runningSince) / 1000);
-            const remaining = (p.rest.secondsLeft || 0) - elapsedAway;
-            if (remaining > 0) {
-                r.totalSeconds = p.rest.totalSeconds || state.rest.defaultSeconds;
-                r.secondsLeft = remaining;
-                r.warningPlayed = p.rest.warningPlayed || remaining <= state.rest.warningSeconds;
-                r.endPlayed = false;
-                r.startedAt = Date.now() - (r.totalSeconds - remaining) * 1000;
-                r.running = true;
-                showRestOverlay();
-                if (r.interval) clearInterval(r.interval);
-                tickRest();
-                r.interval = setInterval(tickRest, 1000);
-            }
-        }
-
-        applyRestoredUI();
-        return true;
-    } catch (e) { console.warn('restore failed', e); clearPersistedWorkout(); return false; }
-}
-
-function applyRestoredUI() {
-    const s = state.activeSession;
-    const set = state.activeSet;
-    document.getElementById('sessionTimer').innerText = fmtTime(s.sessionSeconds);
-    document.getElementById('setTimer').innerText = fmtTime(set.seconds);
-    if (s.running) {
-        document.getElementById('sessionTimerBox').classList.add('live');
-        document.getElementById('sessionStatus').innerText = 'Running…';
-        document.getElementById('sessionBtnLabel').innerText = 'Pause Workout';
-        document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-pause';
-        if (s.sessionInterval) clearInterval(s.sessionInterval);
-        s.sessionInterval = setInterval(() => { s.sessionSeconds++; document.getElementById('sessionTimer').innerText = fmtTime(s.sessionSeconds); persistActiveWorkout(); }, 1000);
-    } else if (s.sessionSeconds > 0) {
-        document.getElementById('sessionStatus').innerText = 'Paused';
-        document.getElementById('sessionBtnLabel').innerText = 'Resume Workout';
-        document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-play';
-    }
-    if (set.running) {
-        document.getElementById('setTimerBox').classList.add('live-set');
-        document.getElementById('setBtnLabel').innerText = 'Stop Set';
-        document.getElementById('setBtn').querySelector('i').className = 'fa-solid fa-stop';
-        if (set.interval) clearInterval(set.interval);
-        set.interval = setInterval(() => { set.seconds++; document.getElementById('setTimer').innerText = fmtTime(set.seconds); persistActiveWorkout(); }, 1000);
-    }
-    const hasSession = s.running || s.sessionSeconds > 0 || s.sets.length > 0;
-    document.getElementById('setBtn').disabled = !hasSession;
-    document.getElementById('completeBtn').disabled = !hasSession;
-    renderActiveSets();
-    updateCancelWorkoutVisibility();
-    if (hasSession || set.running) showResumeBanner();
-}
-
-function showResumeBanner() {
-    const guest = document.getElementById('guestBanner');
-    if (!guest) return;
-    const existing = document.getElementById('workoutResumeBanner');
-    if (existing) return;
-    const banner = document.createElement('div');
-    banner.id = 'workoutResumeBanner';
-    banner.className = 'workout-resume-banner';
-    banner.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>Workout restored from your previous session.</span>`;
-    guest.parentNode.insertBefore(banner, guest.nextSibling);
-    setTimeout(() => { banner.style.transition = 'opacity 0.4s ease'; banner.style.opacity = '0'; setTimeout(() => banner.remove(), 400); }, 4000);
-}
 
 const DB = {
     async getExercises() {
@@ -1660,28 +1445,54 @@ const DB = {
         return local || fallback;
     },
     async saveRestSettings(payload) {
-        gSet(GUEST_KEYS.restSettings, payload);
-        if (state.auth.isGuest || !state.auth.user) return { ok: true };
-        try {
-            const dbPayload = {
-                user_id: state.auth.user.id,
-                exercise: null,
-                default_seconds: payload.default_seconds,
-                auto_start: payload.auto_start,
-                sound_enabled: payload.sound_enabled,
-                warning_seconds: payload.warning_seconds,
-                updated_at: new Date().toISOString()
-            };
-            const { error: delErr } = await sb.from('rest_timer_settings').delete().eq('user_id', state.auth.user.id).is('exercise', null);
-            if (delErr) { console.error('[Delete Error]', delErr); return { ok: false, error: delErr }; }
-            const { data, error: insErr } = await sb.from('rest_timer_settings').insert([dbPayload]).select();
-            if (insErr) { console.error('[Insert Error]', insErr); return { ok: false, error: insErr }; }
-            return { ok: true };
-        } catch (e) { console.error('[Exception]', e); return { ok: false, error: e }; }
+    gSet(GUEST_KEYS.restSettings, payload);
+    if (state.auth.isGuest || !state.auth.user) return { ok: true };
+    
+    try {
+        const dbPayload = {
+            user_id: state.auth.user.id,
+            exercise: null,
+            default_seconds: payload.default_seconds,
+            auto_start: payload.auto_start,
+            sound_enabled: payload.sound_enabled,
+            warning_seconds: payload.warning_seconds,
+            updated_at: new Date().toISOString()
+        };
+
+        // Delete any existing global row first, then insert fresh
+        // This avoids upsert conflict issues with partial unique indexes
+        const { error: delErr } = await sb
+            .from('rest_timer_settings')
+            .delete()
+            .eq('user_id', state.auth.user.id)
+            .is('exercise', null);
+        
+        if (delErr) {
+            console.error('[Delete Error]', delErr);
+            return { ok: false, error: delErr };
+        }
+
+        const { data, error: insErr } = await sb
+            .from('rest_timer_settings')
+            .insert([dbPayload])
+            .select();
+        
+        if (insErr) {
+            console.error('[Insert Error]', insErr);
+            return { ok: false, error: insErr };
+        }
+        
+        console.log('[Rest Settings Saved]', data);
+        return { ok: true };
+    } catch (e) {
+        console.error('[Exception]', e);
+        return { ok: false, error: e };
     }
+}
+
 };
 
-function openAuthModal() { closeMenu(); openModal('authModal'); }
+function openAuthModal() { document.getElementById('dropdownMenu').classList.remove('show'); openModal('authModal'); }
 function continueAsGuest() { closeModal('authModal'); localStorage.setItem('fp_chose_guest', '1'); toast('Continuing as Guest'); }
 
 async function signInWithGoogle() {
@@ -1696,7 +1507,7 @@ async function signInWithGoogle() {
 }
 
 async function signOut() {
-    closeMenu();
+    document.getElementById('dropdownMenu').classList.remove('show');
     confirmAction('Sign Out?', 'You will return to Guest mode. Your cloud data stays safe.', async () => {
         await sb.auth.signOut();
         localStorage.setItem('fp_chose_guest', '1');
@@ -1787,7 +1598,7 @@ function toggleDarkMode() {
     const cur = document.documentElement.getAttribute('data-theme');
     const next = cur === 'dark' ? 'light' : 'dark';
     applyTheme(next); localStorage.setItem('fp_theme', next);
-    closeMenu();
+    document.getElementById('dropdownMenu').classList.remove('show');
     if (state.currentView === 'analytics') renderAnalytics();
     if (state.currentView === 'respectDetail') renderRespectDetail();
 }
@@ -1826,41 +1637,8 @@ async function loadSoundMaster() {
     applySoundMasterUI();
 }
 
-function openMenu() {
-    if (state.menuOpen) return;
-    state.menuOpen = true;
-    document.getElementById('dropdownMenu').classList.add('show');
-    document.getElementById('menuBackdrop').classList.add('show');
-    document.body.classList.add('menu-open');
-    history.pushState({ menu: true, view: state.currentView }, '', location.href);
-}
-function closeMenu() {
-    if (!state.menuOpen) {
-        document.getElementById('dropdownMenu').classList.remove('show');
-        document.getElementById('menuBackdrop').classList.remove('show');
-        document.body.classList.remove('menu-open');
-        return;
-    }
-    state.menuOpen = false;
-    document.getElementById('dropdownMenu').classList.remove('show');
-    document.getElementById('menuBackdrop').classList.remove('show');
-    document.body.classList.remove('menu-open');
-    if (history.state && history.state.menu) {
-        history.back();
-    }
-}
-function toggleMenu(e) {
-    if (e) e.stopPropagation();
-    haptic(HAPTIC.light);
-    if (state.menuOpen) closeMenu(); else openMenu();
-}
-document.addEventListener('click', e => {
-    if (!state.menuOpen) return;
-    if (!e.target.closest('.menu-btn') && !e.target.closest('.user-chip') && !e.target.closest('.dropdown-content')) {
-        closeMenu();
-    }
-});
-document.getElementById('menuBackdrop').addEventListener('click', () => closeMenu());
+function toggleMenu(e) { e.stopPropagation(); haptic(HAPTIC.light); document.getElementById('dropdownMenu').classList.toggle('show'); }
+document.addEventListener('click', e => { if (!e.target.closest('.menu-btn') && !e.target.closest('.user-chip') && !e.target.closest('.dropdown-content')) document.getElementById('dropdownMenu').classList.remove('show'); });
 
 const VALID_VIEWS = ['logger','history','analytics','respect','respectDetail','schedule','exercises'];
 function applyView(view) {
@@ -1869,7 +1647,7 @@ function applyView(view) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     const target = document.getElementById(view + 'View'); if (target) target.classList.add('active');
     document.querySelectorAll('.dropdown-item[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === view));
-    if (state.menuOpen) closeMenu();
+    document.getElementById('dropdownMenu').classList.remove('show');
     if (view === 'history') renderHistory();
     if (view === 'analytics') renderAnalytics();
     if (view === 'respect') renderRespectList();
@@ -1880,7 +1658,6 @@ function applyView(view) {
 }
 function switchView(view) {
     haptic(HAPTIC.light);
-    if (state.menuOpen) closeMenu();
     if (state.currentView === view) return;
     if (state.currentView === 'schedule' && state.schedule.mode === 'edit' && hasScheduleChanges()) {
         confirmAction('Discard changes?', 'You have unsaved schedule edits.', () => { cancelScheduleEdit(true); _doSwitch(view); }); return;
@@ -1895,13 +1672,6 @@ function _doSwitch(view) {
     history.pushState({ view }, '', url); applyView(view);
 }
 window.addEventListener('popstate', e => {
-    if (state.menuOpen) {
-        state.menuOpen = false;
-        document.getElementById('dropdownMenu').classList.remove('show');
-        document.getElementById('menuBackdrop').classList.remove('show');
-        document.body.classList.remove('menu-open');
-        return;
-    }
     const params = new URLSearchParams(location.search);
     const view = (e.state && e.state.view) || params.get('view') || 'logger';
     applyView(view);
@@ -1936,10 +1706,7 @@ document.querySelectorAll('.modal-overlay').forEach(ov => {
     ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('active'); });
 });
 document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-        if (state.menuOpen) { closeMenu(); return; }
-        document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
-    }
+    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
 });
 
 function fmtTime(s) { const m = Math.floor(s/60).toString().padStart(2,'0'); const r = (s%60).toString().padStart(2,'0'); return `${m}:${r}`; }
@@ -1982,7 +1749,7 @@ function updateRestStripUI() {
     if (strip) strip.classList.toggle('disabled', !state.rest.autoStart);
 }
 function openRestSettingsModal() {
-    haptic(HAPTIC.light); closeMenu();
+    haptic(HAPTIC.light); document.getElementById('dropdownMenu').classList.remove('show');
     const presetsHost = document.getElementById('restPresets');
     presetsHost.innerHTML = '';
     REST_PRESETS.forEach(s => {
@@ -2058,7 +1825,6 @@ function startRest(customSeconds) {
     if (state.rest.interval) clearInterval(state.rest.interval);
     tickRest();
     state.rest.interval = setInterval(tickRest, 1000);
-    persistActiveWorkout();
 }
 function tickRest() {
     if (!state.rest.running || state.rest.paused) return;
@@ -2095,14 +1861,12 @@ function tickRest() {
         return;
     }
     state.rest.secondsLeft--;
-    persistActiveWorkout();
 }
 function finishRest() {
     clearInterval(state.rest.interval); state.rest.interval = null;
     state.rest.running = false;
     releaseWakeLock();
     hideRestOverlay();
-    persistActiveWorkout();
     toast('Rest done — next set!');
 }
 function skipRest() {
@@ -2115,7 +1879,6 @@ function skipRest() {
     if (state.activeSession.running || state.activeSession.sessionSeconds > 0) {
         setTimeout(() => { if (!state.activeSet.running) startSet(); }, 200);
     }
-    persistActiveWorkout();
 }
 function cancelRest() {
     haptic(HAPTIC.light);
@@ -2123,7 +1886,6 @@ function cancelRest() {
     state.rest.running = false;
     releaseWakeLock();
     hideRestOverlay();
-    persistActiveWorkout();
     toast('Rest cancelled');
 }
 function adjustRest(delta) {
@@ -2143,17 +1905,11 @@ function hideRestOverlay() {
     overlay.classList.remove('active', 'warning');
 }
 document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-        persistActiveWorkout();
-    } else {
-        if (state.rest.running && state.rest.startedAt) {
-            const elapsed = Math.floor((Date.now() - state.rest.startedAt) / 1000);
-            state.rest.secondsLeft = Math.max(0, state.rest.totalSeconds - elapsed);
-        }
+    if (state.rest.running && !document.hidden) {
+        const elapsed = Math.floor((Date.now() - state.rest.startedAt) / 1000);
+        state.rest.secondsLeft = Math.max(0, state.rest.totalSeconds - elapsed);
     }
 });
-window.addEventListener('beforeunload', persistActiveWorkout);
-window.addEventListener('pagehide', persistActiveWorkout);
 
 async function loadBirthday() {
     const v = await DB.getSetting('birthday');
@@ -2161,7 +1917,7 @@ async function loadBirthday() {
     renderAgeBadge(); if (state.birthday) startAgeTicker();
 }
 function openBirthdayModal() {
-    haptic(HAPTIC.light); closeMenu();
+    haptic(HAPTIC.light); document.getElementById('dropdownMenu').classList.remove('show');
     const input = document.getElementById('birthdayInput');
     input.value = state.birthday || ''; input.max = new Date().toISOString().split('T')[0];
     openModal('birthdayModal');
@@ -2217,7 +1973,6 @@ function cancelWorkout() {
         clearInterval(state.activeSession.sessionInterval);
         clearInterval(state.activeSet.interval);
         resetSession();
-        clearPersistedWorkout();
         toast('Workout cancelled');
     });
 }
@@ -2234,14 +1989,14 @@ function startSession() {
     state.activeSession.startedAt = new Date().toISOString();
     state.activeSession.sessionSeconds = 0; state.activeSession.sets = [];
     if (state.activeSession.sessionInterval) clearInterval(state.activeSession.sessionInterval);
-    state.activeSession.sessionInterval = setInterval(() => { state.activeSession.sessionSeconds++; document.getElementById('sessionTimer').innerText = fmtTime(state.activeSession.sessionSeconds); persistActiveWorkout(); }, 1000);
+    state.activeSession.sessionInterval = setInterval(() => { state.activeSession.sessionSeconds++; document.getElementById('sessionTimer').innerText = fmtTime(state.activeSession.sessionSeconds); }, 1000);
     document.getElementById('sessionTimerBox').classList.add('live');
     document.getElementById('sessionStatus').innerText = 'Running…';
     document.getElementById('sessionBtnLabel').innerText = 'Pause Workout';
     document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-pause';
     document.getElementById('setBtn').disabled = false;
     document.getElementById('completeBtn').disabled = false;
-    renderActiveSets(); updateCancelWorkoutVisibility(); persistActiveWorkout(); toast('Workout started');
+    renderActiveSets(); updateCancelWorkoutVisibility(); toast('Workout started');
 }
 function pauseSession() {
     clearInterval(state.activeSession.sessionInterval);
@@ -2251,19 +2006,17 @@ function pauseSession() {
     document.getElementById('sessionBtnLabel').innerText = 'Resume Workout';
     document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-play';
     updateCancelWorkoutVisibility();
-    persistActiveWorkout();
     toast('Workout paused');
 }
 function resumeSession() {
     state.activeSession.running = true;
     if (state.activeSession.sessionInterval) clearInterval(state.activeSession.sessionInterval);
-    state.activeSession.sessionInterval = setInterval(() => { state.activeSession.sessionSeconds++; document.getElementById('sessionTimer').innerText = fmtTime(state.activeSession.sessionSeconds); persistActiveWorkout(); }, 1000);
+    state.activeSession.sessionInterval = setInterval(() => { state.activeSession.sessionSeconds++; document.getElementById('sessionTimer').innerText = fmtTime(state.activeSession.sessionSeconds); }, 1000);
     document.getElementById('sessionTimerBox').classList.add('live');
     document.getElementById('sessionStatus').innerText = 'Running…';
     document.getElementById('sessionBtnLabel').innerText = 'Pause Workout';
     document.getElementById('sessionBtn').querySelector('i').className = 'fa-solid fa-pause';
     updateCancelWorkoutVisibility();
-    persistActiveWorkout();
 }
 function toggleSet() { haptic(HAPTIC.medium); if (!state.activeSet.running) startSet(); else stopSet(); }
 function startSet() {
@@ -2276,13 +2029,12 @@ function startSet() {
     state.activeSet.startedAt = new Date().toISOString(); state.activeSet.seconds = 0;
     document.getElementById('setTimer').innerText = '00:00';
     if (state.activeSet.interval) clearInterval(state.activeSet.interval);
-    state.activeSet.interval = setInterval(() => { state.activeSet.seconds++; document.getElementById('setTimer').innerText = fmtTime(state.activeSet.seconds); persistActiveWorkout(); }, 1000);
+    state.activeSet.interval = setInterval(() => { state.activeSet.seconds++; document.getElementById('setTimer').innerText = fmtTime(state.activeSet.seconds); }, 1000);
     document.getElementById('setTimerBox').classList.add('live-set');
     document.getElementById('setBtnLabel').innerText = 'Stop Set';
     document.getElementById('setBtn').querySelector('i').className = 'fa-solid fa-stop';
     document.getElementById('setBtn').disabled = false; playSFX('start');
     updateCancelWorkoutVisibility();
-    persistActiveWorkout();
 }
 function stopSet() {
     if (!state.activeSet.running) return;
@@ -2296,7 +2048,6 @@ function stopSet() {
     playSFX('stop');
     document.getElementById('modalTimeDisplay').innerText = fmtTime(state.activeSet.lastDuration);
     document.getElementById('repsInput').value = '';
-    persistActiveWorkout();
     openModal('repsModal');
     setTimeout(() => document.getElementById('repsInput').focus(), 100);
 }
@@ -2306,12 +2057,12 @@ function saveSet() {
     haptic(HAPTIC.success);
     state.activeSession.sets.push({ reps, durationSec: state.activeSet.lastDuration, startedAt: state.activeSet.lastStartedAt, endedAt: new Date().toISOString() });
     closeModal('repsModal'); document.getElementById('setTimer').innerText = '00:00';
-    renderActiveSets(); updateCancelWorkoutVisibility(); persistActiveWorkout(); toast(`Set logged — ${reps} reps`);
+    renderActiveSets(); updateCancelWorkoutVisibility(); toast(`Set logged — ${reps} reps`);
     if (state.rest.autoStart) {
         setTimeout(() => startRest(), 300);
     }
 }
-function deleteActiveSet(idx) { haptic(HAPTIC.delete); state.activeSession.sets.splice(idx, 1); renderActiveSets(); updateCancelWorkoutVisibility(); persistActiveWorkout(); }
+function deleteActiveSet(idx) { haptic(HAPTIC.delete); state.activeSession.sets.splice(idx, 1); renderActiveSets(); updateCancelWorkoutVisibility(); }
 function renderActiveSets() {
     const list = document.getElementById('setsList');
     const summary = document.getElementById('setsSummary');
@@ -2352,11 +2103,11 @@ async function completeWorkout() {
         const { error: setsErr } = await DB.insertSets(setsPayload);
         if (setsErr) { console.error(setsErr); toast('Sets save warning'); }
         haptic(HAPTIC.success); toast('Workout saved!');
-        resetSession(); clearPersistedWorkout(); await loadSessions();
+        resetSession(); await loadSessions();
     });
 }
 function resetSession() {
-    state.activeSession = { running:false, startedAt:null, sessionSeconds:0, sessionInterval:null, sets:[], pausedAt:null, accumulatedPause:0 };
+    state.activeSession = { running:false, startedAt:null, sessionSeconds:0, sessionInterval:null, sets:[] };
     state.activeSet = { running:false, startedAt:null, seconds:0, interval:null, lastDuration:0, lastStartedAt:null };
     document.getElementById('sessionTimer').innerText = '00:00';
     document.getElementById('setTimer').innerText = '00:00';
@@ -2374,7 +2125,7 @@ function resetSession() {
 }
 
 function openAddExerciseModal() {
-    haptic(HAPTIC.light); closeMenu();
+    haptic(HAPTIC.light); document.getElementById('dropdownMenu').classList.remove('show');
     document.getElementById('newExerciseName').value = ''; openModal('addExModal');
     setTimeout(() => document.getElementById('newExerciseName').focus(), 100);
 }
@@ -2400,7 +2151,6 @@ async function saveNewExercise() {
 function handleExerciseChange() {
     state.currentExercise = document.getElementById('exerciseSelect').value || "";
     document.getElementById('currentExLabel').innerText = state.currentExercise ? `— ${state.currentExercise}` : "";
-    persistActiveWorkout();
 }
 function rebuildExerciseSelect() {
     const sel = document.getElementById('exerciseSelect');
@@ -2538,115 +2288,116 @@ function reviewExerciseChanges() {
     summary.innerHTML = `<i class="fa-solid fa-circle-info"></i> ${renames.length} renamed · ${deletes.length} deleted${reordered ? ' · order changed' : ''}`;
     diffHost.appendChild(summary);
     renames.forEach(r => { const row = document.createElement('div'); row.className = 'confirm-diff-row'; row.innerHTML = `<div class="confirm-diff-day">RENAME</div><div class="confirm-diff-changes"><span class="confirm-diff-remove">− ${escapeHtml(r._origName)}</span><span class="confirm-diff-add">+ ${escapeHtml(r.name)}</span></div>`; diffHost.appendChild(row); });
-    deletes.forEach(d => { const row = document.createElement('div'); row.className = 'confirm-diff-row'; row.innerHTML = `<div class="confirm-diff-day">DELETE</div><div class="confirm-diff-changes"><span class="confirm-diff-remove">− ${escapeHtml(d._origName)} (and history)</span></div>`; diffHost.appendChild(row); });
-    if (reordered) { const live = draft.filter(d => !d._deleted); const row = document.createElement('div'); row.className = 'confirm-diff-row'; row.innerHTML = `<div class="confirm-diff-day">ORDER</div><div class="confirm-diff-changes"><span class="confirm-diff-add">${live.map(d => escapeHtml(d.name)).join(' → ')}</span></div>`; diffHost.appendChild(row); }
-    openModal('exConfirmModal');
+    deletes.forEach(d => { const row = document.createElement('div'); row.className = 'confirm-diff-row'; row.innerHTML = `<div class="confirm-diff-day">DELETE</div><div class="confirm-diff-changes"><span class="confirm-diff-remove">− ${escapeHtml(d._origName)} (and history)</span></div>`; diffHost.appendChild(row); });
+    if (reordered) { const live = draft.filter(d => !d._deleted); const row = document.createElement('div'); row.className = 'confirm-diff-row'; row.innerHTML = `<div class="confirm-diff-day">ORDER</div><div class="confirm-diff-changes"><span class="confirm-diff-add">${live.map(d => escapeHtml(d.name)).join(' → ')}</span></div>`; diffHost.appendChild(row); }
+    openModal('exConfirmModal');
 }
 async function applyExerciseChanges() {
-    haptic(HAPTIC.success); closeModal('exConfirmModal');
-    const draft = state.exManager.draft; if (!draft) return;
-    try {
-        const deletes = draft.filter(d => d._deleted);
-        for (const d of deletes) { await DB.deleteExerciseCascade(d._origName); await DB.deleteExercise(d.id); }
-        const renames = draft.filter(d => !d._deleted && d.name !== d._origName);
-        for (const r of renames) {
-            const { error } = await DB.updateExercise(r.id, { name: r.name });
-            if (error) { console.warn(error); toast(`Rename "${r._origName}" failed`); continue; }
-            await DB.renameExerciseCascade(r._origName, r.name);
-        }
-        const alive = draft.filter(d => !d._deleted);
-        for (let i = 0; i < alive.length; i++) await DB.updateExercise(alive[i].id, { sort_order: i });
-        const oldCurrent = state.currentExercise;
-        state.exManager.draft = null; state.exManager.editingName = null;
-        await loadExercises(); await loadSessions(); await loadSchedule();
-        const renamedMap = {}; renames.forEach(r => { renamedMap[r._origName] = r.name; });
-        if (renamedMap[oldCurrent]) state.currentExercise = renamedMap[oldCurrent];
-        if (deletes.some(d => d._origName === state.currentExercise)) state.currentExercise = state.exercises[0] || '';
-        if (state.history.filterEx !== 'ALL' && renamedMap[state.history.filterEx]) state.history.filterEx = renamedMap[state.history.filterEx];
-        if (renamedMap[state.trend.filterEx]) state.trend.filterEx = renamedMap[state.trend.filterEx];
-        rebuildExerciseSelect(); handleExerciseChange(); renderExerciseManager(); renderTodayScheduleBanner();
-        toast('Saved ✓');
-    } catch (e) { console.error(e); toast('Save failed'); }
+    haptic(HAPTIC.success); closeModal('exConfirmModal');
+    const draft = state.exManager.draft; if (!draft) return;
+    try {
+        const deletes = draft.filter(d => d._deleted);
+        for (const d of deletes) { await DB.deleteExerciseCascade(d._origName); await DB.deleteExercise(d.id); }
+        const renames = draft.filter(d => !d._deleted && d.name !== d._origName);
+        for (const r of renames) {
+            const { error } = await DB.updateExercise(r.id, { name: r.name });
+            if (error) { console.warn(error); toast(`Rename "${r._origName}" failed`); continue; }
+            await DB.renameExerciseCascade(r._origName, r.name);
+        }
+        const alive = draft.filter(d => !d._deleted);
+        for (let i = 0; i < alive.length; i++) await DB.updateExercise(alive[i].id, { sort_order: i });
+        const oldCurrent = state.currentExercise;
+        state.exManager.draft = null; state.exManager.editingName = null;
+        await loadExercises(); await loadSessions(); await loadSchedule();
+        const renamedMap = {}; renames.forEach(r => { renamedMap[r._origName] = r.name; });
+        if (renamedMap[oldCurrent]) state.currentExercise = renamedMap[oldCurrent];
+        if (deletes.some(d => d._origName === state.currentExercise)) state.currentExercise = state.exercises[0] || '';
+        if (state.history.filterEx !== 'ALL' && renamedMap[state.history.filterEx]) state.history.filterEx = renamedMap[state.history.filterEx];
+        if (renamedMap[state.trend.filterEx]) state.trend.filterEx = renamedMap[state.trend.filterEx];
+        rebuildExerciseSelect(); handleExerciseChange(); renderExerciseManager(); renderTodayScheduleBanner();
+        toast('Saved ✓');
+    } catch (e) { console.error(e); toast('Save failed'); }
 }
 
 function computeHistorySummary() {
-    const now = new Date();
-    const yesterday = new Date(now); yesterday.setDate(yesterday.getDate() - 1);
-    const weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate() - 7);
-    let todaySec = 0, yesterdaySec = 0, weekSec = 0, totalSec = 0;
-    let todayCount = 0, yesterdayCount = 0;
-    state.sessions.forEach(s => {
-        const dur = s.total_duration || 0;
-        const d = new Date(s.started_at);
-        totalSec += dur;
-        if (d >= weekAgo) weekSec += dur;
-        if (isSameDay(d, now)) { todaySec += dur; todayCount++; }
-        if (isSameDay(d, yesterday)) { yesterdaySec += dur; yesterdayCount++; }
-    });
-    return { todaySec, yesterdaySec, weekSec, totalSec, todayCount, yesterdayCount };
+    const now = new Date();
+    const yesterday = new Date(now); yesterday.setDate(yesterday.getDate() - 1);
+    const weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate() - 7);
+    let todaySec = 0, yesterdaySec = 0, weekSec = 0, totalSec = 0;
+    let todayCount = 0, yesterdayCount = 0;
+    state.sessions.forEach(s => {
+        const dur = s.total_duration || 0;
+        const d = new Date(s.started_at);
+        totalSec += dur;
+        if (d >= weekAgo) weekSec += dur;
+        if (isSameDay(d, now)) { todaySec += dur; todayCount++; }
+        if (isSameDay(d, yesterday)) { yesterdaySec += dur; yesterdayCount++; }
+    });
+    return { todaySec, yesterdaySec, weekSec, totalSec, todayCount, yesterdayCount };
 }
 function renderHistorySummary() {
-    const host = document.getElementById('historySummary');
-    if (!host) return;
-    const s = computeHistorySummary();
-    const today = formatHoursMinutes(s.todaySec);
-    const yest = formatHoursMinutes(s.yesterdaySec);
-    const week = formatHoursMinutes(s.weekSec);
-    host.innerHTML = `
-        <div class="history-summary-cell">
-            <div class="history-summary-label">Today</div>
-            <div class="history-summary-value accent">${today.display}</div>
-            <div class="history-summary-sub">${s.todayCount} session${s.todayCount === 1 ? '' : 's'}</div>
-        </div>
-        <div class="history-summary-cell">
-            <div class="history-summary-label">Yesterday</div>
-            <div class="history-summary-value">${yest.display}</div>
-            <div class="history-summary-sub">${s.yesterdayCount} session${s.yesterdayCount === 1 ? '' : 's'}</div>
-        </div>
-        <div class="history-summary-cell">
-            <div class="history-summary-label">Last 7 Days</div>
-            <div class="history-summary-value">${week.display}</div>
-            <div class="history-summary-sub">${formatHoursMinutes(s.totalSec).display} all time</div>
-        </div>
-    `;
+    const host = document.getElementById('historySummary');
+    if (!host) return;
+    const s = computeHistorySummary();
+    const today = formatHoursMinutes(s.todaySec);
+    const yest = formatHoursMinutes(s.yesterdaySec);
+    const week = formatHoursMinutes(s.weekSec);
+    host.innerHTML = `
+        <div class="history-summary-cell">
+            <div class="history-summary-label">Today</div>
+            <div class="history-summary-value accent">${today.display}</div>
+            <div class="history-summary-sub">${s.todayCount} session${s.todayCount === 1 ? '' : 's'}</div>
+        </div>
+        <div class="history-summary-cell">
+            <div class="history-summary-label">Yesterday</div>
+            <div class="history-summary-value">${yest.display}</div>
+            <div class="history-summary-sub">${s.yesterdayCount} session${s.yesterdayCount === 1 ? '' : 's'}</div>
+        </div>
+        <div class="history-summary-cell">
+            <div class="history-summary-label">Last 7 Days</div>
+            <div class="history-summary-value">${week.display}</div>
+            <div class="history-summary-sub">${formatHoursMinutes(s.totalSec).display} all time</div>
+        </div>
+    `;
 }
 function renderHistory() {
-    renderHistorySummary();
-    const fHost = document.getElementById('historyExFilter'); fHost.innerHTML = '';
-    const all = document.createElement('button');
-    all.className = 'filter-pill' + (state.history.filterEx === 'ALL' ? ' active' : '');
-    all.innerText = 'All'; all.onclick = () => { haptic(HAPTIC.light); state.history.filterEx = 'ALL'; renderHistory(); };
-    fHost.appendChild(all);
-    state.exercises.forEach(ex => {
-        const b = document.createElement('button');
-        b.className = 'filter-pill' + (state.history.filterEx === ex ? ' active' : '');
-        b.innerText = ex; b.onclick = () => { haptic(HAPTIC.light); state.history.filterEx = ex; renderHistory(); };
-        fHost.appendChild(b);
-    });
-    const list = document.getElementById('historyList'); list.innerHTML = '';
-    document.getElementById('historyExLabel').innerText = state.history.filterEx === 'ALL' ? 'All exercises' : state.history.filterEx;
-    const filtered = state.sessions.filter(s => state.history.filterEx === 'ALL' || s.exercise === state.history.filterEx).sort((a,b) => new Date(b.started_at) - new Date(a.started_at));
-    if (!filtered.length) { list.innerHTML = '<div class="card"><div class="empty-state">No workout history yet.</div></div>'; return; }
-    filtered.forEach(sess => {
-        const card = document.createElement('div'); card.className = 'history-card';
-        const setRows = (sess.sets || []).map((s,i) => `<div class="hist-set-row"><div class="left"><span class="num">#${i+1}</span><span class="reps">${s.reps} reps</span><span class="dur">${fmtTime(s.duration||0)}</span></div><span class="dur" style="color:var(--text-faint)">${s.started_at?fmtClock(s.started_at):''}</span></div>`).join('');
-        card.innerHTML = `<div class="hist-head"><div><div class="hist-date">${escapeHtml(sess.exercise)} · ${fmtDate(sess.started_at)}</div><div class="hist-time">${fmtClock(sess.started_at)} → ${fmtClock(sess.ended_at)}</div></div><button class="hist-delete" onclick="deleteSession(${sess.id})"><i class="fa-regular fa-trash-can"></i></button></div><div class="hist-stats"><div class="hist-stat"><div class="hist-stat-val">${sess.total_sets}</div><div class="hist-stat-label">Sets</div></div><div class="hist-stat"><div class="hist-stat-val">${sess.total_reps}</div><div class="hist-stat-label">Reps</div></div><div class="hist-stat"><div class="hist-stat-val">${fmtTime(sess.total_duration)}</div><div class="hist-stat-label">Duration</div></div></div><div class="hist-sets">${setRows || '<div class="empty-state">No set details</div>'}</div>`;
-        list.appendChild(card);
-    });
+    renderHistorySummary();
+    const fHost = document.getElementById('historyExFilter'); fHost.innerHTML = '';
+    const all = document.createElement('button');
+    all.className = 'filter-pill' + (state.history.filterEx === 'ALL' ? ' active' : '');
+    all.innerText = 'All'; all.onclick = () => { haptic(HAPTIC.light); state.history.filterEx = 'ALL'; renderHistory(); };
+    fHost.appendChild(all);
+    state.exercises.forEach(ex => {
+        const b = document.createElement('button');
+        b.className = 'filter-pill' + (state.history.filterEx === ex ? ' active' : '');
+        b.innerText = ex; b.onclick = () => { haptic(HAPTIC.light); state.history.filterEx = ex; renderHistory(); };
+        fHost.appendChild(b);
+    });
+    const list = document.getElementById('historyList'); list.innerHTML = '';
+    document.getElementById('historyExLabel').innerText = state.history.filterEx === 'ALL' ? 'All exercises' : state.history.filterEx;
+    const filtered = state.sessions.filter(s => state.history.filterEx === 'ALL' || s.exercise === state.history.filterEx).sort((a,b) => new Date(b.started_at) - new Date(a.started_at));
+    if (!filtered.length) { list.innerHTML = '<div class="card"><div class="empty-state">No workout history yet.</div></div>'; return; }
+    filtered.forEach(sess => {
+        const card = document.createElement('div'); card.className = 'history-card';
+        const setRows = (sess.sets || []).map((s,i) => `<div class="hist-set-row"><div class="left"><span class="num">#${i+1}</span><span class="reps">${s.reps} reps</span><span class="dur">${fmtTime(s.duration||0)}</span></div><span class="dur" style="color:var(--text-faint)">${s.started_at?fmtClock(s.started_at):''}</span></div>`).join('');
+        card.innerHTML = `<div class="hist-head"><div><div class="hist-date">${escapeHtml(sess.exercise)} · ${fmtDate(sess.started_at)}</div><div class="hist-time">${fmtClock(sess.started_at)} → ${fmtClock(sess.ended_at)}</div></div><button class="hist-delete" onclick="deleteSession(${sess.id})"><i class="fa-regular fa-trash-can"></i></button></div><div class="hist-stats"><div class="hist-stat"><div class="hist-stat-val">${sess.total_sets}</div><div class="hist-stat-label">Sets</div></div><div class="hist-stat"><div class="hist-stat-val">${sess.total_reps}</div><div class="hist-stat-label">Reps</div></div><div class="hist-stat"><div class="hist-stat-val">${fmtTime(sess.total_duration)}</div><div class="hist-stat-label">Duration</div></div></div><div class="hist-sets">${setRows || '<div class="empty-state">No set details</div>'}</div>`;
+        list.appendChild(card);
+    });
 }
 function deleteSession(id) {
-    haptic(HAPTIC.delete);
-    confirmAction('Delete Session', 'Remove this workout permanently?', async () => {
-        await DB.deleteSession(id);
-        state.sessions = state.sessions.filter(s => s.id !== id);
-        renderHistory(); toast('Session deleted');
-    });
+    haptic(HAPTIC.delete);
+    confirmAction('Delete Session', 'Remove this workout permanently?', async () => {
+        await DB.deleteSession(id);
+        state.sessions = state.sessions.filter(s => s.id !== id);
+        renderHistory(); toast('Session deleted');
+    });
 }
 async function loadSessions() { state.sessions = await DB.getSessions() || []; }
 
 function renderAnalytics() {
-    const fHost = document.getElementById('analyticsExFilter'); fHost.innerHTML = '';
-    if (!state.exercises.length) { fHost.innerHTML = '<div class="empty-state" style="padding:6px">Add an exercise first.</div>'; updateTrendCard([]); renderTrendChart([]); return; }
+    const fHost = document.getElementById('analyticsExFilter'); fHost.innerHTML = '';
+    if (!state.exercises
+.length) { fHost.innerHTML = '<div class="empty-state" style="padding:6px">Add an exercise first.</div>'; updateTrendCard([]); renderTrendChart([]); return; }
     if (!state.trend.filterEx || !state.exercises.includes(state.trend.filterEx)) state.trend.filterEx = state.exercises[0];
     state.exercises.forEach(ex => {
         const b = document.createElement('button');
@@ -2701,7 +2452,7 @@ function renderTrendChart(sessions) {
 
 const START_KEYWORDS = ['start','begin','go','shuru','shuroo','shuru kar','shuru karo','shuroo karo','chal','chalo','chalu','chalu kar','set start','start set'];
 const STOP_KEYWORDS = ['stop','end','finish','ruk','ruko','rukja','ruk ja','chup','chup kar','band','band kar','band karo','set stop','stop set'];
-const VOSK_MODEL_URL = '[https://ccoreilly.github.io/vosk-browser/models/vosk-model-small-en-us-0.15.tar.gz](https://ccoreilly.github.io/vosk-browser/models/vosk-model-small-en-us-0.15.tar.gz)';
+const VOSK_MODEL_URL = 'https://ccoreilly.github.io/vosk-browser/models/vosk-model-small-en-us-0.15.tar.gz';
 state.voice.model = null; state.voice.recognizer = null; state.voice.audioCtx = null; state.voice.micStream = null; state.voice.workletNode = null; state.voice.loading = false;
 
 function matchesAny(transcript, keywords) {
@@ -2780,7 +2531,7 @@ function toggleVoiceRecognition() {
     else { state.voice.shouldRun = true; toast('Voice on'); startVoskListening(); }
 }
 
-function toggleVoiceFromMenu() { closeMenu(); toggleVoiceRecognition(); }
+function toggleVoiceFromMenu() { document.getElementById('dropdownMenu').classList.remove('show'); toggleVoiceRecognition(); }
 
 function updateVoiceUI() {
     const strip = document.getElementById('voiceStrip');
@@ -3235,7 +2986,7 @@ function renderTodayScheduleBanner() {
     const today = new Date().getDay();
     const todayExs = state.schedule.current[today] || [];
     if (!todayExs.length) { host.innerHTML = ''; return; }
-    host.innerHTML = `<div class="today-schedule-banner" onclick="switchView('schedule')"><div class="today-schedule-icon"><i class="fa-solid fa-calendar-day"></i></div><div class="today-schedule-text"><div class="today-schedule-label">Today's Plan</div><div class="today-schedule-list">${todayExs.map(escapeHtml).join(', ')}</div></div><div class="today-schedule-arrow"><i class="fa-solid fa-chevron-right"></i></div></div>`;
+    host.innerHTML = `<div class="today-schedule-banner"><div class="today-schedule-icon"><i class="fa-solid fa-calendar-day"></i></div><div class="today-schedule-text"><div class="today-schedule-label">Today's Plan</div><div class="today-schedule-list">${todayExs.map(escapeHtml).join(', ')}</div></div></div>`;
 }
 
 async function init() {
@@ -3250,37 +3001,33 @@ async function init() {
 }
 
 async function initData() {
-    try {
-        updateAccountUI();
-        await loadSoundMaster();
-        await loadBirthday();
-        await loadRestSettings();
-        await loadExercises();
-        await loadSessions();
-        await loadSchedule();
-        await loadRespect();
-        initVoiceRecognition();
-        renderTodayScheduleBanner();
-        updateCancelWorkoutVisibility();
-        const params = new URLSearchParams(location.search); applyView(params.get('view') || 'logger');
-        const loader = document.getElementById('bootLoader');
-        if (loader) {
-            loader.classList.add('hidden');
-            setTimeout(() => { if (loader) loader.style.display = 'none'; }, 300);
-        }
-        if (restoreActiveWorkout()) {
-            console.log('[Fit Pulse] Restored active workout state.');
-        }
-        state.initialized = true;
-    } catch (e) {
-        console.error('Boot loading error:', e);
-        const spinner = document.querySelector('.spinner');
-        const bootText = document.getElementById('bootLoaderText');
-        const bootError = document.getElementById('bootError');
-        if (spinner) spinner.style.display = 'none';
-        if (bootText) bootText.style.display = 'none';
-        if (bootError) bootError.style.display = 'block';
-    }
+    try {
+        updateAccountUI();
+        await loadSoundMaster();
+        await loadBirthday();
+        await loadRestSettings();
+        await loadExercises();
+        await loadSessions();
+        await loadSchedule();
+        await loadRespect();
+        initVoiceRecognition();
+        renderTodayScheduleBanner();
+        updateCancelWorkoutVisibility();
+        const params = new URLSearchParams(location.search); applyView(params.get('view') || 'logger');
+        const loader = document.getElementById('bootLoader');
+        if (loader) {
+            loader.classList.add('hidden');
+            setTimeout(() => { if (loader) loader.style.display = 'none'; }, 300);
+        }
+    } catch (e) {
+        console.error('Boot loading error:', e);
+        const spinner = document.querySelector('.spinner');
+        const bootText = document.getElementById('bootLoaderText');
+        const bootError = document.getElementById('bootError');
+        if (spinner) spinner.style.display = 'none';
+        if (bootText) bootText.style.display = 'none';
+        if (bootError) bootError.style.display = 'block';
+    }
 }
 
 window.addEventListener('DOMContentLoaded', init);
