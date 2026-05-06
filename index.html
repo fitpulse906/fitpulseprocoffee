@@ -1821,23 +1821,23 @@ function renderExerciseManager() {
         item.className = 'ex-item';
         item.dataset.id = row.id;
 
-        const isEditing = state.exManager.editingName === row.id;
+        const isEditing = String(state.exManager.editingName) === String(row.id);
         const wasRenamed = row.name !== row._origName;
 
         const handleHtml = `<span class="ex-drag-handle" title="Drag to reorder"><i class="fa-solid fa-grip-lines"></i></span>`;
 
         const nameHtml = isEditing
             ? `<input type="text" class="ex-name-input" id="exNameInput_${row.id}" value="${escapeHtml(row.name)}" autocomplete="off" />`
-            : `<div class="ex-name" ondblclick="startRenameExercise(${row.id})">${escapeHtml(row.name)}${wasRenamed ? ' <span style="color:var(--warning);font-size:0.7rem;font-weight:600;">(edited)</span>' : ''}</div>`;
+            : `<div class="ex-name" ondblclick="startRenameExercise('${row.id}')">${escapeHtml(row.name)}${wasRenamed ? ' <span style="color:var(--warning);font-size:0.7rem;font-weight:600;">(edited)</span>' : ''}</div>`;
 
         const actionsHtml = isEditing
             ? `<div class="ex-actions-menu">
-                    <button class="ex-action-btn success" onclick="saveRenameExercise(${row.id})" title="OK"><i class="fa-solid fa-check"></i></button>
+                    <button class="ex-action-btn success" onclick="saveRenameExercise('${row.id}')" title="OK"><i class="fa-solid fa-check"></i></button>
                     <button class="ex-action-btn" onclick="cancelRenameExercise()" title="Cancel"><i class="fa-solid fa-xmark"></i></button>
                </div>`
             : `<div class="ex-actions-menu">
-                    <button class="ex-action-btn accent" onclick="startRenameExercise(${row.id})" title="Rename"><i class="fa-solid fa-pen"></i></button>
-                    <button class="ex-action-btn danger" onclick="deleteExerciseById(${row.id})" title="Delete"><i class="fa-regular fa-trash-can"></i></button>
+                    <button class="ex-action-btn accent" onclick="startRenameExercise('${row.id}')" title="Rename"><i class="fa-solid fa-pen"></i></button>
+                    <button class="ex-action-btn danger" onclick="deleteExerciseById('${row.id}')" title="Delete"><i class="fa-regular fa-trash-can"></i></button>
                </div>`;
 
         item.innerHTML = handleHtml + nameHtml + actionsHtml;
@@ -1916,19 +1916,23 @@ function renderExerciseManager() {
 function commitDomOrderToDraft() {
     const list = document.getElementById('exList');
     if (!list) return;
-    const ids = [...list.querySelectorAll('.ex-item')].map(el => parseInt(el.dataset.id));
+    
+    // Safely reads the IDs without converting them to broken numbers
+    const ids = [...list.querySelectorAll('.ex-item')].map(el => el.dataset.id);
     if (!ids.length) return;
+    
     const map = {};
-    state.exManager.draft.forEach(d => { map[d.id] = d; });
-    const liveReordered = ids.map(id => map[id]).filter(Boolean);
+    state.exManager.draft.forEach(d => { map[String(d.id)] = d; });
+    const liveReordered = ids.map(id => map[String(id)]).filter(Boolean);
     const deleted = state.exManager.draft.filter(d => d._deleted);
     state.exManager.draft = [...liveReordered, ...deleted];
+    
     updateExSaveButtons();
 }
 
 function startRenameExercise(id) {
     haptic(HAPTIC.light);
-    state.exManager.editingName = id;
+    state.exManager.editingName = String(id);
     renderExerciseManager();
 }
 
@@ -1942,13 +1946,15 @@ function saveRenameExercise(id) {
     const inp = document.getElementById('exNameInput_' + id);
     if (!inp) return;
     const newName = inp.value.trim();
-    const draftRow = state.exManager.draft.find(d => d.id === id);
+    
+    const draftRow = state.exManager.draft.find(d => String(d.id) === String(id));
     if (!draftRow) return;
     if (!newName) { toast('Name required'); return; }
     if (newName === draftRow.name) { state.exManager.editingName = null; renderExerciseManager(); return; }
-    // Check duplicate among ALIVE draft items (case insensitive)
-    const dup = state.exManager.draft.some(d => !d._deleted && d.id !== id && d.name.toLowerCase() === newName.toLowerCase());
+    
+    const dup = state.exManager.draft.some(d => !d._deleted && String(d.id) !== String(id) && d.name.toLowerCase() === newName.toLowerCase());
     if (dup) { toast('Name already exists'); return; }
+    
     haptic(HAPTIC.light);
     draftRow.name = newName;
     state.exManager.editingName = null;
@@ -1957,7 +1963,7 @@ function saveRenameExercise(id) {
 }
 
 function deleteExerciseById(id) {
-    const draftRow = state.exManager.draft.find(d => d.id === id);
+    const draftRow = state.exManager.draft.find(d => String(d.id) === String(id));
     if (!draftRow) return;
     haptic(HAPTIC.delete);
     confirmAction('Delete Exercise', `Mark "${draftRow.name}" for deletion? Click Save afterwards to confirm.`, () => {
@@ -1978,27 +1984,26 @@ function cancelExerciseChanges() {
 }
 
 function reviewExerciseChanges() {
-    haptic(HAPTIC.medium);
+    haptic(HAPTIC.medium);
     
-    if (state.exManager.editingName !== null) {
-        const inp = document.getElementById('exNameInput_' + state.exManager.editingName);
-        const draftRow = state.exManager.draft.find(d => d.id === state.exManager.editingName);
-        if (inp && draftRow && inp.value.trim()) draftRow.name = inp.value.trim();
-        state.exManager.editingName = null;
-        renderExerciseManager();
-    }
+    if (state.exManager.editingName !== null) {
+        const inp = document.getElementById('exNameInput_' + state.exManager.editingName);
+        const draftRow = state.exManager.draft.find(d => String(d.id) === String(state.exManager.editingName));
+        if (inp && draftRow && inp.value.trim()) draftRow.name = inp.value.trim();
+        state.exManager.editingName = null;
+        renderExerciseManager();
+    }
 
-    if (!hasExChanges()) { toast('No changes to save'); return; }
-    const diffHost = document.getElementById('exDiffContent');
-    diffHost.innerHTML = '';
+    if (!hasExChanges()) { toast('No changes to save'); return; }
+    const diffHost = document.getElementById('exDiffContent');
+    diffHost.innerHTML = '';
 
-    const draft = state.exManager.draft;
+    const draft = state.exManager.draft;
     const renames = draft.filter(d => !d._deleted && d.name !== d._origName);
     const deletes = draft.filter(d => d._deleted);
 
-    // Detect reorder
-    const liveIds = draft.filter(d => !d._deleted).map(d => d.id);
-    const savedIds = state.exerciseRows.map(r => r.id);
+    const liveIds = draft.filter(d => !d._deleted).map(d => String(d.id));
+    const savedIds = state.exerciseRows.map(r => String(r.id));
     let reordered = liveIds.length === savedIds.length;
     if (reordered) {
         reordered = false;
