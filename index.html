@@ -4,9 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Fit Pulse — Workout Tracker</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/vosk-browser@0.0.8/dist/vosk.js"></script>
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2563EB">
+    <meta name="description" content="Fit Pulse — Track your workouts, sets, reps, and habits with precision.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Fit Pulse">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- PWA Manifest (inline via data URI) -->
+    <link rel="manifest" id="manifestLink">
+
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%232563EB'/><path d='M104 36L60 108h28l-8 48 44-72H96l8-48z' fill='%23ffffff'/></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='40' fill='%232563EB'/><path d='M104 36L60 108h28l-8 48 44-72H96l8-48z' fill='%23ffffff'/></svg>">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vosk-browser@0.0.8/dist/vosk.js"></script>
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
@@ -78,6 +94,28 @@
         }
         .age-badge:hover { border-color: var(--border-strong); color: var(--text); }
         .age-badge.placeholder { color: var(--text-faint); font-family: 'Inter', sans-serif; font-weight: 500; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+        /* Install Button */
+        .install-btn {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #fff;
+            background: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: filter 0.15s ease, transform 0.1s ease;
+        }
+        .install-btn:hover { filter: brightness(1.08); }
+        .install-btn:active { transform: scale(0.96); }
+        .install-btn.visible { display: inline-flex; }
+        .install-btn i { font-size: 0.78rem; }
 
         .header-right { display: flex; align-items: center; gap: 10px; }
 
@@ -238,12 +276,14 @@
             header { padding: 12px 14px; }
             .brand { font-size: 1rem; gap: 8px; }
             .age-badge { font-size: 0.68rem; padding: 4px 8px; }
+            .install-btn { font-size: 0.7rem; padding: 5px 10px; }
+            .install-btn .install-btn-text { display: none; }
         }
         @media (max-width: 360px) {
             .brand-name { display: none; }
         }
 
-        /* ===== RESPECT YOURSELF (NEW SLIM CHECKBOX STYLE) ===== */
+        /* ===== RESPECT YOURSELF ===== */
         .respect-toolbar {
             display: flex;
             gap: 8px;
@@ -368,7 +408,6 @@
             text-overflow: ellipsis;
         }
 
-        /* Circular checkbox */
         .respect-check {
             width: 28px;
             height: 28px;
@@ -395,7 +434,6 @@
             opacity: 0.4;
         }
 
-        /* Action menu (edit/delete) — slides out when item clicked */
         .respect-actions-menu {
             display: none;
             gap: 6px;
@@ -448,6 +486,10 @@
         </div>
 
         <div class="header-right">
+            <button class="install-btn" id="installBtn" onclick="triggerInstall()" title="Install Fit Pulse as an app">
+                <i class="fa-solid fa-download"></i>
+                <span class="install-btn-text">Install</span>
+            </button>
             <div class="age-badge placeholder" id="respectBadge" onclick="openRespectView()" title="Respect Yourself">Respect Yourself</div>
             <div class="age-badge placeholder" id="ageBadge" onclick="openBirthdayModal()" title="Set your birthday">Set DOB</div>
             <div class="dropdown">
@@ -462,6 +504,7 @@
                     </div>
                     <div class="dropdown-section">
                         <div class="dropdown-label">Settings</div>
+                        <button class="dropdown-item" id="menuInstallItem" onclick="triggerInstall()" style="display:none;"><i class="fa-solid fa-download"></i> Install App</button>
                         <button class="dropdown-item" onclick="openBirthdayModal()"><i class="fa-solid fa-cake-candles"></i> Set Birthday</button>
                         <button class="dropdown-item" onclick="toggleVoiceFromMenu()"><i class="fa-solid fa-microphone" id="voiceMenuIcon"></i> Voice Control <span class="item-suffix" id="voiceMenuStatus">OFF</span></button>
                         <button class="dropdown-item" onclick="toggleDarkMode()"><i class="fa-solid fa-moon" id="themeIcon"></i> <span id="themeLabel">Dark Mode</span></button>
@@ -677,9 +720,127 @@
 
     <script>
     /* ============================================
-       FIT PULSE — Slim Checkbox Edition
+       FIT PULSE — Installable PWA Edition
        ============================================ */
 
+    /* ============================================
+       PWA INSTALL — Manifest, Service Worker, A2HS
+       ============================================ */
+    (function buildManifest() {
+        const iconSvg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='96' fill='#2563EB'/><path d='M280 96L160 288h76l-22 128 120-192H256l24-128z' fill='#ffffff'/></svg>`;
+        const iconUrl = 'data:image/svg+xml;utf8,' + encodeURIComponent(iconSvg);
+        const manifest = {
+            name: "Fit Pulse — Workout Tracker",
+            short_name: "Fit Pulse",
+            description: "Track workouts, sets, reps and habits with precision.",
+            start_url: ".",
+            scope: ".",
+            display: "standalone",
+            orientation: "portrait",
+            background_color: "#FAFBFC",
+            theme_color: "#2563EB",
+            icons: [
+                { src: iconUrl, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
+                { src: iconUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+            ]
+        };
+        const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+        const url = URL.createObjectURL(blob);
+        document.getElementById('manifestLink').setAttribute('href', url);
+    })();
+
+    /* Register a minimal service worker (required for installability on Chrome) */
+    if ('serviceWorker' in navigator) {
+        const swCode = `
+            const CACHE = 'fitpulse-v1';
+            self.addEventListener('install', e => { self.skipWaiting(); });
+            self.addEventListener('activate', e => { e.waitUntil(self.clients.claim()); });
+            self.addEventListener('fetch', e => {
+                if (e.request.method !== 'GET') return;
+                e.respondWith(
+                    fetch(e.request).then(res => {
+                        const copy = res.clone();
+                        caches.open(CACHE).then(c => { try { c.put(e.request, copy); } catch(err){} });
+                        return res;
+                    }).catch(() => caches.match(e.request))
+                );
+            });
+        `;
+        const swBlob = new Blob([swCode], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(swBlob);
+        navigator.serviceWorker.register(swUrl).catch(err => console.warn('SW registration failed:', err));
+    }
+
+    /* Install Prompt Handling */
+    let deferredInstallPrompt = null;
+    const installBtn = document.getElementById('installBtn');
+    const menuInstallItem = document.getElementById('menuInstallItem');
+
+    function isStandalone() {
+        return window.matchMedia('(display-mode: standalone)').matches
+            || window.navigator.standalone === true
+            || document.referrer.startsWith('android-app://');
+    }
+
+    function showInstallButton() {
+        if (isStandalone()) return;
+        installBtn.classList.add('visible');
+        if (menuInstallItem) menuInstallItem.style.display = 'flex';
+    }
+
+    function hideInstallButton() {
+        installBtn.classList.remove('visible');
+        if (menuInstallItem) menuInstallItem.style.display = 'none';
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        showInstallButton();
+    });
+
+    async function triggerInstall() {
+        document.getElementById('dropdownMenu').classList.remove('show');
+        if (!deferredInstallPrompt) {
+            const ua = navigator.userAgent.toLowerCase();
+            if (/iphone|ipad|ipod/.test(ua)) {
+                toast('On iOS: tap Share → Add to Home Screen');
+            } else if (isStandalone()) {
+                toast('App is already installed');
+                hideInstallButton();
+            } else {
+                toast('Install option not yet available — try again shortly');
+            }
+            return;
+        }
+        try {
+            deferredInstallPrompt.prompt();
+            const choice = await deferredInstallPrompt.userChoice;
+            if (choice && choice.outcome === 'accepted') {
+                toast('Installing Fit Pulse…');
+                hideInstallButton();
+            } else {
+                toast('Install dismissed');
+            }
+        } catch (err) {
+            console.warn('Install prompt failed:', err);
+        } finally {
+            deferredInstallPrompt = null;
+        }
+    }
+
+    window.addEventListener('appinstalled', () => {
+        deferredInstallPrompt = null;
+        hideInstallButton();
+        toast('Fit Pulse installed ✓');
+    });
+
+    /* If already installed (running as PWA), keep button hidden */
+    if (isStandalone()) hideInstallButton();
+
+    /* ============================================
+       CORE APP STATE
+       ============================================ */
     const { createClient } = supabase;
     const supabaseUrl = 'https://honnodwiwqtcbyasogli.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhvbm5vZHdpd3F0Y2J5YXNvZ2xpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5OTAwNzYsImV4cCI6MjA5MzU2NjA3Nn0.bamnNenXtnsAsV27JFVNyGI6a4JP-nJxBxQwNRFP99E';
@@ -816,7 +977,6 @@
        BIRTHDAY (saved to Supabase + localStorage)
        ============================================ */
     async function loadBirthday() {
-        // Try Supabase first
         try {
             const { data, error } = await sb.from('user_settings').select('value').eq('key', 'birthday').maybeSingle();
             if (!error && data && data.value) {
@@ -827,7 +987,6 @@
                 return;
             }
         } catch (e) { console.warn('Supabase birthday load failed, fallback to local', e); }
-        // Fallback localStorage
         const dob = localStorage.getItem('fp_birthday');
         state.birthday = dob || null;
         renderAgeBadge();
@@ -1228,7 +1387,7 @@
     }
 
     /* ============================================
-       VOICE (unchanged Vosk)
+       VOICE (Vosk)
        ============================================ */
     const START_KEYWORDS = ['start','begin','go','shuru','shuroo','shuru kar','shuru karo','shuroo karo','chal','chalo','chalu','chalu kar','set start','start set'];
     const STOP_KEYWORDS = ['stop','end','finish','ruk','ruko','rukja','ruk ja','chup','chup kar','band','band kar','band karo','set stop','stop set'];
@@ -1326,7 +1485,7 @@
     }
 
     /* ============================================
-       RESPECT YOURSELF — SLIM CHECKBOX EDITION
+       RESPECT YOURSELF
        ============================================ */
     const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
@@ -1421,7 +1580,6 @@
                 ${checkboxHtml}
             `;
 
-            // Click on the item itself toggles expand (showing edit/delete)
             div.addEventListener('click', (e) => {
                 if (state.respect.reorderMode) return;
                 if (e.target.closest('.respect-check')) return;
@@ -1431,7 +1589,6 @@
                 renderRespectList();
             });
 
-            // Drag-and-drop reorder
             if (state.respect.reorderMode) {
                 div.draggable = true;
                 div.addEventListener('dragstart', e => { div.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
@@ -1489,7 +1646,6 @@
         const t = todayISO();
         const existing = state.respect.logs.find(l => l.item_id === itemId && l.log_date === t);
         if (existing && existing.status === 'winner') {
-            // Uncheck: delete log
             await sb.from('respect_logs').delete().eq('id', existing.id);
             toast('Unmarked');
         } else if (existing) {
@@ -1503,7 +1659,6 @@
         renderRespectList();
     }
 
-    /* ----- Add / Edit ----- */
     function openRespectItemModal() {
         haptic(HAPTIC.light);
         state.respect.editingId = null;
@@ -1585,7 +1740,6 @@
         });
     }
 
-    /* ----- Detail View ----- */
     function openRespectDetail(id) {
         haptic(HAPTIC.light);
         state.respect.currentDetailId = id;
