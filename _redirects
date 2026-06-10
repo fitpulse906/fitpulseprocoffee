@@ -3,5 +3,5 @@
 /schedule /index.html 200
 /exercises /index.html 200
 /logger /index.html 200
-/* /index.html 200
 /legal/* /legal/:splat 200
+/* /index.html 200
